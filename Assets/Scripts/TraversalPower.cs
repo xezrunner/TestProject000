@@ -1,0 +1,174 @@
+using System;
+using Fragsurf.Movement;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public enum TraversalPowerState { None = 0, Aiming = 1, Casting = 2 }
+
+public class TraversalPower : MonoBehaviour {
+    [SerializeField] Transform playerTransform;
+    [SerializeField] Rigidbody playerRigidbody;
+    [SerializeField] SurfCharacter playerSurfCharacter;
+    [SerializeField] Transform playerCameraTransform;
+    [SerializeField] PlayerAiming playerAiming;
+
+    [SerializeField] GameObject aimingGameObject;
+    [SerializeField] Transform aimingTransform;
+    [SerializeField] Rigidbody aimingRigidbody;
+
+    public TraversalPowerState state = TraversalPowerState.None;
+
+    public float aimRadius = 10.0f;
+
+    void Start() {
+        aimingGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+        var collider = aimingGameObject.GetComponent<BoxCollider>();
+        collider.size = playerSurfCharacter.colliderSize;
+
+        aimingTransform = aimingGameObject.GetComponent<Transform>();
+        aimingTransform.localScale = collider.size;
+        aimingTransform.localPosition = new Vector3(900,900,900);
+
+        aimingRigidbody = aimingGameObject.AddComponent<Rigidbody>();
+        aimingRigidbody.useGravity = false;
+        aimingRigidbody.isKinematic = true;
+    }
+
+    void OnDrawGizmos() {
+        if (state == TraversalPowerState.Aiming) {
+            Gizmos.DrawWireSphere(lastAimingStartPos, aimRadius);
+            Gizmos.DrawLine(lastAimingStartPos, lastAimingTargetPos);
+            Gizmos.DrawWireCube(lastAimingTargetPos, playerSurfCharacter.colliderSize);
+        }
+    }
+
+    Vector3 lastAimingStartPos;
+    Vector3 lastAimingTargetPos;
+    public void INPUT_SecondaryAttack(InputAction.CallbackContext context) {
+        if (!context.action.WasPerformedThisFrame()) return;
+
+        var previousAimingState = state;
+
+        state = previousAimingState != TraversalPowerState.Aiming ? TraversalPowerState.Aiming : TraversalPowerState.None;
+
+        // TEMP:
+        // TODO: Cancellation
+        if (previousAimingState == TraversalPowerState.Aiming && state == TraversalPowerState.None) Cast();
+    }
+
+    void UPDATE_Aiming() {
+        if (state != TraversalPowerState.Aiming) return;
+
+        lastAimingStartPos = transform.position;
+        //Debug.Log($"Aiming state: {state} at {lastAimingStartPos}");
+
+        // Raycast to destination:
+        if (true) {
+            RaycastHit hit;
+            bool didHit = Physics.Raycast(lastAimingStartPos, playerCameraTransform.forward, out hit, aimRadius);
+            var hits = Physics.BoxCastAll(lastAimingStartPos, playerSurfCharacter.colliderSize / 2, playerCameraTransform.forward, Quaternion.identity, aimRadius, LayerMask.GetMask(new string[] { "Default" }));
+
+            if (didHit) {
+                //Vector3 hitPoint = hit.point + Vector3.Scale(hit.normal, playerSurfCharacter.colliderSize / 2);
+                Vector3 hitPoint = hit.point;
+
+                hitPoint += Vector3.Scale(hit.normal, playerSurfCharacter.colliderSize / 2);
+
+                String debugText = $"hits: ";
+                foreach (var rayhit in hits) {
+                    if (rayhit.collider == hit.collider) continue;
+
+                    var distance = (rayhit.point - hit.point) + (playerSurfCharacter.colliderSize / 2);
+                    //hitPoint += Vector3.Scale(distance, rayhit.normal);
+                    hitPoint += Vector3.Scale(distance, rayhit.normal);
+                    debugText += $"{rayhit.collider.name}(normal: {rayhit.normal}, dist: {distance}), ";
+                }
+                Debug.Log(debugText);
+                lastAimingTargetPos = hitPoint;
+            } else {
+                // TODO: spherical!
+                lastAimingTargetPos = lastAimingStartPos + (playerCameraTransform.forward * aimRadius);
+            }
+        } 
+        // Aiming rigidbody:
+        else {
+            //aimingRigidbody.MovePosition(playerTransform.position + (playerCameraTransform.forward * aimRadius));
+            aimingRigidbody.MovePosition(playerTransform.position);
+            aimingRigidbody.AddForce(playerCameraTransform.forward * aimRadius, ForceMode.Impulse);
+            lastAimingTargetPos = aimingTransform.position;
+        }
+    }
+
+    int castingCollisions = 0;
+
+    // TODO: parameters
+    public void Cast() {
+        Debug.Log("Casting!");
+
+        casting_t = 0;
+        castingCollisions = 0;
+
+        playerRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+        playerSurfCharacter.moveConfig.enableMovement = false;
+        playerAiming.enableBodyRotations = false;
+
+        state = TraversalPowerState.Casting;
+    }
+
+    void CAST_Reset() {
+        state = TraversalPowerState.None;
+
+        playerRigidbody.interpolation = RigidbodyInterpolation.None;
+        playerSurfCharacter.moveConfig.enableMovement = true;
+        playerAiming.enableBodyRotations = true;
+    }
+
+    Vector3 newPlayerPos;
+    float casting_t;
+    void UPDATE_Casting() {
+        if (state != TraversalPowerState.Casting) return;
+
+        newPlayerPos = Vector3.Lerp(lastAimingStartPos, lastAimingTargetPos, casting_t);
+        if (castingCollisions == 0) {
+
+        }
+        playerRigidbody.MovePosition(newPlayerPos);
+
+        casting_t += Time.deltaTime;
+        if (casting_t > 1f) CAST_Reset();
+    }
+
+    void FIXEDUPDATE_Casting() {
+        if (state != TraversalPowerState.Casting) return;
+    }
+
+    void OnCollisionEnter(Collision other) {
+        Debug.Log($"Collision with: {other.gameObject.name}");
+        ++castingCollisions;
+    }
+
+    void OnCollisionExit(Collision other) {
+        Debug.Log($"No longer colliding with: {other.gameObject.name}");
+        --castingCollisions;
+    }
+
+    void FixedUpdate() {
+        //FIXEDUPDATE_Casting();
+        UPDATE_Casting();
+    }
+
+    void Update() {
+        UPDATE_Aiming();
+
+        if (Keyboard.current?.fKey.wasPressedThisFrame ?? false) {
+            Time.timeScale = (Time.timeScale == 1f ? 0.25f : 1f); 
+            Debug.Log($"Timescale changed: {Time.timeScale}");
+        }
+
+        if (Keyboard.current?.gKey.wasPressedThisFrame ?? false) {
+            playerSurfCharacter.moveConfig.enableGravity = !playerSurfCharacter.moveConfig.enableGravity;
+            Debug.Log($"enableGravity: {playerSurfCharacter.moveConfig.enableGravity}");
+        }
+    }
+}
