@@ -60,7 +60,10 @@ namespace Fragsurf.Movement {
                     jumping = false;
 
                 // apply gravity
-                if (_surfer.groundObject == null) {
+                // NOTE: TraversalPower disables movement. 
+                // We want to keep velocity, but don't apply/modify it (especially gravity) during traversal.
+                // TODO: this should apply more generally to all axes of velocity/movement as well!
+                if (_config.enableMovement && _surfer.groundObject == null) {
 
                     if (_config.enableGravity) _surfer.moveData.velocity.y -= (_surfer.moveData.gravityFactor * _config.gravity * _deltaTime);
                     _surfer.moveData.velocity.y += _surfer.baseVelocity.y * _deltaTime;
@@ -230,6 +233,7 @@ namespace Fragsurf.Movement {
 
                     // Apply the Y-movement from slopes
                     _surfer.moveData.velocity.y = yVelocityNew * (_wishDir.y < 0f ? 1.2f : 1.0f);
+
                     float removableYVelocity = _surfer.moveData.velocity.y - yVelocityNew;
 
                 }

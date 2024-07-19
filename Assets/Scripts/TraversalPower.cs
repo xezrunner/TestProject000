@@ -1,7 +1,10 @@
 using System;
+using System.Text;
 using Fragsurf.Movement;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 public enum TraversalPowerState { None = 0, Aiming = 1, Casting = 2 }
 
@@ -15,6 +18,10 @@ public class TraversalPower : MonoBehaviour {
     [SerializeField] GameObject aimingGameObject;
     [SerializeField] Transform aimingTransform;
     [SerializeField] Rigidbody aimingRigidbody;
+
+    [SerializeField] TraversalPowerEffectsController effectsController;
+
+    [SerializeField] TMP_Text playerDebugText;
 
     public TraversalPowerState state = TraversalPowerState.None;
 
@@ -113,6 +120,8 @@ public class TraversalPower : MonoBehaviour {
         playerSurfCharacter.moveConfig.enableMovement = false;
         playerAiming.enableBodyRotations = false;
 
+        effectsController?.StartEffect();
+
         state = TraversalPowerState.Casting;
     }
 
@@ -158,8 +167,21 @@ public class TraversalPower : MonoBehaviour {
         UPDATE_Casting();
     }
 
+    void UPDATE_DebugText() {
+        if (!playerDebugText) return;
+
+        StringBuilder text = new StringBuilder();
+        text.AppendLine($"Player debug");
+        text.AppendLine($"  - velocity (x): {playerSurfCharacter.moveData.velocity.x}m");
+        text.AppendLine($"  - velocity (y): {playerSurfCharacter.moveData.velocity.y}m");
+        text.AppendLine($"  - velocity (z): {playerSurfCharacter.moveData.velocity.z}m");
+
+        playerDebugText.SetText(text);
+    }
+
     void Update() {
         UPDATE_Aiming();
+        UPDATE_DebugText();
 
         if (Keyboard.current?.fKey.wasPressedThisFrame ?? false) {
             Time.timeScale = (Time.timeScale == 1f ? 0.25f : 1f); 
