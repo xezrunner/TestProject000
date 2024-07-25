@@ -60,8 +60,8 @@ namespace Fragsurf.Movement {
                     jumping = false;
 
                 // apply gravity
-                // NOTE: TraversalPower disables movement. 
-                // We want to keep velocity, but don't apply/modify it (especially gravity) during traversal.
+                // NOTE: TransversalPower disables movement. 
+                // We want to keep velocity, but don't apply/modify it (especially gravity) during transversal.
                 // TODO: this should apply more generally to all axes of velocity/movement as well!
                 if (_config.enableMovement && _surfer.groundObject == null) {
 

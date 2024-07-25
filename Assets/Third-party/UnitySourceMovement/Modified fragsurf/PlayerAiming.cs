@@ -6,7 +6,7 @@ public class PlayerAiming : MonoBehaviour
 	public Transform bodyTransform;
 
     [Header("General")]
-    // This is for TraversalPower.  -xezrunner
+    // This is for TransversalPower.  -xezrunner
     public bool enableBodyRotations = true;
 
 	[Header("Sensitivity")]
