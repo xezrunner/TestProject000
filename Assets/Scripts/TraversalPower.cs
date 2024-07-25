@@ -107,15 +107,11 @@ public class TraversalPower : MonoBehaviour {
         }
     }
 
-    // TODO: remove!
-    int castingCollisions = 0;
-
     // TODO: parameters
     public void Cast() {
         Debug.Log("Casting!");
 
         casting_t = 0;
-        castingCollisions = 0;
 
         // TODO: refactor into something like TransversalStateControl?
         // The list of stuff we want to disable/enable could change, don't duplicate!
@@ -160,9 +156,6 @@ public class TraversalPower : MonoBehaviour {
         if (state != TraversalPowerState.Casting) return;
 
         newPlayerPos = Vector3.Lerp(lastAimingStartPos, lastAimingTargetPos, casting_t);
-        if (castingCollisions == 0) {
-
-        }
         playerRigidbody.MovePosition(newPlayerPos);
 
         casting_t += Time.deltaTime;
@@ -173,14 +166,13 @@ public class TraversalPower : MonoBehaviour {
         if (state != TraversalPowerState.Casting) return;
     }
 
+    // TODO: no longer needed (?)
     void OnCollisionEnter(Collision other) {
         Debug.Log($"Collision with: {other.gameObject.name}");
-        ++castingCollisions;
     }
 
     void OnCollisionExit(Collision other) {
         Debug.Log($"No longer colliding with: {other.gameObject.name}");
-        --castingCollisions;
     }
 
     void FixedUpdate() {
