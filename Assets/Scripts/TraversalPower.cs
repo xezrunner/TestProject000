@@ -107,6 +107,7 @@ public class TraversalPower : MonoBehaviour {
         }
     }
 
+    // TODO: remove!
     int castingCollisions = 0;
 
     // TODO: parameters
@@ -116,6 +117,8 @@ public class TraversalPower : MonoBehaviour {
         casting_t = 0;
         castingCollisions = 0;
 
+        // TODO: refactor into something like TransversalStateControl?
+        // The list of stuff we want to disable/enable could change, don't duplicate!
         playerRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         playerSurfCharacter.moveConfig.enableMovement = false;
         playerAiming.enableBodyRotations = false;
@@ -128,7 +131,25 @@ public class TraversalPower : MonoBehaviour {
     void CAST_Reset() {
         state = TraversalPowerState.None;
 
+        // TODO: changing our Rigidbody interpolation to None right when we arrive at the destination
+        // causes a visual 'snap', as our position gets set to the final destination.
+        // Possible solutions:
+        //   - Since the Source movement we use requires the interpolation to be None (as they roll their own),
+        //     we could hand over the responsibility of resetting it to None to that (our fork).
+        //     That is, set to None when we request movement.
+        //
+        //   - Wait for the position to stop changing before setting it back to None.
+        //     The 'snap' is caused by the position abruptly changing to its intended target, as we request None
+        //     while the interpolation is trying to smoothen out the change.
+        //     To be fully correct, we should let the interpolation do its job before we disable it.
+        //     This also poses the question of whether we should consider that waiting part of the power casting.
+        //
+        //    - Roll our own interpolation?
+        //      Should probably look at how the Source movement does it.
+        //      This would be ideal, as then we wouldn't have to rely on Rigidbody interpolation. Would also
+        //      make it portable.
         playerRigidbody.interpolation = RigidbodyInterpolation.None;
+
         playerSurfCharacter.moveConfig.enableMovement = true;
         playerAiming.enableBodyRotations = true;
     }
@@ -184,7 +205,7 @@ public class TraversalPower : MonoBehaviour {
         UPDATE_DebugText();
 
         if (Keyboard.current?.fKey.wasPressedThisFrame ?? false) {
-            Time.timeScale = (Time.timeScale == 1f ? 0.25f : 1f); 
+            Time.timeScale = (Time.timeScale == 1f ? 0.05f : 1f); 
             Debug.Log($"Timescale changed: {Time.timeScale}");
         }
 

@@ -68,6 +68,9 @@ public class TraversalPowerEffectsController : MonoBehaviour
         // TODO: changing these features during runtime stick in the editor once stopped.
         // Is there a away to make these behave like instances?
         // Would we have to manage it ourselves for the editor?
+        FEATURE_AdditiveColorMaterial.SetFloat(SHADER_additiveAlpha,    0);
+        FEATURE_RadialZoomMaterial   .SetFloat(SHADER_radialZoomRadius, 0);
+
         FEATURE_AdditiveColor.SetActive(false);
         FEATURE_RadialZoom.SetActive(false);
     }
