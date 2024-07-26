@@ -21,7 +21,7 @@ public class BlurRendererFeature : ScriptableRendererFeature {
 
         material = new(shader);
         pass = new(material, settings);
-        pass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        pass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData) {

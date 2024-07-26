@@ -14,13 +14,6 @@ public class BlurRenderPass : ScriptableRenderPass {
 
     private RenderTextureDescriptor blurTextureDescriptor;
 
-    public BlurRenderPass(Material material, BlurSettings defaultSettings) {
-        this.material = material;
-        this.defaultSettings = defaultSettings;
-
-        blurTextureDescriptor = new RenderTextureDescriptor(Screen.width, Screen.height, RenderTextureFormat.Default, 0);
-    }
-
     static readonly int horizontalBlurID = Shader.PropertyToID("_HorizontalBlur");
     static readonly int verticalBlurID = Shader.PropertyToID("_VerticalBlur");
 
@@ -30,15 +23,19 @@ public class BlurRenderPass : ScriptableRenderPass {
     const string verticalPassName = "VerticalBlurRenderPass";
     const string horizontalPassName = "HorizontalBlurRenderPass";
 
-    public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) {
-        base.RecordRenderGraph(renderGraph, frameData);
+    public BlurRenderPass(Material material, BlurSettings defaultSettings) {
+        this.material = material;
+        this.defaultSettings = defaultSettings;
 
+        blurTextureDescriptor = new RenderTextureDescriptor(Screen.width, Screen.height, RenderTextureFormat.Default, 0);
+    }
+
+    public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) {
         UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 
         TextureHandle srcCamColor = resourceData.activeColorTexture;
         TextureHandle dst = UniversalRenderer.CreateRenderGraphTexture(renderGraph, blurTextureDescriptor, blurTextureName, false);
-        if (!srcCamColor.IsValid() || !dst.IsValid()) return;
-
+        
         UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
 
         // Don't blit from the backbuffer:
@@ -51,14 +48,26 @@ public class BlurRenderPass : ScriptableRenderPass {
         // NOTE: update blur settings!
         UpdateBlurSettings();
 
-        using (var builder = renderGraph.AddRasterRenderPass<PassData>(blurPassName, out var passData)) {
+        if (!srcCamColor.IsValid() || !dst.IsValid()) return;
+
+        using (var builder = renderGraph.AddRasterRenderPass<PassData>(verticalPassName, out var passData)) {
             passData.src = srcCamColor;
             passData.mat = material;
 
             builder.UseTexture(passData.src);    // input
             builder.SetRenderAttachment(dst, 0); // output
 
-            builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data,context,0));
+            builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data, context, 0));
+        }
+
+        using (var builder = renderGraph.AddRasterRenderPass<PassData>(horizontalPassName, out var passData)) {
+            passData.src = dst;
+            passData.mat = material;
+
+            builder.UseTexture(passData.src);    // input
+            builder.SetRenderAttachment(srcCamColor, 0); // output
+
+            builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data, context, 1));
         }
     }
 
