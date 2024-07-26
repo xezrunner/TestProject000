@@ -162,6 +162,9 @@ public class TransversalPower : MonoBehaviour {
         if (casting_t > 1f) CAST_Reset();
     }
 
+    // TODO: should experiment with moving the Rigidbody movement code here.
+    // Since interpolation is on during casting, it could be more correct to have
+    // the movement requests here.
     void FIXEDUPDATE_Casting() {
         if (state != TransversalPowerState.Casting) return;
     }

@@ -32,6 +32,8 @@ public class TransversalPowerEffectsController : MonoBehaviour
     void Start() {
         // TODO: This is temporary for now. In an actual project, we would probably have some form of
         // structure that would contain our FOV.
+        // We should also probably store the FOV at the time that the effect is performed, so that
+        // we can accurately restore the actual FOV that the camera had before the casting.
         cameraStartFOV = playerCamera.fieldOfView;
     }
 
