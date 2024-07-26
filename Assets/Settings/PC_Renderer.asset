@@ -29,7 +29,8 @@ MonoBehaviour:
   - {fileID: 4865228843451154063}
   - {fileID: 2382391147557722395}
   - {fileID: 5183714500841827091}
-  m_RendererFeatureMap: ad6b866f10d7b46c8ffee324dbc384431b99365220f40f2113ebb7bfdf40f047
+  - {fileID: 4116143901888195690}
+  m_RendererFeatureMap: ad6b866f10d7b46c8ffee324dbc384431b99365220f40f2113ebb7bfdf40f0476aac6f0c127b1f39
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -67,7 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
   m_Name: AdditiveColorFill
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   injectionPoint: 600
   fetchColorBuffer: 1
   requirements: 4
@@ -75,6 +76,37 @@ MonoBehaviour:
   passIndex: 0
   bindDepthStencilAttachment: 0
   m_Version: 1
+--- !u!114 &3886102623281528764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00961b987717c4c16813a47d79490a40, type: 3}
+  m_Name: BlitWithMaterialRenderFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  m_BlitColorMaterial: {fileID: 2100000, guid: 4acc6073498544601b84067badd8dad7, type: 2}
+--- !u!114 &4116143901888195690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9345e8a839c374a2d977bdb15e060f6a, type: 3}
+  m_Name: BlurRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    horizontalBlur: 5.53
+    verticalBlur: 3.72
+  shader: {fileID: 4800000, guid: 7f8b2a16a7f7b4398a0641dc90d25f3d, type: 3}
 --- !u!114 &4865228843451154063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
   m_Name: RadialZoom
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   injectionPoint: 550
   fetchColorBuffer: 1
   requirements: 4
@@ -107,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a8a626e4a363604d8b1a959cc4ab28f, type: 3}
   m_Name: FullScreenFogRendererFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   _injectionPoint: 550
   _renderCamera: 3
   _shader: {fileID: -6465566751694194690, guid: a1b07ed697d67f145899e797afa7e6d3, type: 3}
@@ -146,3 +178,17 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 3302065f671a8450b82c9ddf07426f3a, type: 3}
   - {fileID: 2800000, guid: 56a77a3e8d64f47b6afe9e3c95cb57d5, type: 3}
   m_Shader: {fileID: 4800000, guid: 0849e84e3d62649e8882e9d6f056a017, type: 3}
+--- !u!114 &8274202073204932313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afa78ed71c3d4f03bb10ba59dd23090, type: 3}
+  m_Name: RadialZoomRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  material: {fileID: 2100000, guid: 4acc6073498544601b84067badd8dad7, type: 2}

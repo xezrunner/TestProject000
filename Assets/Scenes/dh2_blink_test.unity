@@ -4927,7 +4927,6 @@ GameObject:
   - component: {fileID: 5467285085214352278}
   - component: {fileID: 5467285085214352280}
   - component: {fileID: 5467285085214352281}
-  - component: {fileID: 5467285085214352279}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -5013,30 +5012,6 @@ MonoBehaviour:
     underwaterFriction: 2
     underwaterGravity: 6
     underwaterVelocityDampening: 2
---- !u!114 &5467285085214352279
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5467285085214352276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bd2f4bde1f2b41069bd7b9dcb4652cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerTransform: {fileID: 5467285085214352277}
-  playerRigidbody: {fileID: 5467285085214352281}
-  playerSurfCharacter: {fileID: 5467285085214352278}
-  playerCameraTransform: {fileID: 5467285084140268016}
-  playerAiming: {fileID: 5467285084140268017}
-  aimingGameObject: {fileID: 0}
-  aimingTransform: {fileID: 0}
-  aimingRigidbody: {fileID: 0}
-  effectsController: {fileID: 1756957227}
-  playerDebugText: {fileID: 734384165}
-  state: 0
-  aimRadius: 20
 --- !u!114 &5467285085214352280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5076,7 +5051,7 @@ MonoBehaviour:
     m_ActionName: 'Player/Attack[/Mouse/leftButton,/Keyboard/enter]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5467285085214352279}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: TraversalPower, Assembly-CSharp
         m_MethodName: INPUT_SecondaryAttack
         m_Mode: 0
