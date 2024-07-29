@@ -30,7 +30,8 @@ MonoBehaviour:
   - {fileID: 2382391147557722395}
   - {fileID: 5183714500841827091}
   - {fileID: 4116143901888195690}
-  m_RendererFeatureMap: ad6b866f10d7b46c8ffee324dbc384431b99365220f40f2113ebb7bfdf40f0476aac6f0c127b1f39
+  - {fileID: 8684810301650699504}
+  m_RendererFeatureMap: ad6b866f10d7b46c8ffee324dbc384431b99365220f40f2113ebb7bfdf40f0476aac6f0c127b1f39f0048b8bf4a48678
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -102,10 +103,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9345e8a839c374a2d977bdb15e060f6a, type: 3}
   m_Name: BlurRendererFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
-    horizontalBlur: 5.53
-    verticalBlur: 3.72
+    horizontalBlur: 22.7
+    verticalBlur: 0
   shader: {fileID: 4800000, guid: 7f8b2a16a7f7b4398a0641dc90d25f3d, type: 3}
 --- !u!114 &4865228843451154063
 MonoBehaviour:
@@ -155,7 +156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f62c9c65cf3354c93be831c8bc075510, type: 3}
   m_Name: ScreenSpaceAmbientOcclusion
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   m_Settings:
     AOMethod: 0
     Downsample: 0
@@ -192,3 +193,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 0
   material: {fileID: 2100000, guid: 4acc6073498544601b84067badd8dad7, type: 2}
+--- !u!114 &8684810301650699504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b0ad7dde6a64c02b42591abec26aa5, type: 3}
+  m_Name: RadialZoomRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    samples: 32
+    center: {x: 1.5, y: 0.5}
+    centerFalloff: 60
+    radius: 0
+  shader: {fileID: 4800000, guid: b1ab54357f2a54c809c73cbf385c66f0, type: 3}

@@ -9,16 +9,14 @@ Shader "Hidden/RadialZoom"
         _CenterY("Center Y", float) = 0.5
         _Radius("Radius", float) = 0.1
     }
+
     SubShader
     {
-        Tags { "RenderPipeline" = "UniversalPipeline" }
         // No culling or depth
         Cull Off ZWrite Off ZTest Always
  
         Pass
         {
-            Name "RadialZoomPass"
-
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag

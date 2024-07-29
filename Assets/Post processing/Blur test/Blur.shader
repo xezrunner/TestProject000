@@ -10,6 +10,22 @@ Shader "CustomEffects/Blur"
         float _VerticalBlur;
         float _HorizontalBlur;
     
+        float4 BlurAll (Varyings input) : SV_Target
+        {
+            const float BLUR_SAMPLES = 64;
+            const float BLUR_SAMPLES_RANGE = BLUR_SAMPLES / 2;
+            
+            UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+            float3 color = 0;
+            float blurPixels = _HorizontalBlur;
+            for(float i = -BLUR_SAMPLES_RANGE; i <= BLUR_SAMPLES_RANGE; i++)
+            {
+                float2 sampleOffset = float2 ((blurPixels / _BlitTexture_TexelSize.z) * (i / BLUR_SAMPLES_RANGE), (blurPixels / _BlitTexture_TexelSize.z) * (i / BLUR_SAMPLES_RANGE));
+                color += SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord + sampleOffset).rgb;
+            }
+            return float4(color / (BLUR_SAMPLES + 1), 1);
+        }
+
         float4 BlurVertical (Varyings input) : SV_Target
         {
             const float BLUR_SAMPLES = 64;
@@ -51,6 +67,18 @@ Shader "CustomEffects/Blur"
         Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline"}
         LOD 100
         ZWrite Off Cull Off
+        Pass
+        {
+            Name "BlurPassAll"
+
+            HLSLPROGRAM
+            
+            #pragma vertex Vert
+            #pragma fragment BlurAll
+            
+            ENDHLSL
+        }
+        
         Pass
         {
             Name "BlurPassVertical"
