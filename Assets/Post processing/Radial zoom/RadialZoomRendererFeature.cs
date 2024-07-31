@@ -13,13 +13,13 @@ using UnityEngine.Rendering.Universal;
 [Serializable]
 public class RadialZoomSettings {
     [Range(4, 32)] public int samples = 16;
-    public Vector2 center        = new(0.5f, 0.5f);
+    public Vector2 center        = new(1.5f, 0.5f);
     public float   centerFalloff = 60; // TODO: tweak, naming (see pass!)
-    public float   radius        = 10;
+    public float   radius        = 0;
 }
 
-class RadialZoomRendererFeature : ScriptableRendererFeature {
-    public RadialZoomSettings settings;
+public class RadialZoomRendererFeature : ScriptableRendererFeature {
+    public static RadialZoomSettings settings = new();
 
     public Shader shader;
     Material material;

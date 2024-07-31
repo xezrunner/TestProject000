@@ -4285,13 +4285,12 @@ MonoBehaviour:
   additiveColorAlpha: 0
   radialZoomRadius: 0
   cameraFOVAdditionStart: 40
-  additiveColorAlphaStart: 0.8
-  radialZoomRadiusStart: 10
+  additiveColorAlphaStart: 1.4
+  radialZoomRadiusStart: 40
   playerCamera: {fileID: 5467285085433526898}
   FEATURE_AdditiveColor: {fileID: 2382391147557722395, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
   FEATURE_AdditiveColorMaterial: {fileID: 2100000, guid: f7f9c19bb7b6540cbb20ab416648ca6e, type: 2}
-  FEATURE_RadialZoom: {fileID: 4865228843451154063, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
-  FEATURE_RadialZoomMaterial: {fileID: 2100000, guid: b80c6cd9b0e94468eb6101130e7c8384, type: 2}
+  FEATURE_RadialZoom: {fileID: 0}
   IsTest: 0
   IsActive: 1
   t: 1
@@ -4927,6 +4926,7 @@ GameObject:
   - component: {fileID: 5467285085214352278}
   - component: {fileID: 5467285085214352280}
   - component: {fileID: 5467285085214352281}
+  - component: {fileID: 5467285085214352282}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -5051,8 +5051,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Attack[/Mouse/leftButton,/Keyboard/enter]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TraversalPower, Assembly-CSharp
+      - m_Target: {fileID: 5467285085214352282}
+        m_TargetAssemblyTypeName: TransversalPower, Assembly-CSharp
         m_MethodName: INPUT_SecondaryAttack
         m_Mode: 0
         m_Arguments:
@@ -5161,6 +5161,30 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5467285085214352282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5467285085214352276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd2f4bde1f2b41069bd7b9dcb4652cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTransform: {fileID: 5467285085214352277}
+  playerRigidbody: {fileID: 5467285085214352281}
+  playerSurfCharacter: {fileID: 5467285085214352278}
+  playerCameraTransform: {fileID: 5467285085433526896}
+  playerAiming: {fileID: 5467285084140268017}
+  aimingGameObject: {fileID: 0}
+  aimingTransform: {fileID: 0}
+  aimingRigidbody: {fileID: 0}
+  effectsController: {fileID: 1756957227}
+  playerDebugText: {fileID: 734384165}
+  state: 0
+  aimRadius: 10
 --- !u!4 &5467285085433526896
 Transform:
   m_ObjectHideFlags: 0

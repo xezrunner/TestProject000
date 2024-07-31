@@ -60,9 +60,12 @@ namespace Fragsurf.Movement {
                     jumping = false;
 
                 // apply gravity
-                // NOTE: TransversalPower disables movement. 
-                // We want to keep velocity, but don't apply/modify it (especially gravity) during transversal.
+                // 
+                // NOTE: for TransversalPower: 
+                // TransversalPower disables movement.
+                // We want to keep velocity, but don't apply/modify it (especially gravity) during transversal.  - xezrunner
                 // TODO: this should apply more generally to all axes of velocity/movement as well!
+                // TODO: we should probably add some of the direction that the player casting towards, so that it feels more organic.
                 if (_config.enableMovement && _surfer.groundObject == null) {
 
                     if (_config.enableGravity) _surfer.moveData.velocity.y -= (_surfer.moveData.gravityFactor * _config.gravity * _deltaTime);

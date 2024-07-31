@@ -4,7 +4,9 @@ using Fragsurf.Movement;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal;
+
+// TODO: 
+// - How should we tackle sprites on-screen, for arrival? Would post-process FX apply for UI canvas in world mode?
 
 public enum TransversalPowerState { None = 0, Aiming = 1, Casting = 2 }
 
@@ -200,7 +202,7 @@ public class TransversalPower : MonoBehaviour {
         UPDATE_DebugText();
 
         if (Keyboard.current?.fKey.wasPressedThisFrame ?? false) {
-            Time.timeScale = (Time.timeScale == 1f ? 0.05f : 1f); 
+            Time.timeScale = (Time.timeScale == 1f ? 0.15f : 1f); 
             Debug.Log($"Timescale changed: {Time.timeScale}");
         }
 
