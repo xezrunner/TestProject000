@@ -107,6 +107,22 @@ MonoBehaviour:
   clamp:
     m_OverrideState: 1
     m_Value: 0.05
+--- !u!114 &-7422305751156882744
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09844d73b061140e1aa162cfb9788bd5, type: 3}
+  m_Name: RadialZoomVolumeComponent
+  m_EditorClassIdentifier: 
+  active: 1
+  radius:
+    m_OverrideState: 1
+    m_Value: 10
 --- !u!114 &-7274224791359825572
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -314,10 +330,10 @@ MonoBehaviour:
   active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 2
   intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.633
   color:
     m_OverrideState: 1
     m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
@@ -338,7 +354,7 @@ MonoBehaviour:
     m_Value: 0
   density:
     m_OverrideState: 1
-    m_Value: 0.1
+    m_Value: 0.114
   noiseMode:
     m_OverrideState: 1
     m_Value: 0
@@ -522,7 +538,8 @@ MonoBehaviour:
   - {fileID: 7518938298396184218}
   - {fileID: -1410297666881709256}
   - {fileID: -2565313494713443600}
-  - {fileID: 7127962908132706264}
+  - {fileID: 2306148153738393815}
+  - {fileID: -7422305751156882744}
 --- !u!114 &853819529557874667
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -833,6 +850,28 @@ MonoBehaviour:
   contribution:
     m_OverrideState: 1
     m_Value: 0
+--- !u!114 &2306148153738393815
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ba9a1cc582eb4877b851b6f31e54407, type: 3}
+  m_Name: BlurVolumeComponent
+  m_EditorClassIdentifier: 
+  active: 1
+  isActive:
+    m_OverrideState: 1
+    m_Value: 1
+  horizontalBlur:
+    m_OverrideState: 1
+    m_Value: 5
+  verticalBlur:
+    m_OverrideState: 1
+    m_Value: 5
 --- !u!114 &3959858460715838825
 MonoBehaviour:
   m_ObjectHideFlags: 3

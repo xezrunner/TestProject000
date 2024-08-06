@@ -115,11 +115,13 @@ public class TransversalPower : MonoBehaviour {
 
         casting_t = 0;
 
-        // TODO: refactor into something like TransversalStateControl?
+        // TODO: refactor all this into something like TransversalStateControl?
         // The list of stuff we want to disable/enable could change, don't duplicate!
-        playerRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-        playerSurfCharacter.moveConfig.enableMovement = false;
-        playerAiming.enableBodyRotations = false;
+        {
+            playerRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            playerSurfCharacter.moveConfig.enableMovement = false;
+            playerAiming.enableBodyRotations = false;
+        }
 
         effectsController?.StartEffect();
 
@@ -129,27 +131,16 @@ public class TransversalPower : MonoBehaviour {
     void CAST_Reset() {
         state = TransversalPowerState.None;
 
-        // TODO: changing our Rigidbody interpolation to None right when we arrive at the destination
-        // causes a visual 'snap', as our position gets set to the final destination.
-        // Possible solutions:
-        //   - Since the Source movement we use requires the interpolation to be None (as they roll their own),
-        //     we could hand over the responsibility of resetting it to None to that (our fork).
-        //     That is, set to None when we request movement.
-        //
-        //   - Wait for the position to stop changing before setting it back to None.
-        //     The 'snap' is caused by the position abruptly changing to its intended target, as we request None
-        //     while the interpolation is trying to smoothen out the change.
-        //     To be fully correct, we should let the interpolation do its job before we disable it.
-        //     This also poses the question of whether we should consider that waiting part of the power casting.
-        //
-        //    - Roll our own interpolation?
-        //      Should probably look at how the Source movement does it.
-        //      This would be ideal, as then we wouldn't have to rely on Rigidbody interpolation. Would also
-        //      make it portable.
-        playerRigidbody.interpolation = RigidbodyInterpolation.None;
+        // TODO: see Cast() for refactor
+        {
+            // TODO: Should we roll our own interpolation? Could look at how the Source movement does it.
+            // This would be ideal, as then we wouldn't have to rely on Rigidbody interpolation. Would also make it portable.
+            playerRigidbody.interpolation = RigidbodyInterpolation.None;
 
-        playerSurfCharacter.moveConfig.enableMovement = true;
-        playerAiming.enableBodyRotations = true;
+            playerSurfCharacter.moveConfig.enableMovement = true;
+            playerAiming.enableBodyRotations = true;
+        }
+
     }
 
     Vector3 newPlayerPos;
@@ -158,17 +149,17 @@ public class TransversalPower : MonoBehaviour {
         if (state != TransversalPowerState.Casting) return;
 
         newPlayerPos = Vector3.Lerp(lastAimingStartPos, lastAimingTargetPos, casting_t);
-        playerRigidbody.MovePosition(newPlayerPos);
-
+        
         casting_t += Time.deltaTime;
         if (casting_t > 1f) CAST_Reset();
     }
 
     // TODO: should experiment with moving the Rigidbody movement code here.
-    // Since interpolation is on during casting, it could be more correct to have
+    // Since Rigidbody interpolation is on during casting, it could be more correct to have
     // the movement requests here.
     void FIXEDUPDATE_Casting() {
         if (state != TransversalPowerState.Casting) return;
+        playerRigidbody.MovePosition(newPlayerPos);
     }
 
     // TODO: no longer needed (?)
@@ -181,8 +172,8 @@ public class TransversalPower : MonoBehaviour {
     }
 
     void FixedUpdate() {
-        //FIXEDUPDATE_Casting();
-        UPDATE_Casting();
+        FIXEDUPDATE_Casting();
+        //UPDATE_Casting();
     }
 
     void UPDATE_DebugText() {
@@ -199,6 +190,7 @@ public class TransversalPower : MonoBehaviour {
 
     void Update() {
         UPDATE_Aiming();
+        UPDATE_Casting();
         UPDATE_DebugText();
 
         if (Keyboard.current?.fKey.wasPressedThisFrame ?? false) {
