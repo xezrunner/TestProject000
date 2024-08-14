@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -9,7 +8,9 @@ using UnityEngine;
 partial class CameraFXRenderPass {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void setFloat  (string name, float   value) => material.SetFloat  (ShaderPropertyCache.PROPERTY_CACHE[name], value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void setVector (string name, Vector4 value) => material.SetVector (ShaderPropertyCache.PROPERTY_CACHE[name], value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void setInteger(string name, int     value) => material.SetInteger(ShaderPropertyCache.PROPERTY_CACHE[name], value);
 
     partial void updateSettings() {
@@ -31,10 +32,18 @@ partial class CameraFXRenderPass {
 
 [Serializable]
 public class CameraFX_Settings {
+    public static bool printShaderPropertyCacheOnInit = false;
+    
     public static CameraFX_RadialZoom_Settings radialZoom = new();
 }
 
 // Individual FX: 
+
+// [ShaderPropertySettings] tags a class as containing shader properties.
+// [ShaderProperty]         tags a field as a shader property.
+// Tagged classes will be scanned for tagged fields, turned into shader cache IDs and cached.
+// Using the set<T> wrappers will properly look up the IDs from the cache and it should be, in theory, fast.
+// TODO: verify
 
 [Serializable]
 [ShaderPropertySettings]

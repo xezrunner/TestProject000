@@ -17,15 +17,6 @@ public class TransversalPowerEffectsController : MonoBehaviour
 
     public Camera playerCamera;
 
-    public ScriptableRendererFeature FEATURE_AdditiveColor;
-    public Material                  FEATURE_AdditiveColorMaterial;
-
-    public RadialZoomRendererFeature FEATURE_RadialZoom;
-    //public Material                  FEATURE_RadialZoomMaterial;
-
-    int SHADER_additiveAlpha    = Shader.PropertyToID("_Alpha");
-    int SHADER_radialZoomRadius = Shader.PropertyToID("_Radius");
-
     public bool IsTest   = true;
     public bool IsActive = true;
 
@@ -35,10 +26,6 @@ public class TransversalPowerEffectsController : MonoBehaviour
         // We should also probably store the FOV at the time that the effect is performed, so that
         // we can accurately restore the actual FOV that the camera had before the casting.
         cameraStartFOV = playerCamera.fieldOfView;
-
-        // TODO: Temp?
-        //FEATURE_RadialZoom = RadialZoomRendererFeature.Instance;
-        if (!FEATURE_RadialZoom) Debug.LogError("No radial zoom renderer feature!");
     }
 
     public void StartEffect() {
@@ -49,13 +36,10 @@ public class TransversalPowerEffectsController : MonoBehaviour
 
     public float t = 1f;
     void Update() {
-        FEATURE_AdditiveColor.SetActive(IsActive);
-        //FEATURE_RadialZoom.SetActive(IsActive);
-
         if (!IsActive) return;
 
-        FEATURE_AdditiveColorMaterial.SetFloat(SHADER_additiveAlpha, additiveColorAlpha);
-        RadialZoomRendererFeature.settings.radius = radialZoomRadius;
+        //FEATURE_AdditiveColorMaterial.SetFloat(SHADER_additiveAlpha, additiveColorAlpha);
+        CameraFX_Settings.radialZoom.radius = radialZoomRadius;
         playerCamera.fieldOfView = cameraStartFOV + cameraFOVAddition;
 
         if (IsTest) return;
@@ -74,10 +58,6 @@ public class TransversalPowerEffectsController : MonoBehaviour
         // TODO: changing these features during runtime stick in the editor once stopped.
         // Is there a way to make these behave like instances?
         // Would we have to manage it ourselves for the editor?
-        FEATURE_AdditiveColorMaterial?.SetFloat(SHADER_additiveAlpha, 0);
-        RadialZoomRendererFeature.settings.radius = 0;
-
-        FEATURE_AdditiveColor?.SetActive(false);
-        FEATURE_RadialZoom?.SetActive(false);
+        CameraFX_Settings.radialZoom.radius = 0;
     }
 }

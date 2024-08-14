@@ -9,25 +9,27 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
         public Material      material;
     }
 
+    // TODO: initialize? how should we manage CameraFX settings? should its sub-settings remain static/global?
+    // Tie into some future settings system?
     CameraFX_Settings settings;
 
     Material                material;
     RenderTextureDescriptor textureDescriptor;
-
-    //static int[] cachedShaderPropIDs = ShaderPropertyCache.BuildShaderPropertyIDs();
 
     public CameraFXRenderPass(Material material) {
         this.material = material;
         this.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing; // TODO: tweak!
         this.textureDescriptor = new(Screen.width, Screen.height, RenderTextureFormat.Default, 0);
 
-        Debug.Log("Shader property cache: ");
-        foreach (var entry in ShaderPropertyCache.PROPERTY_CACHE) {
-            Debug.Log($"  - value: {entry.Value,4}  key: {entry.Key}");
+        if (CameraFX_Settings.printShaderPropertyCacheOnInit) {
+            Debug.Log("CameraFXRenderPass: Shader property cache: ");
+            foreach (var entry in ShaderPropertyCache.PROPERTY_CACHE) {
+                Debug.Log($"  - value: {entry.Value,4}  key: {entry.Key}");
+            }
         }
     }
 
-    partial void updateSettings();
+    partial void updateSettings(); // implemented in CameraFXEffectSettings.cs
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) {
         var resourceData = frameData.Get<UniversalResourceData>();
@@ -48,6 +50,8 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
 
         // Build passes:
         // Basically, process into a texture, then push that back into the output:
+        // TODO: this might change if we want multiple passes
+        //       in that case, we would want each pass to trickle down and the final pass to be output.
         using (var builder = renderGraph.AddRasterRenderPass<PassData>(
             "CameraFX_PrePass", out var passData)) {
             passData.source   = sourceTexture;

@@ -19,7 +19,13 @@ Shader "TestProject000/URP/CameraFX"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
         // Props
-        int    _CameraFX_RadialZoom_Samples;
+
+        // TODO: this has to be a float for some reason...
+        // Unity docs mention that this was the case for the legacy Int property type,
+        // though it still wants to be a float, even when I use the new Integer property type.
+        // https://docs.unity3d.com/Manual/SL-Properties.html (find: Int (legacy))
+        float  _CameraFX_RadialZoom_Samples;
+
         float2 _CameraFX_RadialZoom_Center;
         float  _CameraFX_RadialZoom_CenterFalloff;
         float  _CameraFX_RadialZoom_Radius;
@@ -62,7 +68,7 @@ Shader "TestProject000/URP/CameraFX"
 
         Pass
         {
-            Name "RadialZoom"
+            Name "CameraFX"
 
             HLSLPROGRAM
             

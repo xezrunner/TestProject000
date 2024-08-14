@@ -4,8 +4,8 @@ using UnityEngine.Rendering.Universal;
 
 public class CameraFXRendererFeature : ScriptableRendererFeature {
     public Shader shader;
+    public Material material; // TEMP: public for inspector/debugging purposes
 
-    public Material    material; // TEMP: public for inspector debugging purposes
     CameraFXRenderPass renderPass;
     
     public override void Create() {
@@ -20,7 +20,6 @@ public class CameraFXRendererFeature : ScriptableRendererFeature {
 
         renderer.EnqueuePass(renderPass);
     }
-
 
     protected override void Dispose(bool disposing) {
         base.Dispose(disposing);

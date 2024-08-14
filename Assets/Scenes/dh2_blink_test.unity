@@ -4288,9 +4288,6 @@ MonoBehaviour:
   additiveColorAlphaStart: 1.4
   radialZoomRadiusStart: 40
   playerCamera: {fileID: 5467285085433526898}
-  FEATURE_AdditiveColor: {fileID: 2382391147557722395, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
-  FEATURE_AdditiveColorMaterial: {fileID: 2100000, guid: f7f9c19bb7b6540cbb20ab416648ca6e, type: 2}
-  FEATURE_RadialZoom: {fileID: 0}
   IsTest: 0
   IsActive: 1
   t: 1

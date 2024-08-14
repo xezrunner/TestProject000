@@ -3,18 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
+// TODO: when moved to XZShared, re-route logging!
+
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class ShaderPropertySettingsAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 public class ShaderPropertyAttribute : Attribute { }
-
-public struct ShaderProperty {
-    public string typeName;
-    public string fieldName;
-    public string shaderName;
-    public int shaderPropID;
-}
 
 public static class ShaderPropertyCache {
     // 0: None
@@ -22,12 +17,11 @@ public static class ShaderPropertyCache {
     // 2: Modules, Types, Fields
     public static int DEBUG_Print = 2;
 
-    public static Dictionary<string, int> PROPERTY_CACHE;
+    public static Dictionary<string, int> PROPERTY_CACHE = new(capacity: 50);
 
     static ShaderPropertyCache() => BuildShaderPropertyIDs();
 
     public static void BuildShaderPropertyIDs() {
-        if (PROPERTY_CACHE == null) PROPERTY_CACHE = new(capacity: 50);
         PROPERTY_CACHE.Clear();
 
         string projName = getProjectName();
@@ -37,8 +31,8 @@ public static class ShaderPropertyCache {
             string moduleName = assembly.FullName.Split(',')[0];
 
             // Ignore system and other Unity-related modules - those don't contain console commands for us:
-            if (!moduleName.StartsWith("Assembly-CSharp")) {
-                if (!moduleName.StartsWith(projName)) continue;
+            if (!moduleName.StartsWith("Assembly-CSharp")) {    // Allow Unity default Assembly-CSharp
+                if (!moduleName.StartsWith(projName)) continue; // Ignore anything that isn't related to the current project
                 // ...
             }
 
