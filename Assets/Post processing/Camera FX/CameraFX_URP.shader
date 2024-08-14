@@ -4,6 +4,13 @@
 
 Shader "TestProject000/URP/CameraFX"
 {
+    Properties {
+        _CameraFX_RadialZoom_Samples ("_CameraFX_RadialZoom_Samples", Integer) = 0
+        _CameraFX_RadialZoom_Center ("_CameraFX_RadialZoom_Center", Vector) = (0,0,0,0)
+        _CameraFX_RadialZoom_CenterFalloff ("_CameraFX_RadialZoom_CenterFalloff", Float) = 0
+        _CameraFX_RadialZoom_Radius ("_CameraFX_RadialZoom_Radius", Float) = 0
+    }
+
     HLSLINCLUDE
     
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -12,17 +19,17 @@ Shader "TestProject000/URP/CameraFX"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
         // Props
-        float  _Samples;
-        float2 _Center;
-        float  _CenterFalloff;
-        float  _Radius;
+        int    _CameraFX_RadialZoom_Samples;
+        float2 _CameraFX_RadialZoom_Center;
+        float  _CameraFX_RadialZoom_CenterFalloff;
+        float  _CameraFX_RadialZoom_Radius;
         
         float4 Frag (Varyings input) : SV_Target
         {
             float3 color = float3(0,0,0);
 
-            const float radius        = _Radius        / 100;
-            const float centerFalloff = _CenterFalloff / 100;
+            const float radius        = _CameraFX_RadialZoom_Radius        / 100;
+            const float centerFalloff = _CameraFX_RadialZoom_CenterFalloff / 100;
 
             // Just render the output as-is when 0, potentially tiny optimization.
             // May not be necessary if we can toggle the renderer feature entirely with whatever I come up with
@@ -33,15 +40,15 @@ Shader "TestProject000/URP/CameraFX"
                 return float4(color, 1);
             }
             
-            float2 direction = (input.texcoord - _Center);
+            float2 direction = (input.texcoord - _CameraFX_RadialZoom_Center);
 
-            for (int i = 0; i < _Samples; ++i)
+            for (int i = 0; i < _CameraFX_RadialZoom_Samples; ++i)
             {
-                float scale = 1 - (radius * (i / _Samples)) * (saturate(length(direction) / centerFalloff));
-                color += SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, direction * scale + _Center);
+                float scale = 1 - (radius * (i / _CameraFX_RadialZoom_Samples)) * (saturate(length(direction) / centerFalloff));
+                color += SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, direction * scale + _CameraFX_RadialZoom_Center);
             }
 
-            color /= _Samples;
+            color /= _CameraFX_RadialZoom_Samples;
             return float4(color, 1);
         }
 

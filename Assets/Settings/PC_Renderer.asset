@@ -27,7 +27,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
   - {fileID: 5183714500841827091}
-  m_RendererFeatureMap: ad6b866f10d7b46c13ebb7bfdf40f047
+  - {fileID: 4125281521171907795}
+  m_RendererFeatureMap: ad6b866f10d7b46c13ebb7bfdf40f047d344efd3aff13f39
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -67,6 +68,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   m_BlitColorMaterial: {fileID: 2100000, guid: 4acc6073498544601b84067badd8dad7, type: 2}
+--- !u!114 &4125281521171907795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b11a0ea5d1664619acd8f517d08aa2d, type: 3}
+  m_Name: CameraFXRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  shader: {fileID: 4800000, guid: ac31d7c9708374769a40ebb86c695cde, type: 3}
+  material: {fileID: 0}
 --- !u!114 &5183714500841827091
 MonoBehaviour:
   m_ObjectHideFlags: 0
