@@ -6,8 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Startup.unity
+    guid: fa467e12d9cfb45bb9dbb79ca7cd82ec
+  - enabled: 1
+    path: Assets/XZShared/XZShared/Assets/Scenes/XZShared/_XZCoreScene.unity
+    guid: 2cc67933922f0f04798d5d26ff1bd566
+  - enabled: 1
     path: Assets/Scenes/orbing_particles_test.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/dh2_blink_test.unity
+    guid: edd3c897dc9264df49fad81adc31df2d
+  - enabled: 1
+    path: Assets/Scenes/urp_render_test.unity
+    guid: aea07b25c429c42c4b9eedb5e15887ac
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: fd9952567b2204b0aae50775e7decf62, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

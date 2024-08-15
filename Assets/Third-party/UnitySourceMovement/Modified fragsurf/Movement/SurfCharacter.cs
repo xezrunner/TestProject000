@@ -248,7 +248,7 @@ namespace Fragsurf.Movement {
             }
 
             _moveData.cameraUnderwater = _cameraWaterCheck.IsUnderwater ();
-            _cameraWaterCheckObject.transform.position = viewTransform.position;
+            if (_cameraWaterCheckObject) _cameraWaterCheckObject.transform.position = viewTransform.position;
             moveData.underwater = underwater;
             
             if (allowCrouch)
