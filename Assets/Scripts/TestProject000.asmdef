@@ -1,0 +1,20 @@
+{
+    "name": "TestProject000",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e68402899eed24b279aed93a13653864",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:00f9b2bb72811434c9cf975f91c18030",
+        "GUID:c3fd71c6118df4677838b5bb494b90de"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

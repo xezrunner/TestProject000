@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 public class TransversalPowerEffectsController : MonoBehaviour
 {
@@ -7,9 +6,9 @@ public class TransversalPowerEffectsController : MonoBehaviour
 
     public float speed = 1f;
 
-    public float cameraFOVAddition  = 0f;
-    public float additiveColorAlpha = 0f;
-    public float radialZoomRadius   = 0f;
+    [ConsoleCommand] public static float cameraFOVAddition  = 0f;
+    [ConsoleCommand] public static float additiveColorAlpha = 0f;
+    [ConsoleCommand] public static float radialZoomRadius   = 0f; 
 
     public float cameraFOVAdditionStart  = 50f;
     public float additiveColorAlphaStart = 1f;

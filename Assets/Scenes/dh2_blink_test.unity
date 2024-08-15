@@ -4390,9 +4390,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1
-  cameraFOVAddition: 0
-  additiveColorAlpha: 0
-  radialZoomRadius: 0
   cameraFOVAdditionStart: 40
   additiveColorAlphaStart: 1.4
   radialZoomRadiusStart: 40
