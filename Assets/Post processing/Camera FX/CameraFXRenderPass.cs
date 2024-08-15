@@ -60,7 +60,7 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
             builder.UseTexture(passData.source);
             builder.SetRenderAttachment(destinationTexture, 0);
 
-            builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context));
+            builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context, 0));
         }
 
         using (var builder = renderGraph.AddRasterRenderPass<PassData>(
@@ -71,11 +71,11 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
             builder.UseTexture(passData.source);
             builder.SetRenderAttachment(sourceTexture, 0);
 
-            builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context));
+            builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context, 1));
         }
     }
 
-    static void executePass(PassData data, RasterGraphContext context) {
-        Blitter.BlitTexture(context.cmd, data.source, new Vector4(1,1,1,0), data.material, 0);
+    static void executePass(PassData data, RasterGraphContext context, int pass) {
+        Blitter.BlitTexture(context.cmd, data.source, new Vector4(1,1,1,0), data.material, pass);
     }
 }
