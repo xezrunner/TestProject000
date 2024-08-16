@@ -75,7 +75,9 @@ public static class ShaderPropertyCache {
         string projectName = projectPathTokens[^2];
 #else
         // In non-editor builds, the dataPath is <proj>/Build/<proj>_Data - we have to go up one more:
-        string projectName = projectPathTokens[^3];
+        // TODO: This is totally busted on macOS:
+        //string projectName = projectPathTokens[^3];
+        string projectName = "TestProject000" // TEMP: workaround
 #endif
         return projectName;
     }
