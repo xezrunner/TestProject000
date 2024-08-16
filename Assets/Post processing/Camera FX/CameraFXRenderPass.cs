@@ -17,6 +17,11 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
     RenderTextureDescriptor textureDescriptor;
 
     public CameraFXRenderPass(Material material) {
+        if (!material) {
+            Debug.LogError("CameraFXRenderPass ctor(): no material!");
+            return;
+        }
+        
         this.material = material;
         this.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing; // TODO: tweak!
         this.textureDescriptor = new(Screen.width, Screen.height, RenderTextureFormat.Default, 0);
@@ -32,6 +37,8 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
     partial void updateSettings(); // implemented in CameraFXEffectSettings.cs
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) {
+        if (!material) return;
+        
         var resourceData = frameData.Get<UniversalResourceData>();
         if (resourceData.isActiveTargetBackBuffer) return; // TODO: why?
 
