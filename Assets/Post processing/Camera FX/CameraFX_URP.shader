@@ -97,7 +97,7 @@ Shader "TestProject000/URP/CameraFX"
             float2 resultUV = float2(
                 cos(theta) * dist * zoom, // X axis - squish!
                 sin(theta) * dist)        // Y axis
-                / 2.0 + 0.5;
+                / 2.0 + 0.5;              // remain in output bounds
 
             float3 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, resultUV);
             return float4(color, 1);
