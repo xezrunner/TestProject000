@@ -2604,6 +2604,7 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!114 &1251145764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4044,12 +4045,12 @@ GameObject:
   - component: {fileID: 1509198565}
   - component: {fileID: 1509198564}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: D1-wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1509198564
 MeshCollider:
   m_ObjectHideFlags: 0
