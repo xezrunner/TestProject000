@@ -53,14 +53,15 @@ public static class ShaderPropertyCache {
                     //ShaderPropertyAttribute attrib = (ShaderPropertyAttribute)info.GetCustomAttribute(typeof(ShaderPropertyAttribute));
 
                     var fieldName = info.Name;
+                    var fullName  = $"{type.Name}.{fieldName}";
 
                     // Transform the field name into the shader prop name convention:
                     // _CameraFX_RadialZoom_Radius
                     //var shaderPropName = $"_{Char.ToUpper(fieldName[0])}{fieldName[1..]}";
                     var shaderPropName = $"_{type.Name.Replace("_Settings", "")}_{Char.ToUpper(fieldName[0])}{fieldName[1..]}";
 
-                    if (DEBUG_Print > 1) Debug.Log($"      - SHADERPROP: {shaderPropName}");
-                    PROPERTY_CACHE.Add(fieldName, Shader.PropertyToID(shaderPropName));
+                    if (DEBUG_Print > 1) Debug.Log($"      - SHADERPROP: {shaderPropName}  for: '{fullName}'");
+                    PROPERTY_CACHE.Add(fullName, Shader.PropertyToID(shaderPropName)); 
                 }
             }
         }

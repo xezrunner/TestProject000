@@ -21,11 +21,20 @@ partial class CameraFXRenderPass {
         // if (!volume) return;
 
         // Set shader properties:
-        setInteger(nameof(CameraFX_Settings.radialZoom.samples),       CameraFX_Settings.radialZoom.samples);
-        setVector (nameof(CameraFX_Settings.radialZoom.center),        CameraFX_Settings.radialZoom.center);
-        setFloat  (nameof(CameraFX_Settings.radialZoom.centerFalloff), CameraFX_Settings.radialZoom.centerFalloff);
-        setFloat  (nameof(CameraFX_Settings.radialZoom.radius),        CameraFX_Settings.radialZoom.radius);
-    }
+        setInteger("CameraFX_RadialZoom_Settings.samples",       CameraFX_Settings.radialZoom.samples);
+        setVector ("CameraFX_RadialZoom_Settings.center",        CameraFX_Settings.radialZoom.center);
+        setFloat  ("CameraFX_RadialZoom_Settings.centerFalloff", CameraFX_Settings.radialZoom.centerFalloff);
+        setFloat  ("CameraFX_RadialZoom_Settings.radius",        CameraFX_Settings.radialZoom.radius);
+
+        setFloat("CameraFX_LensDistortion_Settings.intensity", CameraFX_Settings.lensDistortion.intensity);
+
+        setVector("CameraFX_AdditiveColor_Settings.color",     CameraFX_Settings.additiveColor.color);
+        setFloat ("CameraFX_AdditiveColor_Settings.intensity", CameraFX_Settings.additiveColor.intensity);
+
+        // TEMP: TEMP: TEMP:
+        var tex = Resources.Load<Texture>("Temp/test1");
+        material.SetTexture(ShaderPropertyCache.PROPERTY_CACHE["CameraFX_Test_Settings.image"], tex);
+    } 
 }
 
 // Main settings:
@@ -33,8 +42,26 @@ partial class CameraFXRenderPass {
 [Serializable]
 public class CameraFX_Settings {
     public static bool printShaderPropertyCacheOnInit = false;
+
+    // TODO: CameraFXRenderPass has an instance of us, but we are using this class as static storage.
+    // This is bad! Powers should probably each have an instance of settings (?)
+    // Or something, idk
+    static CameraFX_Settings() {
+        CameraFX_Settings.ResetAll();
+    }
+
+    public static void ResetAll()
+    {
+        radialZoom     = new();
+        lensDistortion = new();
+        additiveColor  = new();
+        test = new();
+    }
     
-    public static CameraFX_RadialZoom_Settings radialZoom = new();
+    public static CameraFX_RadialZoom_Settings     radialZoom;
+    public static CameraFX_LensDistortion_Settings lensDistortion;
+    public static CameraFX_AdditiveColor_Settings  additiveColor;
+    public static CameraFX_Test_Settings  test;
 }
 
 // Individual FX: 
@@ -62,4 +89,17 @@ public class CameraFX_RadialZoom_Settings {
 public class CameraFX_LensDistortion_Settings {
     [ShaderProperty] public float test = 0;
     [ShaderProperty] public float intensity = 0;
+}
+
+[Serializable]
+[ShaderPropertySettings]
+public class CameraFX_AdditiveColor_Settings {
+    [ShaderProperty] public Vector3 color     = new(1,0,0);
+    [ShaderProperty] public float   intensity = 0;
+}
+
+[Serializable]
+[ShaderPropertySettings]
+public class CameraFX_Test_Settings {
+    [ShaderProperty] public Texture2D image;
 }

@@ -20,13 +20,13 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.04116233, g: 0.043164823, b: 0.047169805, a: 1}
+  m_AmbientSkyColor: {r: 0.8494571, g: 0.8547582, b: 0.9528302, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 3
+  m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.22174263, g: 0.24709491, b: 0.31132078, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -93,7 +93,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: 61d33d30ff5804cf784189c52bd805ae, type: 2}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: becf3f0e5534b47298483def4b01a8a5, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -357,7 +357,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bb742d83ed804da40afff0bb98de17b3, type: 2}
+  - {fileID: 2100000, guid: 4a845a9e2b872374aa2d6df8735b4112, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -834,7 +834,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 363a19295a9ccab46953a4c375ee1a26, type: 2}
+  - {fileID: 2100000, guid: d6cbb9d7d974ade448bd811a9cec399d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1070,8 +1070,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 0.5377358, g: 0.52274746, b: 0.50476146, a: 1}
-  m_Intensity: 0.92
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.71
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1114,8 +1114,8 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
+  m_ColorTemperature: 4152
+  m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
@@ -1133,13 +1133,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 336097103}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.39142725, y: -0.24828, z: 0.11054137, w: 0.87916005}
+  m_LocalRotation: {x: 0.8634088, y: -0.50208175, z: -0.031278566, w: -0.03822064}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 48, y: -31.54, z: 0}
+  m_LocalEulerAnglesHint: {x: 185.59, y: 0.9, z: 60.313}
 --- !u!114 &336097106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2183,7 +2183,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 363a19295a9ccab46953a4c375ee1a26, type: 2}
+  - {fileID: 2100000, guid: d6cbb9d7d974ade448bd811a9cec399d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2724,7 +2724,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 363a19295a9ccab46953a4c375ee1a26, type: 2}
+  - {fileID: 2100000, guid: d6cbb9d7d974ade448bd811a9cec399d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3021,7 +3021,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 363a19295a9ccab46953a4c375ee1a26, type: 2}
+  - {fileID: 2100000, guid: d6cbb9d7d974ade448bd811a9cec399d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3303,7 +3303,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bb742d83ed804da40afff0bb98de17b3, type: 2}
+  - {fileID: 2100000, guid: 4a845a9e2b872374aa2d6df8735b4112, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3600,7 +3600,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bb742d83ed804da40afff0bb98de17b3, type: 2}
+  - {fileID: 2100000, guid: 4a845a9e2b872374aa2d6df8735b4112, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4390,17 +4390,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1d498e28b5204ffeacd1621d7429226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
-  cameraFOVAddition: 0
-  additiveColorAlpha: 0
-  radialZoomRadius: 0
-  cameraFOVAdditionStart: 40
-  additiveColorAlphaStart: 1.4
-  radialZoomRadiusStart: 40
+  animSpeed: 1
   playerCamera: {fileID: 5467285085433526898}
   IsTest: 0
   IsActive: 1
-  t: 1
+  t: 0
+  test: 0
+  FX_Out_WobbleCount: 10
 --- !u!1 &1791249145
 GameObject:
   m_ObjectHideFlags: 0
@@ -4577,7 +4573,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bb742d83ed804da40afff0bb98de17b3, type: 2}
+  - {fileID: 2100000, guid: 4a845a9e2b872374aa2d6df8735b4112, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5049,15 +5045,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5467285085214352276}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.70710677, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 4.52, y: 7.79, z: -56.110004}
+  m_LocalRotation: {x: -0, y: -0.00000046193594, z: -0, w: 1}
+  m_LocalPosition: {x: 0.019996285, y: 7.79, z: -52.110004}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5467285084140268016}
   - {fileID: 1756957226}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5467285085214352278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5291,7 +5287,9 @@ MonoBehaviour:
   effectsController: {fileID: 1756957227}
   playerDebugText: {fileID: 734384165}
   state: 0
+  manaCost: 20
   aimRadius: 10
+  castCooldownSec: 1
 --- !u!4 &5467285085433526896
 Transform:
   m_ObjectHideFlags: 0
@@ -5324,7 +5322,7 @@ Camera:
   m_GameObject: {fileID: 5467285085433526903}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2

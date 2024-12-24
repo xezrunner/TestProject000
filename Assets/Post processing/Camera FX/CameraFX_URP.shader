@@ -7,7 +7,7 @@ Shader "TestProject000/URP/CameraFX"
     Properties {
         // RadialZoom:
         _CameraFX_RadialZoom_Samples       ("_CameraFX_RadialZoom_Samples"      , Integer) = 0
-        _CameraFX_RadialZoom_Center        ("_CameraFX_RadialZoom_Center"       , Vector)  = (0,0,0,0)
+        _CameraFX_RadialZoom_Center        ("_CameraFX_RadialZoom_Center"       , Vector)  = (0,0,0)
         _CameraFX_RadialZoom_CenterFalloff ("_CameraFX_RadialZoom_CenterFalloff", Float)   = 0
         _CameraFX_RadialZoom_Radius        ("_CameraFX_RadialZoom_Radius"       , Float)   = 0
 
@@ -15,6 +15,13 @@ Shader "TestProject000/URP/CameraFX"
         _CameraFX_LensDistortion_Intensity       ("_CameraFX_LensDistortion_Intensity",       Float) = 0 // divided by about 60, check Frag_...()
         _CameraFX_LensDistortion_EnableSquishing ("_CameraFX_LensDistortion_EnableSquishing", Int  ) = 1 // squish that cat!
         _CameraFX_LensDistortion_SquishIntensity ("_CameraFX_LensDistortion_SquishIntensity", Float) = 1 // [0-1]
+
+        // AdditiveColor:
+        _CameraFX_AdditiveColor_Color     ("_CameraFX_AdditiveColor_Color"    , Vector) = (1,0,0)
+        _CameraFX_AdditiveColor_Intensity ("_CameraFX_AdditiveColor_Intensity", Float)  = 0
+
+        // Test:
+        _CameraFX_Test_Image ("_CameraFX_Test_Image", 2D) = "" {}
     }
 
     HLSLINCLUDE
@@ -25,6 +32,8 @@ Shader "TestProject000/URP/CameraFX"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
         // TODO: separate these FX out into individual shader include files!
+
+        Texture2D _CameraFX_Test_Image;
 
         // RadialZoom:
         // based on https://www.shadertoy.com/view/lsSXR3
@@ -103,6 +112,17 @@ Shader "TestProject000/URP/CameraFX"
             return float4(color, 1);
         }
 
+        float3 _CameraFX_AdditiveColor_Color;
+        float  _CameraFX_AdditiveColor_Intensity;
+
+        // AdditiveColor:
+        float4 Frag_AdditiveColor (Varyings input) : SV_Target {
+            float3 base   = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, input.texcoord);
+            float3 result = base + (_CameraFX_AdditiveColor_Color * _CameraFX_AdditiveColor_Intensity);
+            return float4(result, 1);
+            //return SAMPLE_TEXTURE2D(_CameraFX_Test_Image, sampler_LinearRepeat, input.texcoord);
+        }
+
     ENDHLSL
     
     SubShader
@@ -131,6 +151,18 @@ Shader "TestProject000/URP/CameraFX"
             
             #pragma vertex Vert
             #pragma fragment Frag_LensDistortion
+            
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "CameraFX_AdditiveColor"
+
+            HLSLPROGRAM
+            
+            #pragma vertex Vert
+            #pragma fragment Frag_AdditiveColor
             
             ENDHLSL
         }

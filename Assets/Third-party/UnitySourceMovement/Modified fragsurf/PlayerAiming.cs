@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerAiming : MonoBehaviour
 {
@@ -41,8 +43,15 @@ public class PlayerAiming : MonoBehaviour
 		Cursor.visible   = false;
 	}
 
+    bool isPaused = false;
 	private void Update()
 	{
+#if UNITY_EDITOR
+        if      (Keyboard.current.escapeKey.wasPressedThisFrame) isPaused = !isPaused;
+        else if (Keyboard.current.enterKey. wasPressedThisFrame) isPaused = false;
+        if (isPaused) return;
+#endif
+
         // Fix pausing
 		if (Mathf.Abs(Time.timeScale) <= 0)
 			return;

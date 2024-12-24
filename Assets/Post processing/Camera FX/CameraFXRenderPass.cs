@@ -42,11 +42,8 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
         var resourceData = frameData.Get<UniversalResourceData>();
         if (resourceData.isActiveTargetBackBuffer) return; // TODO: why?
 
-        var sourceTexture      = resourceData.activeColorTexture;
-        var destinationTexture = UniversalRenderer.CreateRenderGraphTexture(
-            renderGraph, textureDescriptor, name: "_CameraFXTexture", clear: false);
-
-        if (!sourceTexture.IsValid() || !destinationTexture.IsValid()) return;
+        var activeTexture = resourceData.activeColorTexture; // cache
+        if (!activeTexture.IsValid()) return;
 
         var cameraData = frameData.Get<UniversalCameraData>();
         textureDescriptor.width  = cameraData.cameraTargetDescriptor.width;
@@ -59,26 +56,48 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
         // Basically, process into a texture, then push that back into the output:
         // TODO: this might change if we want multiple passes
         //       in that case, we would want each pass to trickle down and the final pass to be output.
-        using (var builder = renderGraph.AddRasterRenderPass<PassData>(
-            "CameraFX_PrePass", out var passData)) {
-            passData.source   = sourceTexture;
+
+        var radialZoomDestinationTexture = UniversalRenderer.CreateRenderGraphTexture(
+            renderGraph, textureDescriptor, name: "_CameraFXRadialZoomTex", clear: false
+        );
+        using (var builder = renderGraph.AddRasterRenderPass<PassData>("CameraFX_RadialZoom", out var passData)) {
+            passData.source   = activeTexture; // source texture
             passData.material = material;
 
             builder.UseTexture(passData.source);
-            builder.SetRenderAttachment(destinationTexture, 0);
+            builder.SetRenderAttachment(radialZoomDestinationTexture, 0); // temp target texture
 
             builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context, 0));
         }
 
+        var lensDistortionDestinationTexture = UniversalRenderer.CreateRenderGraphTexture(
+            renderGraph, textureDescriptor, name: "_CameraFXLensDistortionTex", clear: false
+        );
         using (var builder = renderGraph.AddRasterRenderPass<PassData>(
-            "CameraFX_PostPass", out var passData)) {
-            passData.source   = destinationTexture;
+            "CameraFX_LensDistortion", out var passData)) {
+            passData.source   = radialZoomDestinationTexture; // last temp target texture
             passData.material = material;
 
+            // NOTE: this is referring to 'passData' as context - it's actually set to the destination texture just above:
             builder.UseTexture(passData.source);
-            builder.SetRenderAttachment(sourceTexture, 0);
+            builder.SetRenderAttachment(lensDistortionDestinationTexture, 0); // render to active texture
 
             builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context, 1));
+        }
+
+        var additiveColorDestinationTexture = UniversalRenderer.CreateRenderGraphTexture(
+            renderGraph, textureDescriptor, name: "_CameraFXAdditiveColorTex", clear: false
+        );
+        using (var builder = renderGraph.AddRasterRenderPass<PassData>(
+            "CameraFX_AdditiveColor", out var passData)) {
+            passData.source   = lensDistortionDestinationTexture; // last temp target texture
+            passData.material = material;
+
+            // NOTE: this is referring to 'passData' as context - it's actually set to the destination texture just above:
+            builder.UseTexture(passData.source);
+            builder.SetRenderAttachment(activeTexture, 0); // render to active texture
+
+            builder.SetRenderFunc((PassData data, RasterGraphContext context) => executePass(data, context, 2));
         }
     }
 
