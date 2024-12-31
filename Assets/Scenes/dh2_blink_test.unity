@@ -20,13 +20,13 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.8494571, g: 0.8547582, b: 0.9528302, a: 1}
+  m_AmbientSkyColor: {r: 0.18649878, g: 0.19129957, b: 0.31132078, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
+  m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.22174263, g: 0.24709491, b: 0.31132078, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1071,7 +1071,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.71
+  m_Intensity: 0.6
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1114,7 +1114,7 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 4152
+  m_ColorTemperature: 9644
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -1133,13 +1133,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 336097103}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.8634088, y: -0.50208175, z: -0.031278566, w: -0.03822064}
+  m_LocalRotation: {x: 0.86440355, y: -0.5017729, z: 0.0034135876, w: 0.03192018}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 185.59, y: 0.9, z: 60.313}
+  m_LocalEulerAnglesHint: {x: 176.64, y: 1.5, z: 60.313}
 --- !u!114 &336097106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3303,7 +3303,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4a845a9e2b872374aa2d6df8735b4112, type: 2}
+  - {fileID: 2100000, guid: a7ae6b34c1352bd419c92ad25692fcb1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3600,7 +3600,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4a845a9e2b872374aa2d6df8735b4112, type: 2}
+  - {fileID: 2100000, guid: a7ae6b34c1352bd419c92ad25692fcb1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5028,8 +5028,9 @@ GameObject:
   - component: {fileID: 5467285085214352277}
   - component: {fileID: 5467285085214352278}
   - component: {fileID: 5467285085214352280}
-  - component: {fileID: 5467285085214352281}
   - component: {fileID: 5467285085214352282}
+  - component: {fileID: 5467285085214352281}
+  - component: {fileID: 5467285085214352283}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -5284,12 +5285,120 @@ MonoBehaviour:
   aimingGameObject: {fileID: 0}
   aimingTransform: {fileID: 0}
   aimingRigidbody: {fileID: 0}
+  SFXSource: {fileID: 5467285085214352283}
+  SFXOutOfMagic: {fileID: 8300000, guid: d6ef410fd664144fbb44c014efac9500, type: 3}
+  SFXMagicRegen: {fileID: 8300000, guid: 7d182e46629a64a2a9ddd3ad4b4622a3, type: 3}
+  SFXAimClips:
+  - {fileID: 8300000, guid: f50a79199786d463fa0095286fda1878, type: 3}
+  - {fileID: 8300000, guid: 79b7ea8092ba94ad5be35cc4a18430d9, type: 3}
+  SFXAimSpellClip: {fileID: 8300000, guid: 67810c17745fd4208803dcafe0ea783b, type: 3}
+  SFXCastClips:
+  - {fileID: 8300000, guid: f744343e702ae480387b6d6cd476d5df, type: 3}
+  - {fileID: 8300000, guid: 2a8bd2d8e7668494abe17bc56eca06d1, type: 3}
+  SFXCastSpellClip: {fileID: 8300000, guid: a4e34eeca22b545bda310ea2b5fa33af, type: 3}
   effectsController: {fileID: 1756957227}
   playerDebugText: {fileID: 734384165}
   state: 0
   manaCost: 20
   aimRadius: 10
   castCooldownSec: 1
+--- !u!82 &5467285085214352283
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5467285085214352276}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.6
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &5467285085433526896
 Transform:
   m_ObjectHideFlags: 0

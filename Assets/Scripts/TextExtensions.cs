@@ -32,6 +32,7 @@ public static partial class TextExtensions {
     public static string bold     (this string text) => $"<b>{text}</b>";
     public static string underline(this string text) => $"<u>{text}</u>";
     public static string italic   (this string text) => $"<i>{text}</i>";
+    public static string monospace(this string text) => $"<mspace=0.55em>{text}</mspace>";
     public static string color    (this string text, string color_hex) {
         if (color_hex[0] != '#') color_hex.Insert(0, "#");
         return $"<color={color_hex}>{text}</color>";

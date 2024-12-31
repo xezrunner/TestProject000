@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Fragsurf.Movement;
 using TMPro;
@@ -20,6 +19,15 @@ public class TransversalPower : MonoBehaviour {
     [SerializeField] GameObject aimingGameObject;
     [SerializeField] Transform aimingTransform;
     [SerializeField] Rigidbody aimingRigidbody;
+
+    int SFXCurrentSet = 0;
+    [SerializeField] AudioSource SFXSource;
+    [SerializeField] AudioClip SFXOutOfMagic;
+    [SerializeField] AudioClip SFXMagicRegen;
+    [SerializeField] AudioClip[] SFXAimClips;
+    [SerializeField] AudioClip SFXAimSpellClip;
+    [SerializeField] AudioClip[] SFXCastClips;
+    [SerializeField] AudioClip SFXCastSpellClip;
 
     [SerializeField] TransversalPowerFXController effectsController;
 
@@ -80,6 +88,7 @@ public class TransversalPower : MonoBehaviour {
         if (mana < manaCost) {
             // TODO: play anim for out of mana
             Debug.Log("TransversalPower aim failed: out of mana!");
+            SFXSource.PlayOneShot(SFXOutOfMagic, 0.43f);
             return;
         }
 
@@ -96,6 +105,18 @@ public class TransversalPower : MonoBehaviour {
         // TEMP:
         // TODO: Cancellation
         if (previousAimingState == TransversalPowerState.Aiming && state == TransversalPowerState.None) Cast();
+
+        if (state == TransversalPowerState.Aiming) {
+            SFXSource.PlayOneShot(SFXAimSpellClip, 0.3f);
+            SFXSource.PlayOneShot(SFXAimClips[SFXCurrentSet], 0.6f);
+        } else if (state == TransversalPowerState.Casting) {
+            SFXSource.PlayOneShot(SFXCastSpellClip, 0.3f);
+            SFXSource.PlayOneShot(SFXCastClips[SFXCurrentSet], 0.6f);
+            SFXCurrentSet = (SFXCurrentSet + 1) % 2;
+        } else {
+            SFXCurrentSet = (SFXCurrentSet + 1) % 2;
+        }
+
     }
 
     void UPDATE_Aiming() {
@@ -116,7 +137,7 @@ public class TransversalPower : MonoBehaviour {
 
                 hitPoint += Vector3.Scale(hit.normal, playerSurfCharacter.colliderSize / 2);
 
-                String debugText = $"hits: ";
+                string debugText = $"hits: ";
                 foreach (var rayhit in hits) {
                     if (rayhit.collider == hit.collider) continue;
 
@@ -223,11 +244,15 @@ public class TransversalPower : MonoBehaviour {
                 manaRefillTimer = 0f;
                 return;
             }
+
+            // TEMP: HACK: Play SFX for mana regen
+            if (manaPrev != manaRefillTimer) {
+                SFXSource.PlayOneShot(SFXMagicRegen, 0.43f);
+                manaPrev = manaRefillTimer;
+            }
         } else {
             manaRefillTimer += Time.deltaTime;
         }
-
-        manaPrev = mana;
     }
 
     // TODO: no longer needed (?)
@@ -247,26 +272,39 @@ public class TransversalPower : MonoBehaviour {
     void UPDATE_DebugText() {
         if (!playerDebugText) return;
 
-        StringBuilder text = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-        text.AppendLine($"Timescale: {Time.timeScale}");
+        builder.AppendLine($"Timescale: {Time.timeScale}");
 
-        text.AppendLine($"\nPlayer debug".bold());
-        text.AppendLine($"  - velocity (x): {playerSurfCharacter.moveData.velocity.x}m");
-        text.AppendLine($"  - velocity (y): {playerSurfCharacter.moveData.velocity.y}m");
-        text.AppendLine($"  - velocity (z): {playerSurfCharacter.moveData.velocity.z}m");
+        builder.AppendLine($"\nPlayer debug".bold());
+        builder.AppendLine($"  - position: {playerSurfCharacter.moveData.playerTransform.position}");
+        //builder.AppendLine($"  - rotation: {playerSurfCharacter.playerRotationTransform.rotation}");
+        builder.AppendLine($"  - velocity: {playerSurfCharacter.moveData.velocity}");
+        
+        builder.AppendLine($"\nMagic debug".bold());
+        builder.AppendLine($"  - refill timer: {manaRefillTimer}/{manaRefillDelay}");
+        //builder.AppendLine($"  - mana: {mana}/{manaMax}");
 
-        text.AppendLine($"\nMagic debug".bold());
-        text.AppendLine($"- refill timer: {manaRefillTimer}/{manaRefillDelay}");
-        text.AppendLine($"- mana: {mana}/{manaMax}");
-        if (mana <= 0f) text.AppendLine($"    OUT OF MANA!".color(Color.red).bold());
+        string manaVisual = "";
+        for (int i = 0; i < 10; i++) {
+            manaVisual += i < (mana / 10) ? '█' : ' ';
+        }
 
-        text.AppendLine($"\nTransversalPower debug".bold());
-        text.AppendLine($"  - state: {state}");
-        text.AppendLine($"  - t: {casting_t}");
-        if (mana < manaCost) text.AppendLine($"    OUT OF MANA for TransversalPower!".color(Color.red).bold());
+        builder.Append($"  - mana: {manaVisual}  {mana, 0:##0.000}/{manaMax}".monospace());
+        if (mana <= 0f && (int)(Time.time * 2) % 2 == 0) builder.AppendLine($"  OUT OF MANA!".color(Color.red).bold());
+        else builder.AppendLine();
 
-        playerDebugText.SetText(text);
+        //builder.AppendLine($"    0 {manaVisual.color(mana < manaCost ? Color.red : Color.white)} 100".monospace());
+
+        //if (mana <= 0f) builder.AppendLine($"    OUT OF MANA!".color(Color.red).bold());
+
+        builder.AppendLine($"\nTransversalPower debug".bold());
+        builder.AppendLine($"  - SFX set: {SFXCurrentSet}");
+        builder.AppendLine($"  - state: {state}");
+        builder.AppendLine($"  - t: {casting_t}");
+        if (mana < manaCost && (int)(Time.time * 2) % 2 == 0) builder.AppendLine($"    OUT OF MANA for TransversalPower!".color(Color.red).bold());
+
+        playerDebugText.SetText(builder);
     }
 
     void Update() {
