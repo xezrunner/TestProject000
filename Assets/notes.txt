@@ -1,0 +1,23 @@
+--- 
+
+--- Player component structure ---
+
+- Player
+    | ROOT group
+      // Only stuff that's relevant to basic functionality of the Player should go here, such as movement and input.
+        - Surf Character
+        - Player/input
+    | Systems/features group
+        - HealthSystem
+        - ManaSystem
+    | Powers group
+        - TransversalPower
+        - ChronosPower
+        - ...
+    | Audio group
+        | SFX
+          // AudioSources, mostly
+            - MagicSFX
+        | Music
+            - ... 
+    | ...

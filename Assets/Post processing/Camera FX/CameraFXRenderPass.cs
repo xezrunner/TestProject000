@@ -57,6 +57,7 @@ partial class CameraFXRenderPass : ScriptableRenderPass {
         // TODO: this might change if we want multiple passes
         //       in that case, we would want each pass to trickle down and the final pass to be output.
 
+        // TODO: What's the ordering here? Radial Zoom should be above any distortion effects.
         var radialZoomDestinationTexture = UniversalRenderer.CreateRenderGraphTexture(
             renderGraph, textureDescriptor, name: "_CameraFXRadialZoomTex", clear: false
         );
