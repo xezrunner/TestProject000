@@ -1,4 +1,5 @@
 using UnityEngine;
+
 using static DebugStats;
 
 public class PlayerHealthSystem : MonoBehaviour {
@@ -20,7 +21,7 @@ public class PlayerHealthSystem : MonoBehaviour {
     void UPDATE_PrintStats() {
         STATS_SectionStart("Health system");
 
-        STATS_PrintSectionLine($"health: {currentHealth}");
+        STATS_SectionPrintLine($"health: {currentHealth}");
 
         STATS_SectionEnd();
     }

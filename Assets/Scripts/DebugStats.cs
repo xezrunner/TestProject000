@@ -1,5 +1,6 @@
 using System.Text;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DebugStats : MonoBehaviour {
@@ -24,34 +25,60 @@ public class DebugStats : MonoBehaviour {
     
     const int MAX_LINES = 100;
 
-    int lineCount = 0;
-    string[] lines = new string[MAX_LINES];
+    const int LINE_CHANNEL_TEMPORARY = 0;
+    const int LINE_CHANNEL_PERMANENT = 1;
 
-    public void AddLine(string line) {
+    int[]     lineCount = new int[2];
+    string[,] lines     = new string[2, MAX_LINES];
+
+    [SerializeField] float permanentLineTimeoutSec = 4f;
+    
+    void addLine(string line, bool permanent = false) {
         if (!enabled) return;
-        if (lineCount + 1 >= MAX_LINES) {
-            Debug.LogWarning($"DebugStats: too many lines! ({lineCount}) - ignoring new lines.");
+
+        int index = !permanent ? LINE_CHANNEL_TEMPORARY : LINE_CHANNEL_PERMANENT;
+        
+        if (index == 0 && lineCount[index] >= MAX_LINES) {
+            Debug.LogWarning($"DebugStats: too many lines for line channel {index}! ({lineCount[index]}) - ignoring new lines.");
             return;
         }
 
-        lines[lineCount++] = line;
+        lines[index, lineCount[index]++] = line;
     }
 
-    public static void STATS_PrintLine(string line)        => Instance?.AddLine(line);
+    public static void STATS_PrintLine         (string line) => Instance?.addLine(line);
+    public static void STATS_PrintLinePermanent(string line) => Instance?.addLine(line, true);
 
-    public static void STATS_SectionStart(string name)     => Instance?.AddLine(name.bold());
-    public static void STATS_PrintSectionLine(string line) => Instance?.AddLine($"   - {line}");
-    public static void STATS_SectionEnd()                  => Instance?.AddLine("");
+    public static void STATS_SectionStart    (string name) => Instance?.addLine(name.bold());
+    public static void STATS_SectionPrintLine(string line) => Instance?.addLine($"   - {line}");
+    public static void STATS_SectionEnd()                  => Instance?.addLine("");
+
+    float permanentLineRemovalTimerSec = 0f;
 
     StringBuilder sb = new(capacity: MAX_LINES);
     void LateUpdate() {
-        for (int i = 0; i < lineCount; i++) {
-            sb.AppendLine(lines[i]);
+        // Temporary, per-frame lines:
+        for (int i = 0; i < lineCount[LINE_CHANNEL_TEMPORARY]; i++) {
+            sb.AppendLine(lines[LINE_CHANNEL_TEMPORARY, i]);
+        }
+
+        sb.AppendLine();
+
+        // Permanent lines:
+        for (int i = 0; i < lineCount[LINE_CHANNEL_PERMANENT]; i++) {
+            sb.AppendLine(lines[LINE_CHANNEL_PERMANENT, i].color("#ffffff80"));
         }
 
         textCom.SetText(sb);
         
+        lineCount[0] = 0;
         sb.Clear();
-        lineCount = 0;
+
+        permanentLineRemovalTimerSec += Time.deltaTime;
+        // When the timeout is up, remove a permanent line:
+        if (permanentLineRemovalTimerSec >= permanentLineTimeoutSec) {
+            if (lineCount[LINE_CHANNEL_PERMANENT] > 0) --lineCount[LINE_CHANNEL_PERMANENT];
+            permanentLineRemovalTimerSec = 0f;
+        }
     }
 }
