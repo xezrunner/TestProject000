@@ -1,6 +1,5 @@
 using System.Text;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class DebugStats : MonoBehaviour {
@@ -9,12 +8,12 @@ public class DebugStats : MonoBehaviour {
     [SerializeField] TMP_Text textCom;
 
     void Awake() {
-        if (DebugStats.Instance != null) {
+        if (Instance != null) {
             Debug.LogWarning("Multiple DebugStats instances found - destroying new one.");
             Destroy(this);
             return;
         }
-        DebugStats.Instance = this;
+        Instance = this;
 
         if (!textCom) textCom = GetComponent<TMP_Text>();
         if (!textCom) {
@@ -25,60 +24,63 @@ public class DebugStats : MonoBehaviour {
     
     const int MAX_LINES = 100;
 
-    const int LINE_CHANNEL_TEMPORARY = 0;
-    const int LINE_CHANNEL_PERMANENT = 1;
+    int perFrameLineCount = 0;
+    int quickLineCount = 0;
 
-    int[]     lineCount = new int[2];
-    string[,] lines     = new string[2, MAX_LINES];
+    string[] perFrameLines = new string[MAX_LINES];
+    string[] quickLineLines = new string[MAX_LINES];
 
-    [SerializeField] float permanentLineTimeoutSec = 4f;
-    
-    void addLine(string line, bool permanent = false) {
+    void addPerFrameLine(string line) {
         if (!enabled) return;
-
-        int index = !permanent ? LINE_CHANNEL_TEMPORARY : LINE_CHANNEL_PERMANENT;
-        
-        if (index == 0 && lineCount[index] >= MAX_LINES) {
-            Debug.LogWarning($"DebugStats: too many lines for line channel {index}! ({lineCount[index]}) - ignoring new lines.");
+        if (perFrameLineCount >= MAX_LINES) {
+            Debug.LogWarning($"DebugStats: too many lines for per-frame line channel! ({perFrameLineCount}) - ignoring new lines.");
             return;
         }
 
-        lines[index, lineCount[index]++] = line;
+        perFrameLines[perFrameLineCount++] = line;
     }
 
-    public static void STATS_PrintLine         (string line) => Instance?.addLine(line);
-    public static void STATS_PrintLinePermanent(string line) => Instance?.addLine(line, true);
+    void addQuickLine(string line) {
+        if (!enabled) return;
+        if (quickLineCount >= MAX_LINES) {
+            Debug.LogWarning($"DebugStats: too many lines for quickline channel! ({quickLineCount}) - ignoring new lines.");
+            return;
+        }
 
-    public static void STATS_SectionStart    (string name) => Instance?.addLine(name.bold());
-    public static void STATS_SectionPrintLine(string line) => Instance?.addLine($"   - {line}");
-    public static void STATS_SectionEnd()                  => Instance?.addLine("");
+        quickLineLines[quickLineCount++] = line;
+    }
 
-    float permanentLineRemovalTimerSec = 0f;
+    public static void STATS_PrintLine     (string line)   => Instance?.addPerFrameLine(line);
+    public static void STATS_PrintQuickLine(string line)   => Instance?.addQuickLine   (line);
+
+    public static void STATS_SectionStart    (string name) => Instance?.addPerFrameLine(name.bold());
+    public static void STATS_SectionPrintLine(string line) => Instance?.addPerFrameLine($"   - {line}");
+    public static void STATS_SectionEnd()                  => Instance?.addPerFrameLine("");
+
+    [SerializeField] float permanentLineTimeoutSec = 4f;
+    float quickLineRemovalTimerSec = 0f;
 
     StringBuilder sb = new(capacity: MAX_LINES);
     void LateUpdate() {
         // Temporary, per-frame lines:
-        for (int i = 0; i < lineCount[LINE_CHANNEL_TEMPORARY]; i++) {
-            sb.AppendLine(lines[LINE_CHANNEL_TEMPORARY, i]);
-        }
+        for (int i = 0; i < perFrameLineCount; i++) sb.AppendLine(perFrameLines[i]);
 
         sb.AppendLine();
 
-        // Permanent lines:
-        for (int i = 0; i < lineCount[LINE_CHANNEL_PERMANENT]; i++) {
-            sb.AppendLine(lines[LINE_CHANNEL_PERMANENT, i].color("#ffffff80"));
-        }
+        // "More permanent" lines / quicklines:
+        // "Quickline" is a name from Rhythmic - it should be lines that are shown for a short time.
+        for (int i = 0; i < quickLineCount; i++) sb.AppendLine(quickLineLines[i].color("#ffffff80"));
 
         textCom.SetText(sb);
         
-        lineCount[0] = 0;
+        perFrameLineCount = 0;
         sb.Clear();
 
-        permanentLineRemovalTimerSec += Time.deltaTime;
+        quickLineRemovalTimerSec += Time.deltaTime;
         // When the timeout is up, remove a permanent line:
-        if (permanentLineRemovalTimerSec >= permanentLineTimeoutSec) {
-            if (lineCount[LINE_CHANNEL_PERMANENT] > 0) --lineCount[LINE_CHANNEL_PERMANENT];
-            permanentLineRemovalTimerSec = 0f;
+        if (quickLineCount > 0 && quickLineRemovalTimerSec >= permanentLineTimeoutSec) {
+            --quickLineCount;
+            quickLineRemovalTimerSec = 0f;
         }
     }
 }
