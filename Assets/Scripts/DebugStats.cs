@@ -21,13 +21,13 @@ public class DebugStats : MonoBehaviour {
             enabled = false;
         }
     }
-    
+
     const int MAX_LINES = 100;
 
     int perFrameLineCount = 0;
     int quickLineCount = 0;
 
-    string[] perFrameLines = new string[MAX_LINES];
+    string[] perFrameLines  = new string[MAX_LINES];
     string[] quickLineLines = new string[MAX_LINES];
 
     void addPerFrameLine(string line) {
@@ -63,16 +63,16 @@ public class DebugStats : MonoBehaviour {
     StringBuilder sb = new(capacity: MAX_LINES);
     void LateUpdate() {
         // Temporary, per-frame lines:
-        for (int i = 0; i < perFrameLineCount; i++) sb.AppendLine(perFrameLines[i]);
+        for (int i = 0; i < perFrameLineCount; ++i) sb.AppendLine(perFrameLines[i]);
 
         sb.AppendLine();
 
         // "More permanent" lines / quicklines:
         // "Quickline" is a name from Rhythmic - it should be lines that are shown for a short time.
-        for (int i = 0; i < quickLineCount; i++) sb.AppendLine(quickLineLines[i].color("#ffffff80"));
+        for (int i = 0; i < quickLineCount; ++i) sb.AppendLine(quickLineLines[i].color("#ffffff80"));
 
         textCom.SetText(sb);
-        
+
         perFrameLineCount = 0;
         sb.Clear();
 

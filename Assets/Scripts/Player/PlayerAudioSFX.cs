@@ -7,7 +7,7 @@ public class PlayerAudioSFX : MonoBehaviour {
     public static PlayerAudioSFX Instance;
 
     void Awake() {
-        if (PlayerAudioSFX.Instance != null) {
+        if (Instance != null) {
             Debug.LogWarning("Multiple PlayerAudioSFX instances found - destroying new one.");
             Destroy(this);
             return;
@@ -17,6 +17,8 @@ public class PlayerAudioSFX : MonoBehaviour {
 
     [Header("Audio sources")]
     [SerializeField] AudioSource meta;
+
+    // TEMP: improve this!
     List<(AudioClip clip, float volume, float start)> meta_currentlyPlaying = new List<(AudioClip, float, float)>();
 
     // TODO: call this ..OneShot, depending on future functions
@@ -35,7 +37,10 @@ public class PlayerAudioSFX : MonoBehaviour {
             var (clip, volume, start) = meta_currentlyPlaying[i];
 
             STATS_SectionPrintLine($"{"meta:".bold()} '{clip.name}'  vol: {volume}  {Time.time - start, 0:##0.00}/{clip.length, 0:##0.00}");
-            if (Time.time - start >= clip.length) meta_currentlyPlaying.Remove((clip, volume, start));
+            if (Time.time - start >= clip.length) {
+                meta_currentlyPlaying.Remove((clip, volume, start));
+                break; // collection modified
+            }
         }
 
         STATS_SectionEnd();
