@@ -12,8 +12,8 @@ class PlayerPowerSystem: MonoBehaviour {
             return;
         }
 
-        bool success = equippedPower.RequestCast();
-        STATS_PrintQuickLine($"{equippedPower.name} -- success: {success}");
+        var result = equippedPower.RequestCast(); 
+        STATS_PrintQuickLine($"{equippedPower.name} -- success: {result.success} {(result.reason != null ? $"({result.reason})" : null)}");
     }
 
     void cancelEquippedPower() {

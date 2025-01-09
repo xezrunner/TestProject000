@@ -1868,7 +1868,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1493567581}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2220,6 +2220,16 @@ MonoBehaviour:
   autoConsumeMana: 0
   manaCost: 20
   cooldownSec: 1
+  isBeingCast: 0
+  SFX_AimingClips:
+  - {fileID: 8300000, guid: f50a79199786d463fa0095286fda1878, type: 3}
+  - {fileID: 8300000, guid: 79b7ea8092ba94ad5be35cc4a18430d9, type: 3}
+  SFX_CastingClips:
+  - {fileID: 8300000, guid: f744343e702ae480387b6d6cd476d5df, type: 3}
+  - {fileID: 8300000, guid: 2a8bd2d8e7668494abe17bc56eca06d1, type: 3}
+  SFX_SpellClips:
+  - {fileID: 8300000, guid: 67810c17745fd4208803dcafe0ea783b, type: 3}
+  - {fileID: 8300000, guid: a4e34eeca22b545bda310ea2b5fa33af, type: 3}
 --- !u!1 &1714558085
 GameObject:
   m_ObjectHideFlags: 0
@@ -2850,8 +2860,8 @@ Transform:
   m_Children:
   - {fileID: 3832708957461626346}
   - {fileID: 483343579}
-  - {fileID: 1493567582}
   - {fileID: 719978429}
+  - {fileID: 1493567582}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3832708958535284624

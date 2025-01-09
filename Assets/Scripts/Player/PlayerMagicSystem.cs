@@ -15,8 +15,15 @@ public class PlayerMagicSystem : MonoBehaviour {
     public float manaRefillDelaySec = 3.0f;
 
     [Header("SFX clips")]
+    // TODO: Naming! SFX_...
     public AudioClip SFXManaRefill;
     public AudioClip SFXManaEmpty; // TODO: randomize many
+
+    const float SFX_VOLUME = 0.45f;
+
+    public void PlayEmptyManaSFX() {
+        PlayerAudioSFX.PlayMetaSFXClip(SFXManaEmpty, SFX_VOLUME);
+    }
 
     float mana = 100f;
     public float getMana() => mana;
@@ -24,7 +31,7 @@ public class PlayerMagicSystem : MonoBehaviour {
     // Returns success; if false, not enough mana.
     public bool ConsumeMana(float amount) {
         if (mana < amount) {
-            PlayerAudioSFX.PlayMetaSFXClip(SFXManaEmpty, 0.45f);
+            PlayEmptyManaSFX();
             return false;
         }
 
@@ -32,7 +39,8 @@ public class PlayerMagicSystem : MonoBehaviour {
 
         // The mana should refill to the next "piece" of the mana. e.g.: 100-20=80, refill to 100; 80-20=60, refill to 80; etc...
         // We fudge this by +0.5, so that when you're right at the edge (e.g. mana: 80), it still refills to the next piece.
-        manaTarget = manaRefillValue * Mathf.Ceil((mana + 0.5f) / manaRefillValue);
+        //manaTarget = manaRefillValue * Mathf.Ceil((mana + 0.5f) / manaRefillValue);
+        manaTarget = mana + manaRefillValue;
 
         manaRefillTimer = 0f;
         manaRefillState = PlayerManaRefillState.Waiting;
@@ -41,6 +49,13 @@ public class PlayerMagicSystem : MonoBehaviour {
 
         return true;
     }
+    public bool TestMana(float amount) {
+        if (mana >= amount) return true;
+
+        PlayEmptyManaSFX();
+        return false;
+    }
+
 
     PlayerManaRefillState manaRefillState = PlayerManaRefillState.Idle;
     float manaTarget;
@@ -69,7 +84,6 @@ public class PlayerMagicSystem : MonoBehaviour {
 
     void UPDATE_Debug() {
         if (Keyboard.current.hKey.wasPressedThisFrame) ConsumeMana(20);
-        if (Keyboard.current.lKey.wasPressedThisFrame) STATS_PrintQuickLine("Test!");
     }
 
     void Update() {

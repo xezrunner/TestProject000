@@ -23,12 +23,19 @@ public class PlayerAudioSFX : MonoBehaviour {
 
     // TODO: call this ..OneShot, depending on future functions
     public void playMetaSFXClip(AudioClip clip, float volume = 1f) {
+        if (!clip) {
+            STATS_PrintQuickLine("null clip was passed, not playing!");
+            return;
+        }
+
         meta_currentlyPlaying.Add((clip, volume, Time.time));
         meta.PlayOneShot(clip, volume);
     }
     public static void PlayMetaSFXClip(AudioClip clip, float volume = 1f) => Instance?.playMetaSFXClip(clip, volume);
 
+    public static bool PLAYERSFX_EnableStats = false;
     void UPDATE_PrintStats() {
+        if (!PLAYERSFX_EnableStats) return;
         if (meta_currentlyPlaying.Count == 0) return;
 
         STATS_SectionStart("Player Audio (SFX)");

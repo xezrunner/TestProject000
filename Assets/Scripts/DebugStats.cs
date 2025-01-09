@@ -75,10 +75,14 @@ public class DebugStats : MonoBehaviour {
     float quickLineRemovalTimerSec = 0f;
 
     StringBuilder sb = new(capacity: MAX_LINES);
+
+    static bool STATS_EnableDebugInfo = false;
     void LateUpdate() {
-        STATS_SectionStart("Debug stats");
-        STATS_SectionPrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  ql timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
-        STATS_SectionEnd();
+        if (STATS_EnableDebugInfo) {
+            STATS_SectionStart("Debug stats");
+            STATS_SectionPrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  ql timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
+            STATS_SectionEnd();
+        }
 
         // Temporary, per-frame lines:
         for (int i = 0; i < perFrameLineCount; ++i) sb.AppendLine(perFrameLines[i]);
