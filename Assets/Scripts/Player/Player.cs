@@ -4,11 +4,16 @@ using static DebugStats;
 
 public class Player : MonoBehaviour
 {
+    public static Player Instance;
+    void Awake() {
+        if (Instance == null) Instance = this;
+    }
+    
     // TODO: player transforms, etc.
 
     [Header("Systems")]
     public PlayerHealthSystem healthSystem;
-    public PlayerMagicSystem  manaSystem;
+    public PlayerMagicSystem  magicSystem;
 
     [Header("SFX")]
     public PlayerAudioSFX audioSFX;

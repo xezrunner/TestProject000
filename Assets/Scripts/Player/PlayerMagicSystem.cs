@@ -8,7 +8,7 @@ public enum PlayerManaRefillState {
 
 public class PlayerMagicSystem : MonoBehaviour {
     [Header("Mana properties")]
-    public  float manaMax = 100f;
+    public float manaMax = 100f;
     
     public float manaRefillValue    = 20f;   // 5 pieces: 100/5 = 20
     public float manaRefillPerSec   = 10.0f;
@@ -18,8 +18,8 @@ public class PlayerMagicSystem : MonoBehaviour {
     public AudioClip SFXManaRefill;
     public AudioClip SFXManaEmpty; // TODO: randomize many
 
-
     float mana = 100f;
+    public float getMana() => mana;
 
     // Returns success; if false, not enough mana.
     public bool ConsumeMana(float amount) {
@@ -37,7 +37,7 @@ public class PlayerMagicSystem : MonoBehaviour {
         manaRefillTimer = 0f;
         manaRefillState = PlayerManaRefillState.Waiting;
 
-        STATS_PrintQuickLine($"ConsumeMana({amount}): [mana:{mana}/refill:{manaRefillValue} = {Mathf.Ceil(mana / manaRefillValue)}] * refill:{manaRefillValue} -> target: {manaTarget}");
+        STATS_PrintQuickLine($"-{amount.ToString().bold()} -> [mana:{mana}/refill:{manaRefillValue} = {Mathf.Ceil(mana / manaRefillValue)}] * refill:{manaRefillValue} = {manaTarget}");
 
         return true;
     }
@@ -69,6 +69,7 @@ public class PlayerMagicSystem : MonoBehaviour {
 
     void UPDATE_Debug() {
         if (Keyboard.current.hKey.wasPressedThisFrame) ConsumeMana(20);
+        if (Keyboard.current.lKey.wasPressedThisFrame) STATS_PrintQuickLine("Test!");
     }
 
     void Update() {

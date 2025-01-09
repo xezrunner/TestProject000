@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 // TODO: 
 // - How should we tackle sprites on-screen, for arrival? Would post-process FX apply for UI canvas in world mode?
 
+#if false
 public enum TransversalPowerState { None = 0, Aiming = 1, Casting = 2, Cooldown = 3 }
 
 public class TransversalPower : MonoBehaviour {
@@ -342,3 +343,4 @@ public class TransversalPower : MonoBehaviour {
         }
     }
 }
+#endif

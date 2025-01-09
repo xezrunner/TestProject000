@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textCom: {fileID: 2008368}
-  permanentLineTimeoutSec: 4
+  quickLineTimeoutSec: 3.3
 --- !u!222 &2008370
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1040,7 +1040,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef63d76caf0f9405692d37cfd4308c6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedPower: {fileID: 0}
 --- !u!1 &775168743
 GameObject:
   m_ObjectHideFlags: 0
@@ -2929,8 +2928,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthSystem: {fileID: 483343580}
-  manaSystem: {fileID: 483343581}
-  audioSFX: {fileID: 0}
+  magicSystem: {fileID: 483343581}
+  audioSFX: {fileID: 1317172562}
 --- !u!20 &3832708958888636008
 Camera:
   m_ObjectHideFlags: 0

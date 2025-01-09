@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -23,12 +24,13 @@ public class DebugStats : MonoBehaviour {
     }
 
     const int MAX_LINES = 100;
-
-    int perFrameLineCount = 0;
-    int quickLineCount = 0;
+    const int MAX_QUICKLINES_VIEW = 7;
 
     string[] perFrameLines  = new string[MAX_LINES];
     string[] quickLineLines = new string[MAX_LINES];
+
+    int perFrameLineCount = 0;
+    int quickLineCount = 0;
 
     void addPerFrameLine(string line) {
         if (!enabled) return;
@@ -40,47 +42,71 @@ public class DebugStats : MonoBehaviour {
         perFrameLines[perFrameLineCount++] = line;
     }
 
-    void addQuickLine(string line) {
+    void addQuickLine(string line, [CallerFilePath]   string caller_file_path = null,
+                                   [CallerMemberName] string caller_proc_name = null,
+                                   [CallerLineNumber] int    caller_line_num = -1) {
         if (!enabled) return;
         if (quickLineCount >= MAX_LINES) {
             Debug.LogWarning($"DebugStats: too many lines for quickline channel! ({quickLineCount}) - ignoring new lines.");
             return;
         }
 
+        if (quickLineCount > MAX_QUICKLINES_VIEW) quickLineViewIndex = quickLineCount - MAX_QUICKLINES_VIEW; // visual overflow
+
+        line = line.add_caller_debug_info(CallerDebugInfoFlags.FP, caller_file_path, caller_proc_name, caller_line_num);
+
         quickLineLines[quickLineCount++] = line;
+        Debug.Log($"[ql] {line}"); // TEMP: eventually, a logging system should take care of logging out to different targets.
     }
 
     public static void STATS_PrintLine     (string line)   => Instance?.addPerFrameLine(line);
-    public static void STATS_PrintQuickLine(string line)   => Instance?.addQuickLine   (line);
+    public static void STATS_PrintQuickLine(string line,
+                         [CallerFilePath]   string caller_file_path = null,
+                         [CallerMemberName] string caller_proc_name = null,
+                         [CallerLineNumber] int    caller_line_num = -1) => 
+                         Instance?.addQuickLine(line, caller_file_path, caller_proc_name, caller_line_num);
 
     public static void STATS_SectionStart    (string name) => Instance?.addPerFrameLine(name.bold());
     public static void STATS_SectionPrintLine(string line) => Instance?.addPerFrameLine($"   - {line}");
     public static void STATS_SectionEnd()                  => Instance?.addPerFrameLine("");
 
-    [SerializeField] float permanentLineTimeoutSec = 4f;
+    int quickLineViewIndex = 0;
+    [SerializeField] float quickLineTimeoutSec = 4f;
     float quickLineRemovalTimerSec = 0f;
 
     StringBuilder sb = new(capacity: MAX_LINES);
     void LateUpdate() {
+        STATS_SectionStart("Debug stats");
+        STATS_SectionPrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
+        STATS_SectionEnd();
+
         // Temporary, per-frame lines:
         for (int i = 0; i < perFrameLineCount; ++i) sb.AppendLine(perFrameLines[i]);
 
         sb.AppendLine();
 
         // "More permanent" lines / quicklines:
-        // "Quickline" is a name from Rhythmic - it should be lines that are shown for a short time.
-        for (int i = 0; i < quickLineCount; ++i) sb.AppendLine(quickLineLines[i].color("#ffffff80"));
+        // "Quickline" is a name from Rhythmic/XZShared - it should be lines that are shown for a short time.
+        for (int i = quickLineViewIndex; i < quickLineCount; ++i) sb.AppendLine(quickLineLines[i].color("#ffffff80"));
 
         textCom.SetText(sb);
 
         perFrameLineCount = 0;
         sb.Clear();
 
-        quickLineRemovalTimerSec += Time.deltaTime;
         // When the timeout is up, remove a permanent line:
-        if (quickLineCount > 0 && quickLineRemovalTimerSec >= permanentLineTimeoutSec) {
-            --quickLineCount;
-            quickLineRemovalTimerSec = 0f;
+        if (quickLineCount > 0) {
+            if (quickLineRemovalTimerSec >= quickLineTimeoutSec) {
+                quickLineViewIndex += 1; // View from the next, newer line
+                // Once all entries are removed, reset the view index and count:
+                // TODO: this limits the quickline count to MAX_LINES if it doesn't fully clear out in time
+                if (quickLineViewIndex >= quickLineCount) {
+                    quickLineCount = 0;
+                    quickLineViewIndex = 0;
+                }
+                quickLineRemovalTimerSec = 0f;
+            }
+            else quickLineRemovalTimerSec += Time.deltaTime;
         }
     }
 }
