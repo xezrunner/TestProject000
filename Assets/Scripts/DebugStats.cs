@@ -77,7 +77,7 @@ public class DebugStats : MonoBehaviour {
     StringBuilder sb = new(capacity: MAX_LINES);
     void LateUpdate() {
         STATS_SectionStart("Debug stats");
-        STATS_SectionPrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
+        STATS_SectionPrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  ql timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
         STATS_SectionEnd();
 
         // Temporary, per-frame lines:

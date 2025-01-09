@@ -1,6 +1,7 @@
+using UnityEngine;
 using static DebugStats;
 
-abstract class PlayerPower { // TODO: MonoBehaviour
+abstract class PlayerPower: MonoBehaviour {
     /// <summary> Whether to automatically handle mana consumption on casting. 
     /// If false, mana will not be checked before considering to call POWER_Cast(). 
     /// You may consume mana yourself within the power. </summary>
@@ -8,9 +9,7 @@ abstract class PlayerPower { // TODO: MonoBehaviour
     public float manaCost        = 20f;
     public float cooldownSec     = 0f;
 
-    // TODO: should this be controllled by the individual powers?
-    private bool isBeingCast       = false;
-    public  bool getIsBeingCast() => isBeingCast;
+    public bool isBeingCast = false;
 
     public bool RequestCast() {
         if (autoConsumeMana) {
@@ -29,7 +28,8 @@ abstract class PlayerPower { // TODO: MonoBehaviour
 
         // TODO: check cooldown!
 
-        return POWER_Cast();
+        bool result = POWER_Cast();
+        return result;
     }
     public bool RequestCancel() {
         return POWER_Cancel();
