@@ -59,6 +59,10 @@ public class DebugStats : MonoBehaviour {
         Debug.Log($"[ql] {line}"); // TEMP: eventually, a logging system should take care of logging out to different targets.
     }
 
+    // TODO: We want a system here where we could define sections as structures (created with STATS_SectionStart) and could assign
+    //       priorities to each section.
+    //       Currently, script execution order appears to be random, despite setting it in Project Settings.
+
     public static void STATS_PrintLine     (string line)   => Instance?.addPerFrameLine(line);
     public static void STATS_PrintQuickLine(string line,
                          [CallerFilePath]   string caller_file_path = null,
@@ -67,7 +71,7 @@ public class DebugStats : MonoBehaviour {
                          Instance?.addQuickLine(line, caller_file_path, caller_proc_name, caller_line_num);
 
     public static void STATS_SectionStart    (string name) => Instance?.addPerFrameLine(name.bold());
-    public static void STATS_SectionPrintLine(string line) => Instance?.addPerFrameLine($"   - {line}");
+    public static void STATS_SectionPrintLine(string line) => Instance?.addPerFrameLine($"   {line}");
     public static void STATS_SectionEnd()                  => Instance?.addPerFrameLine("");
 
     int quickLineViewIndex = 0;
