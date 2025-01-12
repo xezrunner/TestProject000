@@ -61,7 +61,7 @@ class TransversalPower: PlayerPower {
             castingStartPoint   = playerTransform.position;
             float distance      = Vector3.Distance(castingStartPoint, aimingTargetPoint);
             castingDistanceFrac = 1f - (distance / aimingMaxDistance);      // Scale down with distance (0 is max distance, 1 is no distance)
-            castingDistanceFrac = Mathf.Clamp(castingDistanceFrac, 0f, 1f); // Avoid tiny values
+            castingDistanceFrac = Mathf.Clamp(castingDistanceFrac, 0f, 1f); // Avoid tiny negative values (is a range between 0-1 anyway)
 
             // Set player movement properties:
             // BUG: there is an initial jerk as we start the cast
