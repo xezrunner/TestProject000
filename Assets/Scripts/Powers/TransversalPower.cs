@@ -15,6 +15,7 @@ class TransversalPower: PlayerPower {
     Player playerInstance;
     Transform playerTransform;
     Transform playerCameraTransform;
+    Rigidbody playerRigidbody;
 
     void Awake() {
         playerInstance = Player.Instance;
@@ -23,12 +24,19 @@ class TransversalPower: PlayerPower {
             Application.Quit();
         }
 
+        // Detach aiming indicator from player, as it requires global positioning:
+        aimingIndicatorTransform.SetParent(null);
+    }
+
+    void Start() {
         playerTransform       = playerInstance.transform;
         playerCameraTransform = playerInstance.cameraContainerTransform;
-
-        // Detach aiming indicator from player, as it requires global positioning:
-        // aimingIndicatorTransform.SetParent(null);
+        playerRigidbody       = playerInstance.rigidBody;
     }
+
+    [Header("Settings")]
+    [SerializeField] float aimingMaxDistance   = 15f; // TODO: aiming will have to be a squashed ellipse at some point
+    [SerializeField] float castingBaselineMult = 5f;  // The baseline speed multiplier for casting. This is how fast a max-range cast goes, then scales up with smaller distances.
 
     [Header("Components")]
     [SerializeField] GameObject aimingIndicatorObject;
@@ -42,18 +50,36 @@ class TransversalPower: PlayerPower {
     TransversalPowerState state = TransversalPowerState.None;
 
     void setState(TransversalPowerState newState) {
-        state = newState;
 
-        if (state == TransversalPowerState.None) base.isBeingCast = false;
+        if (newState == TransversalPowerState.None) base.isBeingCast = false;
         else base.isBeingCast = true;
 
+        // TODO: handle visibility more precisely
+        aimingIndicatorObject.SetActive(newState == TransversalPowerState.Aiming || newState == TransversalPowerState.Casting);
+
+        if (newState == TransversalPowerState.Casting) {
+            castingStartPoint   = playerTransform.position;
+            float distance      = Vector3.Distance(castingStartPoint, aimingTargetPoint);
+            castingDistanceFrac = 1f - (distance / aimingMaxDistance);      // Scale down with distance (0 is max distance, 1 is no distance)
+            castingDistanceFrac = Mathf.Clamp(castingDistanceFrac, 0f, 1f); // Avoid tiny values
+
+            // Set player movement properties:
+            // BUG: there is an initial jerk as we start the cast
+            // TODO: Should we roll our own interpolation? Could look at how the Source movement does it.
+            // That would be ideal, as then we wouldn't have to rely on Rigidbody interpolation. Would also make it portable.
+            playerRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            playerInstance.surfCharacter.moveConfig.enableMovement = false;
+            playerInstance.playerAiming.enableBodyRotations        = false;
+        } else if (state == TransversalPowerState.Casting && newState != TransversalPowerState.Casting) {
+            playerRigidbody.interpolation = RigidbodyInterpolation.None;
+            playerInstance.surfCharacter.moveConfig.enableMovement = true;
+            playerInstance.playerAiming.enableBodyRotations        = true;
+            casting_t = 0f;
+        }
+
+        state = newState;
         playStateSFX();
-
-        if (state == TransversalPowerState.Cooldown) sfxPairIndex = (sfxPairIndex + 1) % SFX_AimingClips.Length;
-
-        aimingIndicatorObject.SetActive(state == TransversalPowerState.Aiming || state == TransversalPowerState.Casting);
-
-        timer = 0f; // TEMP:
+        timer = 0f;
     }
 
     public override (bool success, string reason) POWER_Cast() {
@@ -93,10 +119,9 @@ class TransversalPower: PlayerPower {
         return true;
     }
 
-    int sfxPairIndex = 0;
-
     const float SFX_MagicVolume = 0.6f;
     const float SFX_SpellVolume = 0.35f;
+    int sfxPairIndex = 0;
     
     void playStateSFX() {
         if (state == TransversalPowerState.Aiming) {
@@ -106,19 +131,18 @@ class TransversalPower: PlayerPower {
             PlayerAudioSFX.PlayMetaSFXClip(SFX_CastingClips[sfxPairIndex], SFX_MagicVolume);
             PlayerAudioSFX.PlayMetaSFXClip(SFX_SpellClips[1], SFX_SpellVolume);
         }
+        if (state == TransversalPowerState.Cooldown) sfxPairIndex = (sfxPairIndex + 1) % SFX_AimingClips.Length;
     }
 
     float timer;
 
-    float aimingDistance = 15f;
-
     void OnDrawGizmos() {
         if (state == TransversalPowerState.Aiming) {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(playerTransform.position, playerTransform.position + (playerCameraTransform.forward * aimingDistance));
+            Gizmos.DrawLine(playerTransform.position, playerTransform.position + (playerCameraTransform.forward * aimingMaxDistance));
 
             RaycastHit hitInfo;
-            bool hit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward, out hitInfo, aimingDistance);
+            bool hit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward, out hitInfo, aimingMaxDistance);
             if (hit) Gizmos.DrawCube(hitInfo.point, new Vector3(0.1f, 0.1f, 0.1f));
 
             Gizmos.color = new Color(0f, 0f, 1f, 0.25f);
@@ -131,6 +155,9 @@ class TransversalPower: PlayerPower {
                 Gizmos.DrawLine(DEBUGVIS_AimTargetPosition, DEBUGVIS_AimTargetPosition + (-it.normal * it.distance));
                 Gizmos.DrawCube(DEBUGVIS_AimTargetPosition + (-it.normal * it.distance), new Vector3(0.1f, 0.1f, 0.1f));
             }
+
+            Gizmos.color = new(1,0,1,0.3f);
+            Gizmos.DrawCube(DEBUGVIS_CastTargetPlayerHeightAdjustment, new Vector3(1f, 2f, 1f));
         }
     }
 
@@ -140,8 +167,13 @@ class TransversalPower: PlayerPower {
         new(0,0,1),  new(0,0,-1) // forwards, backwards
     };
 
+    Vector3 aimingTargetPoint, castingStartPoint, castingCurrentPoint;
+    float castingDistanceFrac;
+    float casting_t;
+
     Vector3 DEBUGVIS_AimTargetPosition_BeforePullback; // @DebugVisualization
     Vector3 DEBUGVIS_AimTargetPosition;                // @DebugVisualization
+    Vector3 DEBUGVIS_CastTargetPlayerHeightAdjustment; // @DebugVisualization
     List<RaycastHit> DEBUGVIS_OffsetHits = new();      // @DebugVisualization
     void UPDATE_ProcessState() {
         if (!base.isBeingCast) return;
@@ -151,42 +183,42 @@ class TransversalPower: PlayerPower {
         // Aiming indicator and target position:
         if (state == TransversalPowerState.Aiming) {
             // Furthest aiming point (without collision):
-            var targetPoint = playerTransform.position + (playerCameraTransform.forward * aimingDistance);
+            var targetPoint = playerTransform.position + (playerCameraTransform.forward * aimingMaxDistance);
 
             // Raycast to find any nearest collision:
             RaycastHit hitInfo;
             bool didHit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward,
-                                          hitInfo: out hitInfo, maxDistance: aimingDistance);
+                                          hitInfo: out hitInfo, maxDistance: aimingMaxDistance);
 
-            if (didHit) {
-                targetPoint = hitInfo.point; // Set target point to the collision point (inside geometry!)
+            if (didHit) STATS_PrintLine($"main collision: {hitInfo.collider.name}  point: {hitInfo.point}  distance: {hitInfo.distance}");
 
-                // Currently, the target point is inside some collision. If we imagine the collision is a wall and the indicator is a cube,
-                // at this point, the cube would be "inside" the wall, with one half on one side, the other half on the other side.
+            if (didHit) targetPoint = hitInfo.point; // Set target point to the collision point (inside geometry!)
 
-                // 1. Pull back the target point:
-                // This is necessary, as we will be raycasting from inside the indicator, to neatly align with nearby geometry.
+            // Currently, the target point is inside some collision. If we imagine the collision is a wall and the indicator is a cube,
+            // at this point, the cube would be "inside" the wall, with one half on one side, the other half on the other side.
 
-                // Some space is required between the indicator center and the collision(s), to figure out the distance between them.
-                // If we tried raycasting from the collision point as-is, there would be no hits, as it would start "from the other side".
-                // The amount of space should be more than 0, but less than [step 2 max raycast distance].
-                // Since it's an approximation, the more we pull back, the more we risk not touching oddly-shaped geometry later on.
-                DEBUGVIS_AimTargetPosition_BeforePullback = targetPoint; // @DebugVisualization
-                targetPoint -= playerCameraTransform.forward * 0.25f;    // seems safe
+            // 1. Pull back the target point:
+            // This is necessary, as we will be raycasting from inside the indicator, to neatly align with nearby geometry.
 
-                DEBUGVIS_OffsetHits.Clear(); // @DebugVisualization
-                // 2. Check for collisions around the aiming point, in all directions (cube):
-                foreach (var dir in RAYCAST_DIRECTIONS) {
-                    didHit = Physics.Raycast(targetPoint, dir, out hitInfo, 0.5f);
-                    if (didHit) {
-                        DEBUGVIS_OffsetHits.Add(hitInfo); // @DebugVisualization
-                        STATS_PrintLine($"hit: {hitInfo.collider.name}  normal: {hitInfo.normal}  distance: {hitInfo.distance}");
-                        
-                        // 3. Offset the target point, so that it is [just outside] the collision:
-                        // hitInfo.normal is the normal of (direction outwards from) the surface hit by the raycast
-                        // 0.5 is the half extent of the indicator. Since we are halfway inside geometry, we want to pull the other half out:
-                        targetPoint += hitInfo.normal * (0.5f - hitInfo.distance);
-                    }
+            // Some space is required between the indicator center and the collision(s), to figure out the distance between them.
+            // If we tried raycasting from the collision point as-is, there would be no hits, as it would start "from the other side".
+            // The amount of space should be more than 0, but less than [step 2 max raycast distance].
+            // Since it's an approximation, the more we pull back, the more we risk not touching oddly-shaped geometry later on.
+            DEBUGVIS_AimTargetPosition_BeforePullback = targetPoint; // @DebugVisualization
+            targetPoint -= playerCameraTransform.forward * 0.25f;    // seems safe
+
+            DEBUGVIS_OffsetHits.Clear(); // @DebugVisualization
+                                         // 2. Check for collisions around the aiming point, in all directions (cube):
+            foreach (var dir in RAYCAST_DIRECTIONS) {
+                didHit = Physics.Raycast(targetPoint, dir, out hitInfo, 0.5f);
+                if (didHit) {
+                    DEBUGVIS_OffsetHits.Add(hitInfo); // @DebugVisualization
+                    STATS_PrintLine($"hit: {hitInfo.collider.name}  normal: {-dir}  distance: {hitInfo.distance}");
+
+                    // 3. Offset the target point, so that it is [just outside] the collision:
+                    // hitInfo.normal (-dir) is the normal of (direction outwards from) the surface hit by the raycast
+                    // 0.5 is the half extent of the indicator. Since we are halfway inside geometry, we want to pull the other half out:
+                    targetPoint += -dir * (0.5f - hitInfo.distance);
                 }
             }
 
@@ -198,12 +230,31 @@ class TransversalPower: PlayerPower {
             aimingIndicatorTransform.SetPositionAndRotation(targetPoint, Quaternion.identity);
             DEBUGVIS_AimTargetPosition = targetPoint; // @DebugVisualization
 
-            // TODO: use this for cast target position!
+            aimingTargetPoint = targetPoint;
+            // For casting, we don't want the player to get stuck in the ground:
+            float playerHeightHalf = playerInstance.surfCharacter.colliderSize.y / 2f;
+            didHit = Physics.Raycast(targetPoint, Vector3.down, out hitInfo, playerHeightHalf);
+            if (didHit) {
+                aimingTargetPoint += Vector3.up * (playerHeightHalf - hitInfo.distance);
+                DEBUGVIS_CastTargetPlayerHeightAdjustment = aimingTargetPoint; // @DebugVisualization
+            }
+        }
+
+        if (state == TransversalPowerState.Casting) {
+            castingCurrentPoint = Vector3.Lerp(castingStartPoint, aimingTargetPoint, casting_t);
+            // NOTE: Player is moved in FixedUpdate()!
+
+            casting_t += Time.deltaTime * ((1f + castingDistanceFrac) * castingBaselineMult);
+            if (casting_t > 1f) setState(TransversalPowerState.Cooldown);
         }
 
         // TEMP:
-        if (state == TransversalPowerState.Casting  && timer >= 1f) setState(TransversalPowerState.Cooldown);
+        // if (state == TransversalPowerState.Casting  && timer >= 1f) setState(TransversalPowerState.Cooldown);
         if (state == TransversalPowerState.Cooldown && timer >= 1f) setState(TransversalPowerState.None);
+    }
+
+    void FixedUpdate() {
+        if (state == TransversalPowerState.Casting) playerRigidbody.MovePosition(castingCurrentPoint);
     }
 
     void Update() {
@@ -214,8 +265,14 @@ class TransversalPower: PlayerPower {
         STATS_SectionStart("Transversal power");
 
         STATS_SectionPrintLine($"state: {state}");
-        STATS_SectionPrintLine($"timer: {timer}");
-        STATS_SectionPrintLine($"aim point: {aimingIndicatorTransform.position}");
+        STATS_SectionPrintLine($"timer (dummy): {timer}");
+        STATS_SectionPrintLine($"aiming point: absolute: {DEBUGVIS_AimTargetPosition_BeforePullback}  indicator: {aimingIndicatorTransform.position}");
+        if (true || state == TransversalPowerState.Casting) {
+            STATS_SectionPrintLine(" - Casting state properties:");
+            STATS_SectionPrintLine($"    casting start point: {castingStartPoint}  target point: {aimingTargetPoint}");
+            STATS_SectionPrintLine($"    distance: {Vector3.Distance(playerTransform.position, aimingTargetPoint)}m   mult: {castingDistanceFrac} (*baseline: {(1f + castingDistanceFrac) * castingBaselineMult})");
+            STATS_SectionPrintLine($"    casting t: {casting_t}");
+        }
         
         STATS_SectionEnd();
     }

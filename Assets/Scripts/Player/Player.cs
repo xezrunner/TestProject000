@@ -1,3 +1,5 @@
+using System;
+using Fragsurf.Movement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static DebugStats;
@@ -9,9 +11,19 @@ public class Player : MonoBehaviour
         if (Instance == null) Instance = this;
     }
 
+    void Start() {
+        transform = base.transform;
+        rigidBody = surfCharacter.rb;
+    }
+
+    public new Transform transform;
+
     // TODO: player transforms, etc.
 
     public Transform cameraContainerTransform;
+    public SurfCharacter surfCharacter;
+    public PlayerAiming playerAiming;
+    [NonSerialized] public Rigidbody rigidBody;
 
     [Header("Systems")]
     public PlayerHealthSystem healthSystem;
@@ -23,6 +35,11 @@ public class Player : MonoBehaviour
     void UPDATE_PrintStats() {
         //if ((int)(Time.time * 2) % 2 == 0) STATS_PrintLine($"  FALLING OUT OF BOUNDS".color(Color.red).bold());
         if (Time.timeScale != 1f) STATS_PrintLine($"Timescale: {Time.timeScale}");
+
+        STATS_SectionStart("Player info");
+        STATS_PrintLine($"position: {transform.position}");
+        STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}");
+        STATS_SectionEnd();
     }
 
     void LateUpdate() {

@@ -61,7 +61,7 @@ namespace Fragsurf.Movement {
         private MoveData _moveData = new MoveData ();
         private SurfController _controller = new SurfController ();
 
-        private Rigidbody rb;
+        public Rigidbody rb;
 
         private List<Collider> triggers = new List<Collider> ();
         private int numberOfTriggers = 0;

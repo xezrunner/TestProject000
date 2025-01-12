@@ -2821,6 +2821,8 @@ MonoBehaviour:
   manaCost: 20
   cooldownSec: 1
   isBeingCast: 0
+  aimingMaxDistance: 15
+  castingBaselineMult: 3
   aimingIndicatorObject: {fileID: 28173964}
   aimingIndicatorTransform: {fileID: 28173965}
   SFX_AimingClips:
@@ -3589,6 +3591,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraContainerTransform: {fileID: 3832708957461626346}
+  surfCharacter: {fileID: 3832708958535284620}
+  playerAiming: {fileID: 3832708957461626347}
   healthSystem: {fileID: 483343580}
   magicSystem: {fileID: 483343581}
   audioSFX: {fileID: 1317172562}
@@ -3625,7 +3629,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 60
+  field of view: 75
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
