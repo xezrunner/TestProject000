@@ -27,8 +27,8 @@ class PlayerPowerSystem: MonoBehaviour {
     }
 
     void UPDATE_Input() {
-        if (Keyboard.current?.jKey.wasPressedThisFrame ?? false) castEquippedPower();
-        if (Keyboard.current?.kKey.wasPressedThisFrame ?? false) cancelEquippedPower();
+        if ((Keyboard.current?.jKey.wasPressedThisFrame ?? false) || (Mouse.current?.rightButton.wasPressedThisFrame ?? false)) castEquippedPower();
+        if ((Keyboard.current?.kKey.wasPressedThisFrame ?? false)) cancelEquippedPower();
     }
 
     void Update() {

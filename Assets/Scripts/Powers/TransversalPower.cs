@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using static DebugStats;
 
@@ -11,6 +12,29 @@ class TransversalPower: PlayerPower {
         base.cooldownSec = 1f;
     }
 
+    Player playerInstance;
+    Transform playerTransform;
+    Transform playerCameraTransform;
+
+    void Awake() {
+        playerInstance = Player.Instance;
+        if (!playerInstance) {
+            Debug.LogError("Player instance not found!");
+            Application.Quit();
+        }
+
+        playerTransform       = playerInstance.transform;
+        playerCameraTransform = playerInstance.cameraContainerTransform;
+
+        // Detach aiming indicator from player, as it requires global positioning:
+        // aimingIndicatorTransform.SetParent(null);
+    }
+
+    [Header("Components")]
+    [SerializeField] GameObject aimingIndicatorObject;
+    [SerializeField] Transform  aimingIndicatorTransform;
+
+    [Header("SFX clips")]
     [SerializeField] AudioClip[] SFX_AimingClips  = new AudioClip[2];
     [SerializeField] AudioClip[] SFX_CastingClips = new AudioClip[2];
     [SerializeField] AudioClip[] SFX_SpellClips   = new AudioClip[2];
@@ -26,6 +50,8 @@ class TransversalPower: PlayerPower {
         playStateSFX();
 
         if (state == TransversalPowerState.Cooldown) sfxPairIndex = (sfxPairIndex + 1) % SFX_AimingClips.Length;
+
+        aimingIndicatorObject.SetActive(state == TransversalPowerState.Aiming || state == TransversalPowerState.Casting);
 
         timer = 0f; // TEMP:
     }
@@ -84,17 +110,100 @@ class TransversalPower: PlayerPower {
 
     float timer;
 
+    float aimingDistance = 15f;
+
+    void OnDrawGizmos() {
+        if (state == TransversalPowerState.Aiming) {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(playerTransform.position, playerTransform.position + (playerCameraTransform.forward * aimingDistance));
+
+            RaycastHit hitInfo;
+            bool hit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward, out hitInfo, aimingDistance);
+            if (hit) Gizmos.DrawCube(hitInfo.point, new Vector3(0.1f, 0.1f, 0.1f));
+
+            Gizmos.color = new Color(0f, 0f, 1f, 0.25f);
+            Gizmos.DrawCube(DEBUGVIS_AimTargetPosition_BeforePullback, new Vector3(1f, 1f, 1f));
+            // Gizmos.color = new Color(0f, 1f, 0f, 0.25f);
+            // Gizmos.DrawCube(DEBUGVIS_AimTargetPosition, new Vector3(1f, 1f, 1f));
+
+            Gizmos.color = Color.cyan;
+            foreach (var it in DEBUGVIS_OffsetHits) {
+                Gizmos.DrawLine(DEBUGVIS_AimTargetPosition, DEBUGVIS_AimTargetPosition + (-it.normal * it.distance));
+                Gizmos.DrawCube(DEBUGVIS_AimTargetPosition + (-it.normal * it.distance), new Vector3(0.1f, 0.1f, 0.1f));
+            }
+        }
+    }
+
+    static readonly Vector3[] RAYCAST_DIRECTIONS = new Vector3[] {
+        new(-1,0,0), new(1,0,0), // left, right
+        new(0,-1,0), new(0,1,0), // up, down
+        new(0,0,1),  new(0,0,-1) // forwards, backwards
+    };
+
+    Vector3 DEBUGVIS_AimTargetPosition_BeforePullback; // @DebugVisualization
+    Vector3 DEBUGVIS_AimTargetPosition;                // @DebugVisualization
+    List<RaycastHit> DEBUGVIS_OffsetHits = new();      // @DebugVisualization
     void UPDATE_ProcessState() {
         if (!base.isBeingCast) return;
 
         timer += Time.deltaTime;
 
-        if (state == TransversalPowerState.Casting && timer >= 1f) {
-            setState(TransversalPowerState.Cooldown);
+        // Aiming indicator and target position:
+        if (state == TransversalPowerState.Aiming) {
+            // Furthest aiming point (without collision):
+            var targetPoint = playerTransform.position + (playerCameraTransform.forward * aimingDistance);
+
+            // Raycast to find any nearest collision:
+            RaycastHit hitInfo;
+            bool didHit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward,
+                                          hitInfo: out hitInfo, maxDistance: aimingDistance);
+
+            if (didHit) {
+                targetPoint = hitInfo.point; // Set target point to the collision point (inside geometry!)
+
+                // Currently, the target point is inside some collision. If we imagine the collision is a wall and the indicator is a cube,
+                // at this point, the cube would be "inside" the wall, with one half on one side, the other half on the other side.
+
+                // 1. Pull back the target point:
+                // This is necessary, as we will be raycasting from inside the indicator, to neatly align with nearby geometry.
+
+                // Some space is required between the indicator center and the collision(s), to figure out the distance between them.
+                // If we tried raycasting from the collision point as-is, there would be no hits, as it would start "from the other side".
+                // The amount of space should be more than 0, but less than [step 2 max raycast distance].
+                // Since it's an approximation, the more we pull back, the more we risk not touching oddly-shaped geometry later on.
+                DEBUGVIS_AimTargetPosition_BeforePullback = targetPoint; // @DebugVisualization
+                targetPoint -= playerCameraTransform.forward * 0.25f;    // seems safe
+
+                DEBUGVIS_OffsetHits.Clear(); // @DebugVisualization
+                // 2. Check for collisions around the aiming point, in all directions (cube):
+                foreach (var dir in RAYCAST_DIRECTIONS) {
+                    didHit = Physics.Raycast(targetPoint, dir, out hitInfo, 0.5f);
+                    if (didHit) {
+                        DEBUGVIS_OffsetHits.Add(hitInfo); // @DebugVisualization
+                        STATS_PrintLine($"hit: {hitInfo.collider.name}  normal: {hitInfo.normal}  distance: {hitInfo.distance}");
+                        
+                        // 3. Offset the target point, so that it is [just outside] the collision:
+                        // hitInfo.normal is the normal of (direction outwards from) the surface hit by the raycast
+                        // 0.5 is the half extent of the indicator. Since we are halfway inside geometry, we want to pull the other half out:
+                        targetPoint += hitInfo.normal * (0.5f - hitInfo.distance);
+                    }
+                }
+            }
+
+            // If there was no collision, targetPosition is the furthest point set at the start.
+            // Otherwise, it is just outside the nearest collision.
+
+            // Using SetPositionAndRotation() for global (worldspace) positioning:
+            // Local positioning would require detaching the indicator from the player hierarchy - worthless inconvenience.
+            aimingIndicatorTransform.SetPositionAndRotation(targetPoint, Quaternion.identity);
+            DEBUGVIS_AimTargetPosition = targetPoint; // @DebugVisualization
+
+            // TODO: use this for cast target position!
         }
-        if (state == TransversalPowerState.Cooldown && timer >= 1f) {
-            setState(TransversalPowerState.None);
-        }
+
+        // TEMP:
+        if (state == TransversalPowerState.Casting  && timer >= 1f) setState(TransversalPowerState.Cooldown);
+        if (state == TransversalPowerState.Cooldown && timer >= 1f) setState(TransversalPowerState.None);
     }
 
     void Update() {
@@ -106,6 +215,7 @@ class TransversalPower: PlayerPower {
 
         STATS_SectionPrintLine($"state: {state}");
         STATS_SectionPrintLine($"timer: {timer}");
+        STATS_SectionPrintLine($"aim point: {aimingIndicatorTransform.position}");
         
         STATS_SectionEnd();
     }
