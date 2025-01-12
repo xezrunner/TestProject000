@@ -84,6 +84,7 @@ public class PlayerMagicSystem : MonoBehaviour {
 
     void UPDATE_Debug() {
         if (Keyboard.current.hKey.wasPressedThisFrame) ConsumeMana(20);
+        if (Keyboard.current.gKey.wasPressedThisFrame) mana = 100;
     }
 
     void Update() {

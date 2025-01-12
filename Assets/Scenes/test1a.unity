@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -203,8 +204,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
-  m_fontSizeBase: 28
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -260,7 +261,213 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textCom: {fileID: 2008368}
+  perFrameLines:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  quickLineLines:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  perFrameLineCount: 0
+  quickLineCount: 0
+  quickLineViewIndex: 0
   quickLineTimeoutSec: 3.3
+  quickLineRemovalTimerSec: 0
 --- !u!222 &2008370
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -385,10 +592,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 28173964}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1262,6 +1469,10 @@ MonoBehaviour:
   manaRefillDelaySec: 3
   SFXManaRefill: {fileID: 8300000, guid: 7d182e46629a64a2a9ddd3ad4b4622a3, type: 3}
   SFXManaEmpty: {fileID: 8300000, guid: d6ef410fd664144fbb44c014efac9500, type: 3}
+  mana: 100
+  manaRefillState: 0
+  manaTarget: 0
+  manaRefillTimer: 0
 --- !u!1 &544591061
 GameObject:
   m_ObjectHideFlags: 0
@@ -2821,6 +3032,10 @@ MonoBehaviour:
   manaCost: 20
   cooldownSec: 1
   isBeingCast: 0
+  playerInstance: {fileID: 0}
+  playerTransform: {fileID: 0}
+  playerCameraTransform: {fileID: 0}
+  playerRigidbody: {fileID: 0}
   aimingMaxDistance: 15
   castingBaselineMult: 3
   aimingIndicatorObject: {fileID: 28173964}
@@ -2834,6 +3049,17 @@ MonoBehaviour:
   SFX_SpellClips:
   - {fileID: 8300000, guid: 67810c17745fd4208803dcafe0ea783b, type: 3}
   - {fileID: 8300000, guid: a4e34eeca22b545bda310ea2b5fa33af, type: 3}
+  state: 0
+  sfxPairIndex: 0
+  timer: 0
+  aimingTargetPoint: {x: 0, y: 0, z: 0}
+  castingStartPoint: {x: 0, y: 0, z: 0}
+  castingCurrentPoint: {x: 0, y: 0, z: 0}
+  castingDistanceFrac: 0
+  casting_t: 0
+  DEBUGVIS_AimTargetPosition_BeforePullback: {x: 0, y: 0, z: 0}
+  DEBUGVIS_AimTargetPosition: {x: 0, y: 0, z: 0}
+  DEBUGVIS_CastTargetPlayerHeightAdjustment: {x: 0, y: 0, z: 0}
 --- !u!1 &1714558085
 GameObject:
   m_ObjectHideFlags: 0
@@ -3179,12 +3405,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -3430,6 +3656,7 @@ MonoBehaviour:
     underwaterFriction: 2
     underwaterGravity: 6
     underwaterVelocityDampening: 2
+  rb: {fileID: 0}
 --- !u!1 &3832708958535284622
 GameObject:
   m_ObjectHideFlags: 0
@@ -3590,6 +3817,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cba8b70276dce47589339858a19b4d06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transform: {fileID: 0}
   cameraContainerTransform: {fileID: 3832708957461626346}
   surfCharacter: {fileID: 3832708958535284620}
   playerAiming: {fileID: 3832708957461626347}
