@@ -64,7 +64,21 @@ class TransversalPower: PlayerPower {
             castingDistanceFrac = Mathf.Clamp(castingDistanceFrac, 0f, 1f); // Avoid tiny negative values (is a range between 0-1 anyway)
 
             // Set player movement properties:
+
             // BUG: there is an initial jerk as we start the cast
+            // BUG: landing is inconsistent as well - at slower timescales, the destination is not guaranteed to be reached properly
+            // e.g. on top of ledges and such
+            {
+                // Initially, we had this work using FixedUpdate, but that results in laggy, jerky motion at slower timescales.
+                // This is also apparent in Dishonored 1, though it isn't visible at normal timescales.
+                // Dishonored 2 is smooth during Blink travel, but it also somehow* employs collision throughout movement.
+                // * When there's a wall opening up from the bottom, and you can aim Blink through it, but not yet fit through as the player,
+                // you will get stuck on the wall during travel, but then snap into place as the cast finishes.
+                // At the same time, you don't slide on the floor in DH2, which we do here in some instances.
+                // Perhaps we shouldn't actually use RigidBody for collision detection here, and rather roll our own basic detection (that perhaps ignores floors with some tolerance),
+                // along with our own interpolation to be smooth.
+            }
+
             // TODO: Should we roll our own interpolation? Could look at how the Source movement does it.
             // That would be ideal, as then we wouldn't have to rely on Rigidbody interpolation. Would also make it portable.
             playerRigidbody.interpolation = RigidbodyInterpolation.Interpolate;
