@@ -89,6 +89,9 @@ class TransversalPower: PlayerPower {
             playerInstance.surfCharacter.moveConfig.enableMovement = true;
             playerInstance.playerAiming.enableBodyRotations        = true;
             casting_t = 0f;
+
+            // TEMP: TODO: set final position forcefully
+            playerTransform.position = aimingTargetPoint;
         }
 
         state = newState;
@@ -101,10 +104,9 @@ class TransversalPower: PlayerPower {
             if (!TestMana()) return (false, "not enough mana");
 
             setState(TransversalPowerState.Aiming);
-        }
-        else if (state == TransversalPowerState.Aiming) {
+        } else if (state == TransversalPowerState.Aiming) {
             // TODO: additional checks!
-            
+
             // TODO: checking for mana in casting is redundant when aiming tests mana:
             bool success = ConsumeMana();
             if (!success) {
@@ -113,8 +115,10 @@ class TransversalPower: PlayerPower {
             }
 
             setState(TransversalPowerState.Casting);
+        } else {
+            PlayEmptyManaSFX();
+            return (false, "in cooldown");
         }
-        else return (false, "in cooldown");
 
         return (true, null);
     }
