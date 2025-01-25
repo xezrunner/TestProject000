@@ -4,7 +4,7 @@ using static DebugStats;
 
 public enum TransversalPowerState { None = 0, Aiming = 1, Casting = 2, Cooldown = 3 }
 
-class TransversalPower: PlayerPower {
+public class TransversalPower: PlayerPower {
     public TransversalPower() {
         // TODO: attribute for props?
         base.autoConsumeMana = false;

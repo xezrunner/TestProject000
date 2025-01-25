@@ -1,7 +1,7 @@
 using UnityEngine;
 using static DebugStats;
 
-abstract class PlayerPower: MonoBehaviour {
+public abstract class PlayerPower: MonoBehaviour {
     /// <summary> Whether to automatically handle mana consumption on casting. 
     /// If false, mana will not be checked before considering to call POWER_Cast(). 
     /// You may call ConsumeMana() yourself within the implementation of a power. </summary>
