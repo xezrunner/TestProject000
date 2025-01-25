@@ -16,11 +16,13 @@ public class TransversalPowerFXControllerEditor: Editor {
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 
+        EditorGUILayout.Separator();
+
         GUILayout.Label("Info:");
         GUILayout.Label($"State: {instance.state}");
 
         GUILayout.Label($"Anim target values:");
-        GUILayout.Label($"    - Lens distortion: {instance.animTargetData.lensDistortion}");
+        GUILayout.Label($"    - Lens distortion: {instance.animData_target.lensDistortion}");
 
         GUILayout.Label($"Anim values:");
         GUILayout.Label($"    - Lens distortion: {instance.animData.lensDistortion}");
@@ -51,9 +53,13 @@ public class TransversalPowerFXControllerEditor: Editor {
         GUILayout.Label("Anim target values:");
         GUILayout.BeginHorizontal();
         {
-            instance.animTargetData.lensDistortion = EditorGUILayout.FloatField("Lens distortion", instance.animTargetData.lensDistortion);
-            instance.animTargetData.fovAddition    = EditorGUILayout.FloatField("FOV addition", instance.animTargetData.fovAddition);
+            instance.animData_target.lensDistortion = EditorGUILayout.FloatField("Lens distortion", instance.animData_target.lensDistortion);
+            instance.animData_target.fovAddition    = EditorGUILayout.FloatField("FOV addition", instance.animData_target.fovAddition);
         }
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label($"T:"); instance.t = EditorGUILayout.Slider(instance.t, 0, 1);
         GUILayout.EndHorizontal();
 
         // State:

@@ -12,10 +12,12 @@ class TransversalPower: PlayerPower {
         base.cooldownSec = 1f;
     }
 
-    Player playerInstance;
+    Player    playerInstance;
     Transform playerTransform;
     Transform playerCameraTransform;
     Rigidbody playerRigidbody;
+
+    [SerializeField] TransversalPowerFXController vfxController;
 
     void Awake() {
         playerInstance = Player.Instance;
@@ -95,7 +97,10 @@ class TransversalPower: PlayerPower {
         }
 
         state = newState;
+        
         playStateSFX();
+        vfxController?.SetState((TransversalPowerEffectsState)state);
+        
         timer = 0f;
     }
 

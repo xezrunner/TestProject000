@@ -1,6 +1,11 @@
 using System;
-using UnityEditor;
 using UnityEngine;
+
+using static DebugStats;
+
+// Dishonored 1 Blink VFX
+//
+// TODO: Feels a bit too harsh between "eases" - DH1 kind of feels smooth/"relaxed" the entire way
 
 public enum TransversalPowerEffectsState { 
     Idle,   // No effects (pre-/start)
@@ -20,44 +25,52 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     public Camera playerCamera;
 
-    public static TransversalPowerFXValues TARGETS_State_In = new() {
+    public static TransversalPowerFXValues ANIMDATA_State_In = new() {
         fovAddition = 20f,
         radialZoom = 15f,
         lensDistortion = 16f
     };
-    public static TransversalPowerFXValues TARGETS_State_Warmup = new() {
+    public static TransversalPowerFXValues ANIMDATA_State_Warmup = new() {
         fovAddition = 0f,
         radialZoom = 0f,
         lensDistortion = 5f // TEMP: tweak!
     };
 
-    TransversalPowerFXValues         animData_prev; // Previous values (used after state change)
-    public TransversalPowerFXValues  animData;      // Current values (regardless of state, used in UPDATE_Anim())
-
-    public TransversalPowerFXValues animTargetData;
+    public  TransversalPowerFXValues animData;        // Current values (regardless of state, used in UPDATE_Anim())
+    private TransversalPowerFXValues animData_prev;   // Previous state values (used after state change)
+    public  TransversalPowerFXValues animData_target; // Target values (used for current state, interpolation)
 
     public bool IsTest   = false; // For testing above values in real-time.
     public bool IsActive = true;  
 
+    [NonSerialized] public TransversalPowerEffectsState state = TransversalPowerEffectsState.Idle;
+
     float temp_startFov;
     void Start() {
+        if (!playerCamera) {
+            Debug.LogWarning("TransversalPowerFXController: player camera has not been assigned. Setting IsActive to false!");
+            IsActive = false;
+            return;
+        }
+
         temp_startFov = playerCamera.fieldOfView;
+        //SetState(state);
     }
 
     float temp_t_timer;
 
-    TransversalPowerEffectsState _state = TransversalPowerEffectsState.Idle;
-    public TransversalPowerEffectsState state { get { return _state; } }
     public void SetState(TransversalPowerEffectsState newState = TransversalPowerEffectsState.In) {
-        Debug.Log($"SetState(): {_state} -> {newState}");
+        Debug.Log($"TransversalPowerFXController SetState(): {state} -> {newState}");
 
         t = 0f;
         animData_prev = animData; // Store current values, before state change
 
-        // TEMP: really?
-        animTargetData = _state == TransversalPowerEffectsState.Warmup ? TARGETS_State_Warmup : TARGETS_State_In;
+        switch (newState) {
+            case TransversalPowerEffectsState.In: animData_target = ANIMDATA_State_In; break;
+            default:                              animData_target = default;           break;
+        }
         
-        _state = newState;
+        state = newState;
 
         temp_t_timer = 0;
     }
@@ -70,12 +83,11 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     const float SINE_IDENTITY_VALUE = 1.5707964f; // The value for which Mathf.Sin returns exactly 1, bearing in mind floating point inaccuracies
 
-    public event Action EDITOR_RepaintEvent;
-
     public float FX_Out_WobbleCount = 10;
 
     // Also used by editor for debugging:
-    public static bool EDITOR_RealtimeRepaint = true;
+    public event  Action EDITOR_RepaintEvent;
+    public static bool   EDITOR_RealtimeRepaint = true;
     public (float sine, float value) getValueForOutStateWobble() {
         // Placing the easing function on 't' here results in what Dishonored 2's Blink cooldown (out) looks like.
         float inverseT = 1 - t;
@@ -102,29 +114,29 @@ public class TransversalPowerFXController : MonoBehaviour {
     }
 
     void updateAnimData() {
-        switch (_state) {
+        switch (state) {
             default: {
-                    // Animate to the given target values:
-                    animData.radialZoom = animTargetData.radialZoom         * t;
-                    animData.lensDistortion = animTargetData.lensDistortion * t;
-                    animData.fovAddition = animTargetData.fovAddition       * t;
-                    break;
-                }
+                // Animate to the given target values:
+                animData.radialZoom = animData_target.radialZoom         * t;
+                animData.lensDistortion = animData_target.lensDistortion * t;
+                animData.fovAddition = animData_target.fovAddition       * t;
+                break;
+            }
             case TransversalPowerEffectsState.Out: {
-                    // Bring down the effects:
-                    animData.radialZoom = animData_prev.radialZoom          * (1 - t);
-                    animData.fovAddition = animData_prev.fovAddition        * (1 - t);
+                // Bring down the effects:
+                animData.radialZoom = animData_prev.radialZoom          * (1 - t);
+                animData.fovAddition = animData_prev.fovAddition        * (1 - t);
 
-                    // Ping-pong the lens distortion (wobble):
-                    (float _, float value) = getValueForOutStateWobble();
-                    animData.lensDistortion = animData_prev.lensDistortion * value;
-                    break;
-                }
+                // Ping-pong the lens distortion (wobble):
+                (float _, float value) = getValueForOutStateWobble();
+                animData.lensDistortion = animData_prev.lensDistortion * value;
+                break;
+            }
         }
 
         if (!IsTest && t >= 1f) {
-            if      (_state == TransversalPowerEffectsState.In)  SetState(TransversalPowerEffectsState.Out);
-            else if (_state == TransversalPowerEffectsState.Out) SetState(TransversalPowerEffectsState.Idle);
+            if      (state == TransversalPowerEffectsState.In)  SetState(TransversalPowerEffectsState.Out);
+            else if (state == TransversalPowerEffectsState.Out) SetState(TransversalPowerEffectsState.Idle);
         }
     }
 
@@ -133,12 +145,12 @@ public class TransversalPowerFXController : MonoBehaviour {
 
         // TODO: For warmup, we'll likely be using something like Mathf.Sin or similar, so we need just regular time:
         //       Perhaps we could also just simply use Time.time?
-        if (_state == TransversalPowerEffectsState.Warmup) {
+        if (state == TransversalPowerEffectsState.Warmup) {
             t += Time.deltaTime * animSpeed;
             return;
         }
-        else if (_state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * 1.419f; // To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
-        else if (_state != TransversalPowerEffectsState.Idle) t += Time.deltaTime * animSpeed;
+        else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * 1.419f; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
+        else if (state != TransversalPowerEffectsState.Idle) t += Time.deltaTime * animSpeed;
 
         temp_t_timer += Time.deltaTime;
 
@@ -153,7 +165,6 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     void UPDATE_Anim() {
         if (!IsActive) return;
-        
         
         CameraFX_Settings.radialZoom.radius        = animData.radialZoom;
         CameraFX_Settings.lensDistortion.intensity = animData.lensDistortion;
@@ -170,4 +181,19 @@ public class TransversalPowerFXController : MonoBehaviour {
     void Update() {
         UPDATE_Anim();
     }
+
+    void UPDATE_PrintStats() {
+        STATS_SectionStart("Transversal VFX Controller");
+        
+        STATS_SectionPrintLine($"animSpeed: {animSpeed}");
+        STATS_SectionPrintLine($"state: {state}");
+        STATS_SectionPrintLine($"t: {t}");
+
+        // var wobbleVars = getValueForOutStateWobble();
+        // STATS_SectionPrintLine($"wobble: sine: {wobbleVars.sine}  value: {wobbleVars.value}");
+
+        STATS_SectionEnd();
+    }
+
+    void LateUpdate() => UPDATE_PrintStats();
 }

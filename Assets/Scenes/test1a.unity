@@ -7694,6 +7694,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1494970403}
   - component: {fileID: 1494970404}
+  - component: {fileID: 1494970405}
   m_Layer: 8
   m_Name: Transversal
   m_TagString: Untagged
@@ -7733,6 +7734,7 @@ MonoBehaviour:
   manaCost: 20
   cooldownSec: 1
   isBeingCast: 0
+  vfxController: {fileID: 1494970405}
   aimingMaxDistance: 15
   castingBaselineMult: 3
   aimingIndicatorObject: {fileID: 28173964}
@@ -7746,6 +7748,25 @@ MonoBehaviour:
   SFX_SpellClips:
   - {fileID: 8300000, guid: 67810c17745fd4208803dcafe0ea783b, type: 3}
   - {fileID: 8300000, guid: a4e34eeca22b545bda310ea2b5fa33af, type: 3}
+--- !u!114 &1494970405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494970402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1d498e28b5204ffeacd1621d7429226, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animSpeed: 3
+  playerCamera: {fileID: 3832708958888636008}
+  IsTest: 0
+  IsActive: 1
+  t: 0
+  test: 0
+  FX_Out_WobbleCount: 10
 --- !u!1 &1714558085
 GameObject:
   m_ObjectHideFlags: 0
@@ -8597,7 +8618,7 @@ GameObject:
   - component: {fileID: 3832708958888636011}
   - component: {fileID: 3832708958888636014}
   m_Layer: 8
-  m_Name: Camera
+  m_Name: Player camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
