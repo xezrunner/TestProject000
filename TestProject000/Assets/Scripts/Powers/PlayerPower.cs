@@ -11,6 +11,9 @@ public abstract class PlayerPower: MonoBehaviour {
 
     public bool isBeingCast = false;
 
+    public static (bool, string) CAST_FAIL_NOMANA   = (false, "not enough mana");
+    public static (bool, string) CAST_FAIL_COOLDOWN = (false, "in cooldown");
+
     public (bool success, string reason) RequestCast() {
         if (autoConsumeMana) {
             var magicSystem = Player.Instance?.magicSystem;

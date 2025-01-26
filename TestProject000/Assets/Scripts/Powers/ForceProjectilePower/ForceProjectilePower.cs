@@ -6,15 +6,14 @@ using static DebugStats;
 public enum ForceProjectilePowerState { None = 0, Aiming = 1, Shooting = 2 }
 
 public class ForceProjectilePower : PlayerPower {
-    public ForceProjectilePower() {
-        base.autoConsumeMana = false;
-        base.manaCost        = 20f;
-        base.cooldownSec     = 0.5f;
-    }
-
     Player    playerInstance;
     Transform playerTransform;
     Transform playerCameraTransform;
+
+    [SerializeField] AudioClip SFX_Aiming;   // Loop info: Start: 2996  End: 22567
+    [SerializeField] AudioClip SFX_Shooting;
+
+    [SerializeField] GameObject PREFAB_ForceProjectile;
 
     void Awake() {
         playerInstance = Player.Instance;
@@ -22,6 +21,10 @@ public class ForceProjectilePower : PlayerPower {
             Debug.LogError("Player instance not found!");
             Application.Quit();
         }
+
+        base.autoConsumeMana = false;
+        base.manaCost        = 10f;
+        base.cooldownSec     = 0.5f;
     }
 
     void Start() {
@@ -31,36 +34,56 @@ public class ForceProjectilePower : PlayerPower {
 
     [NonSerialized] ForceProjectilePowerState state = ForceProjectilePowerState.None;
 
+    void Shoot() {
+        shootDirection = playerCameraTransform.forward + (playerCameraTransform.up * 0.20f); // TODO: TEMP: offset for force projectile collision size
+        shootOrigin = playerTransform.position; // + (shootDirection * 2f); // TODO: how much to offset forwards by?
+
+        STATS_PrintQuickLine($"shootOrigin: {shootOrigin}  shootDirection: {shootDirection}");
+
+        // TODO: pre-cache a few! (?)
+        var projectileObject = Instantiate(PREFAB_ForceProjectile, position: shootOrigin, rotation: Quaternion.identity);
+        var projectile       = projectileObject.GetComponent<ForceProjectile>();
+        projectile.direction = shootDirection;
+
+        PlayerAudioSFX.PlayMetaSFXClip(SFX_Shooting);
+
+        timer = 0f;
+    }
+
     void setState(ForceProjectilePowerState newState) {
-        if (newState == ForceProjectilePowerState.Shooting) {
-            shootOrigin = playerTransform.position; // TODO: +add?
-            shootDirection = playerCameraTransform.forward;
-            timer = 0f;
+        if (newState == ForceProjectilePowerState.Aiming) {
+            //PlayerAudioSFX.PlayMetaSFXClip(SFX_Aiming);
         }
+        else if (newState == ForceProjectilePowerState.Shooting) Shoot();
         
         state = newState;
     }
     
     public override (bool success, string reason) POWER_Cast() {
         // TODO: constants for failure messages?
-        var failNoMana = (false, "not enough mana");
-
         switch (state) {
             case ForceProjectilePowerState.None: {
-                if (!TestMana()) return failNoMana;
+                if (!TestMana()) return CAST_FAIL_NOMANA;
 
-                setState(ForceProjectilePowerState.Aiming);
+                //setState(ForceProjectilePowerState.Aiming);
+                // TEMP:
+                {
+                    if (ConsumeMana()) setState(ForceProjectilePowerState.Shooting);
+                }
                 break;
             }
             case ForceProjectilePowerState.Aiming: {
-                if (!ConsumeMana()) { RequestCancel(); return failNoMana; }
+                if (!ConsumeMana()) {
+                    RequestCancel();
+                    return CAST_FAIL_NOMANA;
+                }
 
                 setState(ForceProjectilePowerState.Shooting);
                 break;
             }
             default: {
                 PlayEmptyManaSFX();
-                return (false, "in cooldown");
+                return CAST_FAIL_COOLDOWN;
             }
         }
 
@@ -109,7 +132,6 @@ public class ForceProjectilePower : PlayerPower {
 
                 if (didHit) {
                     STATS_PrintLine($"collision: {hitInfo.collider.name}  point: {hitInfo.point}  distance: {hitInfo.distance}");
-
                     aimTargetPoint = hitInfo.point;
                 }
 

@@ -18,20 +18,23 @@ public class PlayerAudioSFX : MonoBehaviour {
     [Header("Audio sources")]
     [SerializeField] AudioSource meta;
 
+    [SerializeField] float meta_globalVolumeMult = 0.45f;
+
     // TEMP: improve this!
     List<(AudioClip clip, float volume, float start)> meta_currentlyPlaying = new List<(AudioClip, float, float)>();
 
     // TODO: call this ..OneShot, depending on future functions
-    public void playMetaSFXClip(AudioClip clip, float volume = 1f) {
+    public void playMetaSFXClip(AudioClip clip, float volume = 1f, float speed = 1f) {
         if (!clip) {
             STATS_PrintQuickLine("null clip was passed, not playing!");
             return;
         }
 
-        meta_currentlyPlaying.Add((clip, volume, Time.time));
+        meta_currentlyPlaying.Add((clip, volume * meta_globalVolumeMult, Time.time));
+        meta.pitch = speed;
         meta.PlayOneShot(clip, volume);
     }
-    public static void PlayMetaSFXClip(AudioClip clip, float volume = 1f) => Instance?.playMetaSFXClip(clip, volume);
+    public static void PlayMetaSFXClip(AudioClip clip, float volume = 1f, float speed = 1f) => Instance?.playMetaSFXClip(clip, volume, speed);
 
     public static bool PLAYERSFX_EnableStats = false;
     void UPDATE_PrintStats() {
