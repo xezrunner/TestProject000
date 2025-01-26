@@ -142,8 +142,8 @@ public class TransversalPower: PlayerPower {
         return true;
     }
 
-    const float SFX_MagicVolume = 0.6f;
-    const float SFX_SpellVolume = 0.35f;
+    const float SFX_MagicVolume = 0.3f;
+    const float SFX_SpellVolume = 0.25f;
     int sfxPairIndex = 0;
     
     void playStateSFX() {
@@ -170,8 +170,8 @@ public class TransversalPower: PlayerPower {
 
             Gizmos.color = new Color(0f, 0f, 1f, 0.25f);
             Gizmos.DrawCube(DEBUGVIS_AimTargetPosition_BeforePullback, new Vector3(1f, 1f, 1f));
-            // Gizmos.color = new Color(0f, 1f, 0f, 0.25f);
-            // Gizmos.DrawCube(DEBUGVIS_AimTargetPosition, new Vector3(1f, 1f, 1f));
+            Gizmos.color = new Color(0f, 1f, 0f, 0.25f);
+            Gizmos.DrawCube(DEBUGVIS_AimTargetPosition, new Vector3(1f, 1f, 1f));
 
             Gizmos.color = Color.cyan;
             foreach (var it in DEBUGVIS_OffsetHits) {
@@ -179,7 +179,7 @@ public class TransversalPower: PlayerPower {
                 Gizmos.DrawCube(DEBUGVIS_AimTargetPosition + (-it.normal * it.distance), new Vector3(0.1f, 0.1f, 0.1f));
             }
 
-            Gizmos.color = new(1,0,1,0.3f);
+            Gizmos.color = new(1,1,1,0.3f);
             Gizmos.DrawCube(DEBUGVIS_CastTargetPlayerHeightAdjustment, new Vector3(1f, 2f, 1f));
         }
     }
@@ -213,7 +213,7 @@ public class TransversalPower: PlayerPower {
             bool didHit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward,
                                           hitInfo: out hitInfo, maxDistance: aimingMaxDistance);
 
-            if (didHit) STATS_PrintLine($"main collision: {hitInfo.collider.name}  point: {hitInfo.point}  distance: {hitInfo.distance}");
+            if (didHit) STATS_PrintLine($"collision: {hitInfo.collider.name}  point: {hitInfo.point}  distance: {hitInfo.distance}");
 
             if (didHit) targetPoint = hitInfo.point; // Set target point to the collision point (inside geometry!)
 

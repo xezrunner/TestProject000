@@ -24,9 +24,9 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 1
+  m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -5388,10 +5388,10 @@ Mesh:
     topology: 0
     baseVertex: 0
     firstVertex: 0
-    vertexCount: 16
+    vertexCount: 9
     localAABB:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 15, y: 0, z: 4.75}
+      m_Center: {x: 5.5, y: 0.00000078976177, z: -0.00000023841858}
+      m_Extent: {x: 20.5, y: 0.00000078976177, z: 4.750001}
   m_Shapes:
     vertices: []
     shapes: []
@@ -5408,10 +5408,10 @@ Mesh:
   m_KeepVertices: 1
   m_KeepIndices: 1
   m_IndexFormat: 0
-  m_IndexBuffer: 000001000200010003000200040005000600050007000600080009000a0009000b000a000c000d000e000d000f000e00
+  m_IndexBuffer: 000001000200010003000200010004000300040005000300020003000600030007000600030005000700050008000700
   m_VertexData:
     serializedVersion: 3
-    m_VertexCount: 16
+    m_VertexCount: 9
     m_Channels:
     - stream: 0
       offset: 0
@@ -5469,8 +5469,8 @@ Mesh:
       offset: 0
       format: 0
       dimension: 0
-    m_DataSize: 768
-    _typelessdata: 000070c100000000000098c0000000000000803f000000000000803f0000000000000000000080bf000070c1000098c0000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000098c0000000000000803f000000000000803f0000000000000000000080bf00000000000098c0000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c100000000000070c10000000000009840000000000000803f000000000000803f0000000000000000000080bf000070c100009840000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000000000000000000009840000000000000803f000000000000803f0000000000000000000080bf00000000000098400000000000000000000098c0000000000000803f000000000000803f0000000000000000000080bf00000000000098c0000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf00000000000000000000704100000000000098c0000000000000803f000000000000803f0000000000000000000080bf00007041000098c0000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000000000000000000009840000000000000803f000000000000803f0000000000000000000080bf0000000000009840000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000070410000000000009840000000000000803f000000000000803f0000000000000000000080bf0000704100009840
+    m_DataSize: 432
+    _typelessdata: 000070c100000000000098c0000000000000803f000000000000803f0000000000000000000080bf000070c1000098c0000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000098c0000000000000803f000000000000803f0000000000000000000080bf00000000000098c0000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000009840000000000000803f000000000000803f0000000000000000000080bf000070c100009840000000000000000000009840000000000000803f000000000000803f0000000000000000000080bf00000000000098400000d0410400d435030098c0173b61b30000803f575e43330000803f173b613300000000000080bf0000d041030098c00000d04101009a35f0000033da893db30000803f575ec3330000803fda893d3300000000000080bf0000d041f00000330000d0410100403502009840c84eecb20000803f515ec3330000803fc84eec3200000000000080bf0000d04102009840
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
@@ -5524,8 +5524,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 15, y: 0, z: 4.75}
+    m_Center: {x: 5.5, y: 0.00000078976177, z: -0.00000023841858}
+    m_Extent: {x: 20.5, y: 0.00000078976177, z: 4.750001}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
@@ -5625,7 +5625,7 @@ MeshRenderer:
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
   m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
+  m_SelectedEditorRenderState: 2
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
@@ -5764,12 +5764,12 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 4.75}
   - {x: 0, y: 0, z: -4.75}
   - {x: 0, y: 0, z: 0}
-  - {x: 15, y: 0, z: -4.75}
-  - {x: 15, y: 0, z: 0}
+  - {x: 26, y: 0.0000015795235, z: -4.7500014}
+  - {x: 26, y: 0.0000011473895, z: 0.000000029803175}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 4.75}
-  - {x: 15, y: 0, z: 0}
-  - {x: 15, y: 0, z: 4.75}
+  - {x: 26, y: 0.0000011473895, z: 0.000000029803175}
+  - {x: 26, y: 0.0000007152558, z: 4.750001}
   m_Textures0:
   - {x: -15, y: -4.75}
   - {x: -15, y: 0}
@@ -5781,12 +5781,12 @@ MonoBehaviour:
   - {x: 0, y: 4.75}
   - {x: 0, y: -4.75}
   - {x: 0, y: 0}
-  - {x: 15, y: -4.75}
-  - {x: 15, y: 0}
+  - {x: 26, y: -4.7500014}
+  - {x: 26, y: 0.000000029803175}
   - {x: 0, y: 0}
   - {x: 0, y: 4.75}
-  - {x: 15, y: 0}
-  - {x: 15, y: 4.75}
+  - {x: 26, y: 0.000000029803175}
+  - {x: 26, y: 4.750001}
   m_Textures2: []
   m_Textures3: []
   m_Tangents:
@@ -5798,14 +5798,14 @@ MonoBehaviour:
   - {x: 1, y: 0, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
+  - {x: 1, y: 0.00000006075091, z: 0, w: -1}
+  - {x: 1, y: 0.000000052440637, z: 0, w: -1}
+  - {x: 1, y: 0.000000052440637, z: 0, w: -1}
+  - {x: 1, y: 0.000000044130367, z: 0, w: -1}
+  - {x: 1, y: 0.000000044130367, z: 0, w: -1}
+  - {x: 1, y: 0.000000035820104, z: 0, w: -1}
+  - {x: 1, y: 0.000000035820104, z: 0, w: -1}
+  - {x: 1, y: 0.000000027509842, z: 0, w: -1}
   m_Colors: []
   m_UnwrapParameters:
     m_HardAngle: 88
@@ -5815,7 +5815,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 89381918}
-  m_VersionIndex: 1111
+  m_VersionIndex: 1157
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -5850,10 +5850,10 @@ Mesh:
     topology: 0
     baseVertex: 0
     firstVertex: 0
-    vertexCount: 16
+    vertexCount: 9
     localAABB:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 15, y: 0, z: 10}
+      m_Center: {x: 5.5, y: 0, z: 0}
+      m_Extent: {x: 20.5, y: 0, z: 10}
   m_Shapes:
     vertices: []
     shapes: []
@@ -5870,10 +5870,10 @@ Mesh:
   m_KeepVertices: 1
   m_KeepIndices: 1
   m_IndexFormat: 0
-  m_IndexBuffer: 000001000200010003000200040005000600050007000600080009000a0009000b000a000c000d000e000d000f000e00
+  m_IndexBuffer: 000001000200010003000200010004000300040005000300020003000600030007000600030005000700050008000700
   m_VertexData:
     serializedVersion: 3
-    m_VertexCount: 16
+    m_VertexCount: 9
     m_Channels:
     - stream: 0
       offset: 0
@@ -5931,8 +5931,8 @@ Mesh:
       offset: 0
       format: 0
       dimension: 0
-    m_DataSize: 768
-    _typelessdata: 000070c100000000000020c1000000000000803f000000000000803f0000000000000000000080bf000070c1000020c1000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000020c1000000000000803f000000000000803f0000000000000000000080bf00000000000020c1000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c100000000000070c10000000000002041000000000000803f000000000000803f0000000000000000000080bf000070c100002041000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000000000000000000002041000000000000803f000000000000803f0000000000000000000080bf00000000000020410000000000000000000020c1000000000000803f000000000000803f0000000000000000000080bf00000000000020c1000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf00000000000000000000704100000000000020c1000000000000803f000000000000803f0000000000000000000080bf00007041000020c1000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000000000000000000002041000000000000803f000000000000803f0000000000000000000080bf0000000000002041000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000070410000000000002041000000000000803f000000000000803f0000000000000000000080bf0000704100002041
+    m_DataSize: 432
+    _typelessdata: 000070c100000000000020c1000000000000803f000000000000803f0000000000000000000080bf000070c1000020c1000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000020c1000000000000803f000000000000803f0000000000000000000080bf00000000000020c1000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000002041000000000000803f000000000000803f0000000000000000000080bf000070c100002041000000000000000000002041000000000000803f000000000000803f0000000000000000000080bf00000000000020410000d04100000000000020c1000000000000803f000000000000803f0000000000000000000080bf0000d041000020c10000d0410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000d041000000000000d0410000000000002041000000000000803f000000000000803f0000000000000000000080bf0000d04100002041
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
@@ -5986,8 +5986,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 15, y: 0, z: 10}
+    m_Center: {x: 5.5, y: 0, z: 0}
+    m_Extent: {x: 20.5, y: 0, z: 10}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
@@ -6100,6 +6100,7 @@ Transform:
   - {fileID: 1494354613}
   - {fileID: 1098898344}
   - {fileID: 1050386418}
+  - {fileID: 918870560}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &719978428
@@ -6193,8 +6194,8 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 0.3
+  m_PlayOnAwake: 0
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -6278,6 +6279,127 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &918870559
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 918870560}
+  - component: {fileID: 918870562}
+  - component: {fileID: 918870561}
+  m_Layer: 0
+  m_Name: Directional Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &918870560
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918870559}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.27390167, y: -0.68374515, z: 0.31210515, w: 0.60005075}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 544591062}
+  m_LocalEulerAnglesHint: {x: 49.07, y: -97.46, z: 0}
+--- !u!114 &918870561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918870559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+--- !u!108 &918870562
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918870559}
+  m_Enabled: 1
+  serializedVersion: 11
+  m_Type: 1
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.32
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 1
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!1 &1050386417
 GameObject:
   m_ObjectHideFlags: 0
@@ -6770,7 +6892,7 @@ MeshRenderer:
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
   m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
+  m_SelectedEditorRenderState: 2
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
@@ -6909,12 +7031,12 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 10}
   - {x: 0, y: 0, z: -10}
   - {x: 0, y: 0, z: 0}
-  - {x: 15, y: 0, z: -10}
-  - {x: 15, y: 0, z: 0}
+  - {x: 26, y: -0.0000001788128, z: -10}
+  - {x: 26, y: 0, z: -3.410605e-13}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 10}
-  - {x: 15, y: 0, z: 0}
-  - {x: 15, y: 0, z: 10}
+  - {x: 26, y: 0, z: -3.410605e-13}
+  - {x: 26, y: 0.0000001788128, z: 10}
   m_Textures0:
   - {x: -15, y: -10}
   - {x: -15, y: 0}
@@ -6926,12 +7048,12 @@ MonoBehaviour:
   - {x: 0, y: 10}
   - {x: 0, y: -10}
   - {x: 0, y: 0}
-  - {x: 15, y: -10}
-  - {x: 15, y: 0}
+  - {x: 26, y: -10}
+  - {x: 26, y: -3.410605e-13}
   - {x: 0, y: 0}
   - {x: 0, y: 10}
-  - {x: 15, y: 0}
-  - {x: 15, y: 10}
+  - {x: 26, y: -3.410605e-13}
+  - {x: 26, y: 10}
   m_Textures2: []
   m_Textures3: []
   m_Tangents:
@@ -6943,14 +7065,14 @@ MonoBehaviour:
   - {x: 1, y: 0, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
+  - {x: 1, y: -0.000000006877415, z: 0, w: -1}
+  - {x: 1, y: -0.0000000034387075, z: 0, w: -1}
+  - {x: 1, y: -0.0000000034387075, z: 0, w: -1}
+  - {x: 1, y: 2.3456147e-22, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
+  - {x: 1, y: 0.0000000034387075, z: 0, w: -1}
+  - {x: 1, y: 0.0000000034387075, z: 0, w: -1}
+  - {x: 1, y: 0.000000006877415, z: 0, w: -1}
   m_Colors: []
   m_UnwrapParameters:
     m_HardAngle: 88
@@ -6960,7 +7082,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 1481660101}
-  m_VersionIndex: 621
+  m_VersionIndex: 773
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -7074,6 +7196,7 @@ MonoBehaviour:
   manaCost: 20
   cooldownSec: 0.5
   isBeingCast: 0
+  aimMaxDistance: 15
 --- !u!43 &1371472514
 Mesh:
   m_ObjectHideFlags: 0
@@ -7091,8 +7214,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 9
     localAABB:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 15, y: 0, z: 4.75}
+      m_Center: {x: -5.5000076, y: 0.00000014901161, z: 0.00000023841858}
+      m_Extent: {x: 20.500008, y: 0.0000015199187, z: 4.750002}
   m_Shapes:
     vertices: []
     shapes: []
@@ -7171,7 +7294,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 432
-    _typelessdata: 000070c100000000000098c0000000000000803f000000000000803f0000000000000000000080bf000070c1000098c0000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000098c0000000000000803f000000000000803f0000000000000000000080bf00000000000098c0000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000009840000000000000803f000000000000803f0000000000000000000080bf000070c100009840000000000000000000009840000000000000803f000000000000803f0000000000000000000080bf00000000000098400000704100000000000098c0000000000000803f000000000000803f0000000000000000000080bf00007041000098c0000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000070410000000000009840000000000000803f000000000000803f0000000000000000000080bf0000704100009840
+    _typelessdata: 0800d0c10200b8b5030098c01c7662b30000803f18caabb40000803f1c76623300000000000080bf0800d0c1030098c00800d0c1040020340100283592d8c9b20000803f18ca2bb40000803f92d8c9320e3b3128000080bf0800d0c10a0028350000000000000000000098c092d8c9b20000803f18ca2bb40000803f92d8c9320e3b3128000080bf00000000000098c00000000000000000000000004cecc4310000803f000000000000803f4cecc4b10e3bb128000080bf00000000000000000800d0c10200e035040098405d2716330000803f1aca2bb40000803f5d2716b31aca2b9c000080bf0800d0c10400984000000000000000000000984099d889330000803f000000000000803f99d889b300000000000080bf00000000000098400000704100000000000098c0000000000000803f000000000000803f0000000000000000000080bf00007041000098c0000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000070410000000000009840000000000000803f000000000000803f0000000000000000000080bf0000704100009840
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
@@ -7225,8 +7348,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 15, y: 0, z: 4.75}
+    m_Center: {x: -5.5000076, y: 0.00000014901161, z: 0.00000023841858}
+    m_Extent: {x: 20.500008, y: 0.0000015199187, z: 4.750002}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
@@ -7256,8 +7379,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 9
     localAABB:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 15, y: 0, z: 10}
+      m_Center: {x: 5.5, y: 0, z: 0}
+      m_Extent: {x: 20.5, y: 0.0000001788128, z: 10}
   m_Shapes:
     vertices: []
     shapes: []
@@ -7336,7 +7459,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 432
-    _typelessdata: 000070c100000000000020c1000000000000803f000000000000803f0000000000000000000080bf000070c1000020c1000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000020c1000000000000803f000000000000803f0000000000000000000080bf00000000000020c1000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000002041000000000000803f000000000000803f0000000000000000000080bf000070c100002041000000000000000000002041000000000000803f000000000000803f0000000000000000000080bf00000000000020410000704100000000000020c1000000000000803f000000000000803f0000000000000000000080bf00007041000020c1000070410000000000000000000000000000803f000000000000803f0000000000000000000080bf0000704100000000000070410000000000002041000000000000803f000000000000803f0000000000000000000080bf0000704100002041
+    _typelessdata: 000070c100000000000020c1000000000000803f000000000000803f0000000000000000000080bf000070c1000020c1000070c10000000000000000000000000000803f000000000000803f0000000000000000000080bf000070c1000000000000000000000000000020c1000000000000803f000000000000803f0000000000000000000080bf00000000000020c1000000000000000000000000000000000000803f000000000000803f0000000000000000000080bf0000000000000000000070c10000000000002041000000000000803f000000000000803f0000000000000000000080bf000070c100002041000000000000000000002041000000000000803f000000000000803f0000000000000000000080bf00000000000020410000d041b0ff3fb4000020c1624e6c310000803f5a9919b20000803f624e6cb100000000000080bf0000d041000020c10000d041000000000000c0aaa1c88d9b0000803f5a9999b20000803fa1c88d1b00000000000080bf0000d0410000c0aa0000d041b0ff3f3400002041624eecb10000803f5a9999b20000803f624eec3100000000000080bf0000d04100002041
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
@@ -7390,8 +7513,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 15, y: 0, z: 10}
+    m_Center: {x: 5.5, y: 0, z: 0}
+    m_Extent: {x: 20.5, y: 0.0000001788128, z: 10}
   m_MeshUsageFlags: 0
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
@@ -7523,7 +7646,7 @@ MeshRenderer:
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
   m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
+  m_SelectedEditorRenderState: 2
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
@@ -7652,12 +7775,12 @@ MonoBehaviour:
   - m_Vertices: 0f000000
   m_SharedTextures: []
   m_Positions:
-  - {x: -15, y: 0, z: -4.75}
-  - {x: -15, y: 0, z: 0}
+  - {x: -26.000015, y: -0.0000013709071, z: -4.7500014}
+  - {x: -26.000015, y: 0.00000014901167, z: 0.0000006258488}
   - {x: 0, y: 0, z: -4.75}
   - {x: 0, y: 0, z: 0}
-  - {x: -15, y: 0, z: 0}
-  - {x: -15, y: 0, z: 4.75}
+  - {x: -26.000015, y: 0.00000014901167, z: 0.0000006258488}
+  - {x: -26.000015, y: 0.0000016689303, z: 4.750002}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 4.75}
   - {x: 0, y: 0, z: -4.75}
@@ -7669,12 +7792,12 @@ MonoBehaviour:
   - {x: 15, y: 0, z: 0}
   - {x: 15, y: 0, z: 4.75}
   m_Textures0:
-  - {x: -15, y: -4.75}
-  - {x: -15, y: 0}
+  - {x: -26.000015, y: -4.7500014}
+  - {x: -26.000015, y: 0.00000062584934}
   - {x: 0, y: -4.75}
   - {x: 0, y: 0}
-  - {x: -15, y: 0}
-  - {x: -15, y: 4.75}
+  - {x: -26.000015, y: 0.0000006258488}
+  - {x: -26.000015, y: 4.750002}
   - {x: 0, y: 0}
   - {x: 0, y: 4.75}
   - {x: 0, y: -4.75}
@@ -7688,14 +7811,14 @@ MonoBehaviour:
   m_Textures2: []
   m_Textures3: []
   m_Tangents:
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
-  - {x: 1, y: 0, z: 0, w: -1}
+  - {x: 1, y: 0.000000052727145, z: 0, w: -1}
+  - {x: 1, y: 0.000000023497964, z: 9.838279e-15, w: -1}
+  - {x: 1, y: 0.000000023497964, z: 9.838279e-15, w: -1}
+  - {x: 1, y: -0.0000000057312146, z: 1.9676558e-14, w: -1}
+  - {x: 1, y: -0.000000005731207, z: 0, w: -1}
+  - {x: 1, y: -0.000000034960397, z: -5.6840364e-22, w: -1}
+  - {x: 1, y: -0.000000034960397, z: -5.6840364e-22, w: -1}
+  - {x: 1, y: -0.000000064189585, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
   - {x: 1, y: 0, z: 0, w: -1}
@@ -7713,7 +7836,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 1371472514}
-  m_VersionIndex: 1111
+  m_VersionIndex: 1213
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -7903,7 +8026,7 @@ MeshRenderer:
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
   m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
+  m_SelectedEditorRenderState: 2
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
@@ -8042,12 +8165,12 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 10}
   - {x: 0, y: 0, z: -10}
   - {x: 0, y: 0, z: 0}
-  - {x: 15, y: 0, z: -10}
-  - {x: 15, y: 0, z: 0}
+  - {x: 26, y: 0, z: -10}
+  - {x: 26, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 10}
-  - {x: 15, y: 0, z: 0}
-  - {x: 15, y: 0, z: 10}
+  - {x: 26, y: 0, z: 0}
+  - {x: 26, y: 0, z: 10}
   m_Textures0:
   - {x: -15, y: -10}
   - {x: -15, y: 0}
@@ -8059,12 +8182,12 @@ MonoBehaviour:
   - {x: 0, y: 10}
   - {x: 0, y: -10}
   - {x: 0, y: 0}
-  - {x: 15, y: -10}
-  - {x: 15, y: 0}
+  - {x: 26, y: -10}
+  - {x: 26, y: 0}
   - {x: 0, y: 0}
   - {x: 0, y: 10}
-  - {x: 15, y: 0}
-  - {x: 15, y: 10}
+  - {x: 26, y: 0}
+  - {x: 26, y: 10}
   m_Textures2: []
   m_Textures3: []
   m_Tangents:
@@ -8093,7 +8216,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 388304886}
-  m_VersionIndex: 621
+  m_VersionIndex: 755
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -8589,7 +8712,7 @@ Camera:
   m_GameObject: {fileID: 3832708958888636013}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.21176471, g: 0.22745098, b: 0.25882354, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
