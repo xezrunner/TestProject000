@@ -10,6 +10,7 @@ public class ForceProjectile : MonoBehaviour {
 
     new Transform  transform;
     new GameObject gameObject;
+    [SerializeField] Rigidbody rigidBody;
 
     [SerializeField] float speed = 10f;
     [SerializeField] float force = 15f;
@@ -64,7 +65,10 @@ public class ForceProjectile : MonoBehaviour {
 
         transform.GetPositionAndRotation(out position, out rotation);
         position += direction * (speed * Time.deltaTime);
-        transform.SetPositionAndRotation(position, rotation);
+        // transform.SetPositionAndRotation(position, rotation);
+        // Rather use RigidBody movement for more accurate physics
+        // TODO: in theory, this should be in FixedUpdate()!
+        rigidBody.MovePosition(position);
 
         timer += Time.deltaTime;
         if (timer > 5f) isHit = true; // TEMP: Destroy if going on for too long
