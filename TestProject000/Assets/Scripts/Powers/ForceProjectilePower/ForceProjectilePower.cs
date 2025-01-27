@@ -35,7 +35,7 @@ public class ForceProjectilePower : PlayerPower {
     [NonSerialized] ForceProjectilePowerState state = ForceProjectilePowerState.None;
 
     void Shoot() {
-        shootDirection = playerCameraTransform.forward + (playerCameraTransform.up * 0.20f); // TODO: TEMP: offset for force projectile collision size
+        shootDirection = playerCameraTransform.forward + (playerCameraTransform.up * 0.13f); // TODO: TEMP: offset for force projectile collision size
         shootOrigin = playerTransform.position; // + (shootDirection * 2f); // TODO: how much to offset forwards by?
 
         STATS_PrintQuickLine($"shootOrigin: {shootOrigin}  shootDirection: {shootDirection}");

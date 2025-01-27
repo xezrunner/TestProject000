@@ -57,7 +57,7 @@ public class ForceProjectile : MonoBehaviour {
 
     Vector3 position; Quaternion rotation;
     float timer;
-    void Update() {
+    void FixedUpdate() {
         if (isHit) {
             if (!PFX_Hit.isPlaying) Destroy(gameObject);
             return;
