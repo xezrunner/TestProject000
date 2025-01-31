@@ -211,7 +211,7 @@ public class TransversalPower: PlayerPower {
             // Raycast to find any nearest collision:
             RaycastHit hitInfo;
             bool didHit = Physics.Raycast(origin: playerTransform.position, direction: playerCameraTransform.forward,
-                                          hitInfo: out hitInfo, maxDistance: aimingMaxDistance);
+                                          hitInfo: out hitInfo, maxDistance: aimingMaxDistance, layerMask: ~LayerMask.GetMask("Player"));
 
             if (didHit) STATS_PrintLine($"collision: {hitInfo.collider.name}  point: {hitInfo.point}  distance: {hitInfo.distance}");
 
