@@ -27,8 +27,12 @@ class PlayerPowerSystem: MonoBehaviour {
     }
 
     void UPDATE_Input() {
-        if ((Keyboard.current?.jKey.wasPressedThisFrame ?? false) || (Mouse.current?.rightButton.wasPressedThisFrame ?? false)) castEquippedPower();
-        if ((Keyboard.current?.kKey.wasPressedThisFrame ?? false)) cancelEquippedPower();
+        if (Keyboard.current.jKey.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame) castEquippedPower();
+        if (Keyboard.current.kKey.wasPressedThisFrame) cancelEquippedPower();
+
+        // TEMP: switch powers
+        if (Keyboard.current.qKey.wasPressedThisFrame) equippedPower = FindAnyObjectByType<TransversalPower>();
+        if (Keyboard.current.eKey.wasPressedThisFrame) equippedPower = FindAnyObjectByType<ForceProjectilePower>();
     }
 
     void Update() {
