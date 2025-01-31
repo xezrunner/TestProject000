@@ -44,6 +44,11 @@ public class TransversalPower: PlayerPower {
     [SerializeField] GameObject aimingIndicatorObject;
     [SerializeField] Transform  aimingIndicatorTransform;
 
+    [SerializeField] float          aimingIndicatorTopParticleSize = 2.5f; // TODO: @Hardcoded
+    [SerializeField] Transform      aimingIndicatorTopParticlesTransform;
+    [SerializeField] ParticleSystem aimingIndicatorMiddleParticles;
+    [SerializeField] Transform      aimingIndicatorBottomParticlesTransform;
+
     [Header("SFX clips")]
     [SerializeField] AudioClip[] SFX_AimingClips  = new AudioClip[2];
     [SerializeField] AudioClip[] SFX_CastingClips = new AudioClip[2];
@@ -61,7 +66,7 @@ public class TransversalPower: PlayerPower {
 
         if (newState == TransversalPowerState.Casting) {
             castingStartPoint   = playerTransform.position;
-            float distance      = Vector3.Distance(castingStartPoint, aimingTargetPoint);
+            float distance      = Vector3.Distance(castingStartPoint, castingTargetPoint);
             castingDistanceFrac = 1f - (distance / aimingMaxDistance);      // Scale down with distance (0 is max distance, 1 is no distance)
             castingDistanceFrac = Mathf.Clamp(castingDistanceFrac, 0f, 1f); // Avoid tiny negative values (is a range between 0-1 anyway)
 
@@ -93,7 +98,7 @@ public class TransversalPower: PlayerPower {
             casting_t = 0f;
 
             // TEMP: TODO: set final position forcefully
-            playerTransform.position = aimingTargetPoint;
+            playerTransform.position = castingTargetPoint;
         }
 
         state = newState;
@@ -190,7 +195,7 @@ public class TransversalPower: PlayerPower {
         new(0,0,1),  new(0,0,-1) // forwards, backwards
     };
 
-    Vector3 aimingTargetPoint, castingStartPoint, castingCurrentPoint;
+    Vector3 castingTargetPoint, castingStartPoint, castingCurrentPoint;
     float castingDistanceFrac;
     float casting_t;
 
@@ -248,23 +253,50 @@ public class TransversalPower: PlayerPower {
             // If there was no collision, targetPosition is the furthest point set at the start.
             // Otherwise, it is just outside the nearest collision.
 
+            float playerHeightHalf = playerInstance.surfCharacter.colliderSize.y / 2f;
+
+            castingTargetPoint = targetPoint;
+            // For casting, we don't want the player to get stuck in the ground:
+            didHit = Physics.Raycast(targetPoint, Vector3.down, out hitInfo, playerHeightHalf);
+            if (didHit) {
+                castingTargetPoint += Vector3.up * (playerHeightHalf - hitInfo.distance);
+                DEBUGVIS_CastTargetPlayerHeightAdjustment = castingTargetPoint; // @DebugVisualization
+            }
+
+            // Set aiming indicator position (root):
             // Using SetPositionAndRotation() for global (worldspace) positioning:
             // Local positioning would require detaching the indicator from the player hierarchy - worthless inconvenience.
             aimingIndicatorTransform.SetPositionAndRotation(targetPoint, Quaternion.identity);
             DEBUGVIS_AimTargetPosition = targetPoint; // @DebugVisualization
 
-            aimingTargetPoint = targetPoint;
-            // For casting, we don't want the player to get stuck in the ground:
-            float playerHeightHalf = playerInstance.surfCharacter.colliderSize.y / 2f;
-            didHit = Physics.Raycast(targetPoint, Vector3.down, out hitInfo, playerHeightHalf);
-            if (didHit) {
-                aimingTargetPoint += Vector3.up * (playerHeightHalf - hitInfo.distance);
-                DEBUGVIS_CastTargetPlayerHeightAdjustment = aimingTargetPoint; // @DebugVisualization
+            // TEMP: @AimingIndicatorParticles
+            {
+                Vector3 topParticlesPoint = targetPoint;
+                if (aimingIndicatorTopParticlesTransform) {
+                    topParticlesPoint = targetPoint + (Vector3.up * playerHeightHalf); // TODO: the offset should probably actually be related to camera!
+
+                    didHit = Physics.Raycast(targetPoint, Vector3.up, out hitInfo, maxDistance: aimingIndicatorTopParticleSize);
+                    if (didHit) topParticlesPoint += Vector3.down * (aimingIndicatorTopParticleSize - hitInfo.distance);
+
+                    aimingIndicatorTopParticlesTransform.SetPositionAndRotation(topParticlesPoint, aimingIndicatorTopParticlesTransform.rotation);
+                }
+
+                if (aimingIndicatorBottomParticlesTransform) {
+                    didHit = Physics.Raycast(targetPoint, Vector3.down, out hitInfo);
+                    // TODO: 0.3 seems like a magical value...
+                    var point = didHit ? hitInfo.point + (Vector3.up * 0.3f) : targetPoint + (Vector3.down * 200f);
+                    aimingIndicatorBottomParticlesTransform.SetPositionAndRotation(point, aimingIndicatorBottomParticlesTransform.rotation);
+
+                    if (Vector3.Distance(topParticlesPoint, point) < 0.3f) {
+                        point += Vector3.up * playerHeightHalf;
+                        aimingIndicatorTopParticlesTransform.SetPositionAndRotation(point, aimingIndicatorTopParticlesTransform.rotation);
+                    }
+                }
             }
         }
 
         if (state == TransversalPowerState.Casting) {
-            castingCurrentPoint = Vector3.Lerp(castingStartPoint, aimingTargetPoint, casting_t);
+            castingCurrentPoint = Vector3.Lerp(castingStartPoint, castingTargetPoint, casting_t);
             // NOTE: Player is moved in FixedUpdate()!
 
             casting_t += Time.deltaTime * ((1f + castingDistanceFrac) * castingBaselineMult);
@@ -292,8 +324,8 @@ public class TransversalPower: PlayerPower {
         STATS_SectionPrintLine($"aiming point: absolute: {DEBUGVIS_AimTargetPosition_BeforePullback}  indicator: {aimingIndicatorTransform.position}");
         if (true || state == TransversalPowerState.Casting) {
             STATS_SectionPrintLine(" - Casting state properties:");
-            STATS_SectionPrintLine($"    casting start point: {castingStartPoint}  target point: {aimingTargetPoint}");
-            STATS_SectionPrintLine($"    distance: {Vector3.Distance(playerTransform.position, aimingTargetPoint)}m   mult: {castingDistanceFrac} (*baseline: {(1f + castingDistanceFrac) * castingBaselineMult})");
+            STATS_SectionPrintLine($"    casting start point: {castingStartPoint}  target point: {castingTargetPoint}");
+            STATS_SectionPrintLine($"    distance: {Vector3.Distance(playerTransform.position, castingTargetPoint)}m   mult: {castingDistanceFrac} (*baseline: {(1f + castingDistanceFrac) * castingBaselineMult})");
             STATS_SectionPrintLine($"    casting t: {casting_t}");
         }
         
