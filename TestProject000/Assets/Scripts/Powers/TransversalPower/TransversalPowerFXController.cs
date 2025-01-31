@@ -30,6 +30,7 @@ public class TransversalPowerFXController : MonoBehaviour {
     // TODO: this is on the player camera in test1a right now!
     // We should localize stuff like this, so that they are not scattered across different objects.
     public ParticleSystem ArrivalParticles;
+    public Light          ArrivalLight;
 
     public static TransversalPowerFXValues ANIMDATA_State_In = new() {
         fovAddition = 0f,
@@ -78,6 +79,7 @@ public class TransversalPowerFXController : MonoBehaviour {
 
         ArrivalSprites.SetActive(newState == TransversalPowerEffectsState.Out);
         if (newState == TransversalPowerEffectsState.Out) ArrivalParticles.Play();
+        ArrivalLight.gameObject.SetActive(newState == TransversalPowerEffectsState.Out); // TEMP: arrival light
         
         state = newState;
 
@@ -133,18 +135,23 @@ public class TransversalPowerFXController : MonoBehaviour {
                 animData.radialZoom     = animData_target.radialZoom     * t;
                 animData.lensDistortion = animData_target.lensDistortion * t;
                 animData.fovAddition    = animData_target.fovAddition    * t;
+                
                 break;
             }
             case TransversalPowerEffectsState.Out: { // @Wobble
+                float outT = EasingFunctions.InCubic(1 - t);
+            
                 // Bring down the effects:
-                //animData.radialZoom  = animData_prev.radialZoom         * (1 - t);
-                //animData.fovAddition = animData_prev.fovAddition        * (1 - t);
-                animData.radialZoom  = animData_prev.radialZoom         * EasingFunctions.InCubic(1 - t);
-                animData.fovAddition = animData_prev.fovAddition        * EasingFunctions.InCubic(1 - t);
+                animData.radialZoom  = animData_prev.radialZoom  * outT;
+                animData.fovAddition = animData_prev.fovAddition * outT;
 
                 // Ping-pong the lens distortion (wobble):
                 (float _, float value)  = getValueForOutStateWobble();
                 animData.lensDistortion = animData_prev.lensDistortion * value;
+
+                // TEMP: arrival light:
+                ArrivalLight.intensity = 4 * outT;
+
                 break;
             }
         }
