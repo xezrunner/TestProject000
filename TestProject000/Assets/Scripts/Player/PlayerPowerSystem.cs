@@ -31,8 +31,12 @@ class PlayerPowerSystem: MonoBehaviour {
         if (Keyboard.current.kKey.wasPressedThisFrame) cancelEquippedPower();
 
         // TEMP: switch powers
+        // TODO: will need to have a switchPower() that will automatically cancel any on-going powers
+        var prevPower = equippedPower;
         if (Keyboard.current.qKey.wasPressedThisFrame) equippedPower = FindAnyObjectByType<TransversalPower>();
         if (Keyboard.current.eKey.wasPressedThisFrame) equippedPower = FindAnyObjectByType<ForceProjectilePower>();
+
+        if (equippedPower != prevPower) prevPower.POWER_Cancel();
     }
 
     void Update() {
