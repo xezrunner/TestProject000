@@ -6713,6 +6713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fcca0f9dc8114fdcbd867d96178c743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TEST_DisableManaCostsDuringDevelopment: 1
   manaMax: 100
   manaRefillValue: 20
   manaRefillPerSec: 10
@@ -15177,7 +15178,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   colliderSize: {x: 1, y: 2, z: 1}
   weight: 75
-  rigidbodyPushForce: 2
+  rigidbodyPushForce: 0.05
   solidCollider: 0
   viewTransform: {fileID: 3832708957461626346}
   playerRotationTransform: {fileID: 3832708958535284623}
