@@ -46,7 +46,9 @@ public class Player : MonoBehaviour
     void LateUpdate() {
         UPDATE_PrintStats();
 
-        if (Keyboard.current?.rKey.isPressed ?? false) Time.timeScale = 0.1f;
+        if (Keyboard.current?.rKey.isPressed ?? false) {
+            if (Keyboard.current?.shiftKey.isPressed ?? false) Time.timeScale = 0.1f; else Time.timeScale = 0.5f;
+        }
         else if (Keyboard.current?.tKey.isPressed ?? false) Time.timeScale = 5f;
         else if (Time.timeScale != 1f) Time.timeScale = 1f;
     }

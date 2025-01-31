@@ -22,13 +22,14 @@ public struct TransversalPowerFXValues {
 
 public class TransversalPowerFXController : MonoBehaviour {
     public float animSpeed = 1f; // TEMP: this shouldn't be public/serialized.
+    public float outAnimSpeed = 1.419f; // TEMP: this shouldn't be public/serialized.
 
     public Camera playerCamera;
 
     public static TransversalPowerFXValues ANIMDATA_State_In = new() {
-        fovAddition = 20f,
-        radialZoom = 15f,
-        lensDistortion = 16f
+        fovAddition = 0f,
+        radialZoom = 20f,
+        lensDistortion = 18f
     };
     public static TransversalPowerFXValues ANIMDATA_State_Warmup = new() {
         fovAddition = 0f,
@@ -83,28 +84,32 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     const float SINE_IDENTITY_VALUE = 1.5707964f; // The value for which Mathf.Sin returns exactly 1, bearing in mind floating point inaccuracies
 
-    public float FX_Out_WobbleCount = 10;
+    // TODO: Magic value - as of writing, 58 works best, but we really should figure out a better reasoning for this value!
+    public float FX_Out_WobbleCount = 58f; // @Wobble
 
     // Also used by editor for debugging:
     public event  Action EDITOR_RepaintEvent;
     public static bool   EDITOR_RealtimeRepaint = true;
-    public (float sine, float value) getValueForOutStateWobble() {
+    public (float sine, float value) getValueForOutStateWobble() { // @Wobble
         // Placing the easing function on 't' here results in what Dishonored 2's Blink cooldown (out) looks like.
         float inverseT = 1 - t;
 
         // The intensity of the wobble, correlated with how many wobbles we want.
-        // 1 wobble means 1 "quish/expand".
-        float wobbleIntensity = inverseT * (FX_Out_WobbleCount * 2);
+        float wobbleIntensity = FX_Out_WobbleCount * inverseT;
 
+#if false
         // float sine = (1f + Mathf.Sin(wobbleT - SINE_IDENTITY_VALUE)) / 2f;
         //
         // Sines aren't working out too well for us, mostly because it's already basically eased.
         // Wrap a larger value to be between 0 and 1, linearly:
-        // TODO: TODO: verify whether this works as we expect:
         float mod = wobbleIntensity % 2f;
         float sine = (mod > 1f) ? 2f - mod : mod;
 
         float value = sine * inverseT;
+#endif
+
+        float sine = (1f + Mathf.Sin(wobbleIntensity)) / 2f;
+        float value = sine * EasingFunctions.InCubic(inverseT);
 
 #if UNITY_EDITOR
         if (EDITOR_RealtimeRepaint) EDITOR_RepaintEvent?.Invoke();
@@ -122,13 +127,15 @@ public class TransversalPowerFXController : MonoBehaviour {
                 animData.fovAddition    = animData_target.fovAddition    * t;
                 break;
             }
-            case TransversalPowerEffectsState.Out: {
+            case TransversalPowerEffectsState.Out: { // @Wobble
                 // Bring down the effects:
-                animData.radialZoom = animData_prev.radialZoom          * (1 - t);
-                animData.fovAddition = animData_prev.fovAddition        * (1 - t);
+                //animData.radialZoom  = animData_prev.radialZoom         * (1 - t);
+                //animData.fovAddition = animData_prev.fovAddition        * (1 - t);
+                animData.radialZoom  = animData_prev.radialZoom         * EasingFunctions.InCubic(1 - t);
+                animData.fovAddition = animData_prev.fovAddition        * EasingFunctions.InCubic(1 - t);
 
                 // Ping-pong the lens distortion (wobble):
-                (float _, float value) = getValueForOutStateWobble();
+                (float _, float value)  = getValueForOutStateWobble();
                 animData.lensDistortion = animData_prev.lensDistortion * value;
                 break;
             }
@@ -149,7 +156,8 @@ public class TransversalPowerFXController : MonoBehaviour {
             t += Time.deltaTime * animSpeed;
             return;
         }
-        else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * 1.419f; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
+        //else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * 1.419f; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
+        else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * outAnimSpeed; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
         else if (state != TransversalPowerEffectsState.Idle) t += Time.deltaTime * animSpeed;
 
         temp_t_timer += Time.deltaTime;
@@ -167,8 +175,8 @@ public class TransversalPowerFXController : MonoBehaviour {
         if (!IsActive) return;
         
         CameraFX_Settings.radialZoom.radius        = animData.radialZoom;
-        CameraFX_Settings.lensDistortion.intensity  = animData.lensDistortion;
-        playerCamera.fieldOfView                      = temp_startFov + animData.fovAddition;
+        CameraFX_Settings.lensDistortion.intensity = animData.lensDistortion;
+        playerCamera.fieldOfView                   = temp_startFov + animData.fovAddition;
 
         //if (IsTest) return;
 

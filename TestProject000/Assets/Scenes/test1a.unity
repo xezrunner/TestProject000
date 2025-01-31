@@ -6784,87 +6784,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 549191843}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1001 &671412869
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 560367959141999462, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_Name
-      value: ForceProjectile
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8190603464735493502, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8946584258354579025, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_UseCustomVertexStreams
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8946584258354579025, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: m_VertexStreams.Array.size
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 8946584258354579025, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: 'm_VertexStreams.Array.data[2]'
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8946584258354579025, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: 'm_VertexStreams.Array.data[3]'
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8946584258354579025, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: 'm_VertexStreams.Array.data[4]'
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8946584258354579025, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
-      propertyPath: 'm_VertexStreams.Array.data[5]'
-      value: 9
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 18dd37569bf1319468ae0a926272fef5, type: 3}
 --- !u!1 &719978428
 GameObject:
   m_ObjectHideFlags: 0
@@ -9010,12 +8929,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animSpeed: 3
+  outAnimSpeed: 1.1
   playerCamera: {fileID: 3832708958888636008}
   IsTest: 0
   IsActive: 1
   t: 0
   test: 0
-  FX_Out_WobbleCount: 10
+  FX_Out_WobbleCount: 58
 --- !u!1 &1563936665
 GameObject:
   m_ObjectHideFlags: 0
@@ -10136,4 +10056,3 @@ SceneRoots:
   - {fileID: 3832708958535284623}
   - {fileID: 544591062}
   - {fileID: 1781864843}
-  - {fileID: 671412869}

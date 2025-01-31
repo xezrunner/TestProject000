@@ -6,9 +6,9 @@ Shader "TestProject000/URP/CameraFX"
 {
     Properties {
         // RadialZoom:
-        _CameraFX_RadialZoom_Samples       ("_CameraFX_RadialZoom_Samples"      , Integer) = 0
-        _CameraFX_RadialZoom_Center        ("_CameraFX_RadialZoom_Center"       , Vector)  = (0,0,0)
-        _CameraFX_RadialZoom_CenterFalloff ("_CameraFX_RadialZoom_CenterFalloff", Float)   = 0
+        _CameraFX_RadialZoom_Samples       ("_CameraFX_RadialZoom_Samples"      , Integer) = 32
+        _CameraFX_RadialZoom_Center        ("_CameraFX_RadialZoom_Center"       , Vector)  = (1.5,0.5,0.5)
+        _CameraFX_RadialZoom_CenterFalloff ("_CameraFX_RadialZoom_CenterFalloff", Float)   = 35
         _CameraFX_RadialZoom_Radius        ("_CameraFX_RadialZoom_Radius"       , Float)   = 0
 
         // LensDistortion:
@@ -94,24 +94,24 @@ Shader "TestProject000/URP/CameraFX"
         }
 
         float4 Frag_LensDistortion (Varyings input) : SV_Target {
-            // TODO: Verify this with KoD intro and DisSlomo!
-            //       Record video and compare!
-            //       Is it squishing horizontally, the same way?
-            
             // max(0, ...): Do not support negative values for intensity, as that is an undesired effect.
-            float strength = -max(0, _CameraFX_LensDistortion_Intensity) / 60;
+            float strength = max(0, _CameraFX_LensDistortion_Intensity) / 60;
             
             float zoom = 1; // for squishing
-            if (_CameraFX_LensDistortion_EnableSquishing) zoom += (-strength * _CameraFX_LensDistortion_SquishIntensity);
+            if (_CameraFX_LensDistortion_EnableSquishing) zoom += (strength * _CameraFX_LensDistortion_SquishIntensity);
             
             // map [0, 1] to [-1, 1], to make sure we only distort up until the output edges:
             float2 uv = (input.texcoord - _CameraFX_RadialZoom_Center) * 2.0;
 
             float theta     = atan2(uv.y, uv.x);
             float startDist = length(uv); // "radial distance"
+            // 
+            // Pincushion distortion:
+            // https://en.wikipedia.org/wiki/Distortion_(optics)#Radial_distortion
             // We intentionally square the starting distance here, as a realistic lens distortion effect propagates quadratically.
             // Multiplying it just once would result in a linear distribution from the center.
-            float dist      = startDist * (1.0 + strength * startDist * startDist);
+            //
+            float dist      = startDist / (1.0 + strength * startDist * startDist);
             
             float2 resultUV = float2(
                 cos(theta) * dist * zoom, // X axis - squish!

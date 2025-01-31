@@ -27,6 +27,8 @@ partial class CameraFXRenderPass {
         setFloat  ("CameraFX_RadialZoom_Settings.radius",        CameraFX_Settings.radialZoom.radius);
 
         setFloat("CameraFX_LensDistortion_Settings.intensity", CameraFX_Settings.lensDistortion.intensity);
+        setFloat("CameraFX_LensDistortion_Settings.enableSquishing", CameraFX_Settings.lensDistortion.enableSquishing);
+        setFloat("CameraFX_LensDistortion_Settings.squishIntensity", CameraFX_Settings.lensDistortion.squishIntensity);
 
         setVector("CameraFX_AdditiveColor_Settings.color",     CameraFX_Settings.additiveColor.color);
         setFloat ("CameraFX_AdditiveColor_Settings.intensity", CameraFX_Settings.additiveColor.intensity);
@@ -76,10 +78,10 @@ public class CameraFX_Settings {
 [ShaderPropertySettings]
 public class CameraFX_RadialZoom_Settings {
     [Range(4, 32)] 
-    [ShaderProperty] public int samples = 16;
+    [ShaderProperty] public int samples = 32; // TODO: 64?
 
     [ShaderProperty] public Vector2 center        = new(1.5f, 0.5f);
-    [ShaderProperty] public float   centerFalloff = 60;
+    [ShaderProperty] public float   centerFalloff = 35;
 
     [ShaderProperty] public float radius = 0;
 }
@@ -88,7 +90,11 @@ public class CameraFX_RadialZoom_Settings {
 [ShaderPropertySettings]
 public class CameraFX_LensDistortion_Settings {
     [ShaderProperty] public float test = 0;
+
     [ShaderProperty] public float intensity = 0;
+    
+    [ShaderProperty] public int   enableSquishing = 1;
+    [ShaderProperty] public float squishIntensity = 1f;
 }
 
 [Serializable]
