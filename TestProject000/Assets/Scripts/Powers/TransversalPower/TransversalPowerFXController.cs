@@ -26,7 +26,9 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     public Camera playerCamera;
 
-    public GameObject ArrivalSprites;
+    public GameObject     ArrivalSprites;
+    // TODO: this is on the player camera in test1a right now!
+    // We should localize stuff like this, so that they are not scattered across different objects.
     public ParticleSystem ArrivalParticles;
 
     public static TransversalPowerFXValues ANIMDATA_State_In = new() {

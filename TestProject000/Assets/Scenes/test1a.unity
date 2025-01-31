@@ -6952,7 +6952,7 @@ GameObject:
   m_Component:
   - component: {fileID: 747132902}
   m_Layer: 3
-  m_Name: ArrivalSprites
+  m_Name: TransversalPowerArrivalSprites
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
