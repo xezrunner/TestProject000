@@ -26,6 +26,9 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     public Camera playerCamera;
 
+    public GameObject ArrivalSprites;
+    public ParticleSystem ArrivalParticles;
+
     public static TransversalPowerFXValues ANIMDATA_State_In = new() {
         fovAddition = 0f,
         radialZoom = 20f,
@@ -70,6 +73,9 @@ public class TransversalPowerFXController : MonoBehaviour {
             case TransversalPowerEffectsState.In: animData_target = ANIMDATA_State_In; break;
             default:                              animData_target = default;           break;
         }
+
+        ArrivalSprites.SetActive(newState == TransversalPowerEffectsState.Out);
+        if (newState == TransversalPowerEffectsState.Out) ArrivalParticles.Play();
         
         state = newState;
 
