@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
         
         STATS_SectionStart("Player info");
         STATS_PrintLine($"position: {transform.position}  {(isFallingOutOfBounds && ((int)(Time.time * 2) % 2 == 0) ? $"  FALLING OUT OF BOUNDS".color(Color.red).bold() : null)}");
-        STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}");
+        STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}  forward: {Vector3.Dot(surfCharacter.moveData.velocity, cameraContainerTransform.forward)}");
         STATS_SectionEnd();
     }
 

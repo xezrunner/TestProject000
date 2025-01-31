@@ -7,6 +7,8 @@ public enum PlayerManaRefillState {
 }
 
 public class PlayerMagicSystem : MonoBehaviour {
+    public bool TEST_DisableManaCostsDuringDevelopment = false;
+    
     [Header("Mana properties")]
     public float manaMax = 100f;
     
@@ -34,6 +36,8 @@ public class PlayerMagicSystem : MonoBehaviour {
             PlayEmptyManaSFX();
             return false;
         }
+
+        if (TEST_DisableManaCostsDuringDevelopment) return true;
 
         mana -= amount;
 
