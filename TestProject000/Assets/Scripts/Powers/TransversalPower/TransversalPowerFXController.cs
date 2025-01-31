@@ -117,9 +117,9 @@ public class TransversalPowerFXController : MonoBehaviour {
         switch (state) {
             default: {
                 // Animate to the given target values:
-                animData.radialZoom = animData_target.radialZoom         * t;
+                animData.radialZoom     = animData_target.radialZoom     * t;
                 animData.lensDistortion = animData_target.lensDistortion * t;
-                animData.fovAddition = animData_target.fovAddition       * t;
+                animData.fovAddition    = animData_target.fovAddition    * t;
                 break;
             }
             case TransversalPowerEffectsState.Out: {
@@ -167,8 +167,8 @@ public class TransversalPowerFXController : MonoBehaviour {
         if (!IsActive) return;
         
         CameraFX_Settings.radialZoom.radius        = animData.radialZoom;
-        CameraFX_Settings.lensDistortion.intensity = animData.lensDistortion;
-        playerCamera.fieldOfView                   = temp_startFov + animData.fovAddition;
+        CameraFX_Settings.lensDistortion.intensity  = animData.lensDistortion;
+        playerCamera.fieldOfView                      = temp_startFov + animData.fovAddition;
 
         //if (IsTest) return;
 

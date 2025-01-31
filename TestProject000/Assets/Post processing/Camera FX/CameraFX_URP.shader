@@ -83,6 +83,16 @@ Shader "TestProject000/URP/CameraFX"
         bool  _CameraFX_LensDistortion_EnableSquishing;
         float _CameraFX_LensDistortion_SquishIntensity;
         
+        float4 Frag_LensDistortion2 (Varyings input) : SV_Target {
+            float2 uv = input.texcoord;
+
+            float2 result = uv;
+
+            // Sample camera texture with distorted UVs
+            half4 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, result);
+            return color;
+        }
+
         float4 Frag_LensDistortion (Varyings input) : SV_Target {
             // TODO: Verify this with KoD intro and DisSlomo!
             //       Record video and compare!
@@ -116,6 +126,7 @@ Shader "TestProject000/URP/CameraFX"
         float  _CameraFX_AdditiveColor_Intensity;
 
         // AdditiveColor:
+
         float4 Frag_AdditiveColor (Varyings input) : SV_Target {
             float3 base   = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, input.texcoord);
             float3 result = base + (_CameraFX_AdditiveColor_Color * _CameraFX_AdditiveColor_Intensity);
