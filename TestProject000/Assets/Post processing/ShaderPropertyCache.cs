@@ -15,7 +15,7 @@ public static class ShaderPropertyCache {
     // 0: None
     // 1: Processing status
     // 2: Modules, Types, Fields
-    public static int DEBUG_Print = 2;
+    public static int DEBUG_Print = 1;
 
     public static Dictionary<string, int> PROPERTY_CACHE = new(capacity: 50);
 
