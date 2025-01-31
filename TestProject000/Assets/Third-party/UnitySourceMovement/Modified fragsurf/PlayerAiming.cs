@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerAiming : MonoBehaviour
@@ -38,6 +37,9 @@ public class PlayerAiming : MonoBehaviour
 
 	private void Start()
 	{
+        // Keep the rotation of the player object as we start up:
+        realRotation = bodyTransform.eulerAngles;
+
 		// Lock the mouse
 		Cursor.lockState = CursorLockMode.Locked;
 		Cursor.visible   = false;
