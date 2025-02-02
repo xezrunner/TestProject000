@@ -97,7 +97,13 @@ public class TransversalPower: PlayerPower {
             playerInstance.playerAiming.enableBodyRotations        = true;
             casting_t = 0f;
 
-            // TEMP: TODO: set final position forcefully
+            // TEMP: TODO: @StuckCollision
+            // set final position forcefully
+            // 
+            // In Dishonored 2 on the curator mission, there's a smol tunnel you can get into with Blink.
+            // When you try to Blink inside it, the player's collision doesn't fit, but the Blink does finish and you get teleported
+            // to the destination forcefully.
+            // The console says this at that point "Blink cancelled: player's velocity is too low!"
             playerTransform.position = castingTargetPoint;
         }
 
