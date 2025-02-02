@@ -1,16 +1,20 @@
 using UnityEditor;
 
-[CustomEditor(typeof(CoreSystem))]
-public class EditorCoreSystem: Editor {
-    new CoreSystem target;
+namespace CoreSystem {
 
-    void Awake() => target = (CoreSystem)base.target;
-    
-    public override void OnInspectorGUI() {
-        base.OnInspectorGUI();
+    [CustomEditor(typeof(CoreSystem))]
+    public class EditorCoreSystem : Editor {
+        new CoreSystem target;
 
-        if (!EditorApplication.isPlaying) return;
+        void Awake() => target = (CoreSystem)base.target;
 
-        if (CoreSystem.eventSystemsList != null) EditorGUILayout.LabelField($"Event system count: {CoreSystem.eventSystemsList.Count}");
+        public override void OnInspectorGUI() {
+            base.OnInspectorGUI();
+
+            if (!EditorApplication.isPlaying) return;
+
+            if (CoreSystem.eventSystemsList != null) EditorGUILayout.LabelField($"Event system count: {CoreSystem.eventSystemsList.Count}");
+        }
     }
+
 }
