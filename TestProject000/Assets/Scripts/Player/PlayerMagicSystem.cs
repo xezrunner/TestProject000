@@ -21,7 +21,7 @@ public class PlayerMagicSystem : MonoBehaviour {
     public AudioClip SFXManaRefill;
     public AudioClip SFXManaEmpty; // TODO: randomize many
 
-    const float SFX_VOLUME = 0.45f;
+    const float SFX_VOLUME = 0.10f;
 
     public void PlayEmptyManaSFX() {
         PlayerAudioSFX.PlayMetaSFXClip(SFXManaEmpty, SFX_VOLUME);
@@ -74,7 +74,7 @@ public class PlayerMagicSystem : MonoBehaviour {
                     manaRefillTimer += Time.deltaTime;
                 } else {
                     manaRefillState = PlayerManaRefillState.Refilling;
-                    PlayerAudioSFX.PlayMetaSFXClip(SFXManaRefill, 0.45f);
+                    PlayerAudioSFX.PlayMetaSFXClip(SFXManaRefill, SFX_VOLUME);
                 }
                 break;
             }
