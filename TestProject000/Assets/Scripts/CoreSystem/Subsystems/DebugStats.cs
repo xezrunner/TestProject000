@@ -5,17 +5,33 @@ using System.Text;
 using System.Runtime.CompilerServices;
 using UnityEngine.InputSystem;
 using System.IO;
+using System;
+using UnityEditor;
 
 namespace CoreSystem {
 
-    struct FPSInfo {
-        public int lastFrameCount;
+    // TODO: this (along with the fpsInfo local variable below) should probably be part of CoreSystem?
+    public struct FPSInfo {
+        public int   lastFrameCount;
         public float lastTime;
 
         public float fpsAccurate;
-        public int fpsRounded;  // This should mostly be in parity with the Unity Editor stats window
+        public int   fpsRounded; // This should mostly be in parity with the Unity Editor stats window
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class DebugStatsSettingsAttribute : Attribute {
+        public DebugStatsSettingsAttribute(int priority = 0, string displayName = null, bool startAsEnabled = false) {
+            this.priority        = priority;
+            this.displayName     = displayName;
+            this.startEnabled  = startAsEnabled;
+        }
+        public int    priority;
+        public string displayName;
+        public bool   startEnabled;
+    }
+
+    [DebugStatsSettings(priority: 9999)]
     public partial class DebugStats : MonoBehaviour {
         static DebugStats GrabInstance() => CoreSystem.Instance?.DebugStats;
 
@@ -61,24 +77,49 @@ namespace CoreSystem {
         const int STATS_STRINGBUILDER_CAPACITY = 200;
 
         class ComponentStatsInfo {
-            public bool          isEnabled     = true; // TODO: @EnableComponents
+            public ComponentStatsInfo() { }
+            public ComponentStatsInfo(string key, DebugStatsSettingsAttribute attribute = null) {
+                if (attribute != null) {
+                    isEnabled    = attribute.startEnabled;
+                    priority     = attribute.priority;
+                    displayName  = attribute.displayName.IsEmpty() ? Path.GetFileNameWithoutExtension(key) : attribute.displayName;
+                }
+            }
+
+            public bool          isEnabled     = false; // TODO: @EnableComponents
+            public int           priority;
+            public string        displayName;
             public StringBuilder stringBuilder = new(capacity: STATS_STRINGBUILDER_CAPACITY);
         }
 
-        // key:   string -- when printing with STATS_PrintLine(text, ...), the caller file path will be used to determine this, as the "component name".
+        // key:   string -- When printing with STATS_PrintLine(text, ...), the caller file path will be used to determine this (filename without ext), as the "component name".
         // value: class of info for a given component
         // pushToStatsDB() is used to add text for a given component into a Dictionary (hashtable), which is then later collected and printed at once in LateUpdate().
         Dictionary<string, ComponentStatsInfo> statsDatabase = new();
-
-        static string extractComponentFromCallerDebugInfo(string callerFilePath) {
-            return Path.GetFileNameWithoutExtension(callerFilePath);
-        }
 
         ComponentStatsInfo getAndOrAddStatsDBEntry(string key) {
             // @Performance
             // I imagine this is probably slow, could profile. Not sure what else could be done here, aside from pre-caching
             // the keys (Reflection?).
-            if (!statsDatabase.ContainsKey(key)) statsDatabase.Add(key, new());
+            if (!statsDatabase.ContainsKey(key)) {
+                DebugStatsSettingsAttribute attribute = null;
+
+                // Attempt to get priority from the same-named class:
+                // Using some Unity Editor Asset Database magic/hack here:
+                if (File.Exists(key)) {
+                    string unityRelativePath = "Assets" + key.Substring(Application.dataPath.Length); // This can crash!
+                    var script = AssetDatabase.LoadAssetAtPath<MonoScript>(unityRelativePath);
+
+                    // NOTE: this will only give us the first MonoBehaviour that it finds. Don't have multiple scripts in a file!
+                    var type = script.GetClass();
+                    if (type != null) attribute = (DebugStatsSettingsAttribute)Attribute.GetCustomAttribute(type, typeof(DebugStatsSettingsAttribute));
+                }
+
+                var info = new ComponentStatsInfo(key, attribute);
+                info.isEnabled = true; // TEMP:
+                statsDatabase.Add(key, info);
+                statsDBPrioritiesListIsDirty = true;
+            }
             return statsDatabase[key];
         }
 
@@ -102,13 +143,27 @@ namespace CoreSystem {
             }
         }
 
+        bool statsDBPrioritiesListIsDirty = true;
+        List<(string key, ComponentStatsInfo info)> statsDBPriorities = new();
+
         void printStatsDB() {
             var sb = new StringBuilder();
-            foreach (var kv in statsDatabase) {
-                var info = kv.Value;
+
+            if (statsDBPrioritiesListIsDirty) {
+                statsDBPriorities.Clear();
+                foreach (var kv in statsDatabase) {
+                    statsDBPriorities.Add((kv.Key, kv.Value));
+                }
+                statsDBPriorities.Sort((x1, x2) => x2.info.priority.CompareTo(x1.info.priority));
+                statsDBPrioritiesListIsDirty = false;
+            }
+
+            foreach (var kv in statsDBPriorities) {
+                var key  = kv.key;
+                var info = kv.info;
                 if (!info.isEnabled) continue;
 
-                sb.AppendLine($"{kv.Key}:".bold());
+                sb.AppendLine($"{info.displayName}:  (priority: {info.priority})".bold());
                 sb.AppendLine(info.stringBuilder.ToString());
                 sb.AppendLine();
             }
@@ -121,7 +176,7 @@ namespace CoreSystem {
         public static void STATS_PrintLine(string text, bool printCallerDebugInfo = true, 
                                                         [CallerFilePath]   string callerFilePath = null, [CallerMemberName] string callerProcName = null,
                                                         [CallerLineNumber] int callerLineNum = -1) {
-            var component   = extractComponentFromCallerDebugInfo(callerFilePath);
+            var component   = callerFilePath;
             var textToPrint = !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName);
             GrabInstance()?.pushToStatsDB(component, textToPrint, append: false);
         }
@@ -129,7 +184,7 @@ namespace CoreSystem {
                                                         [CallerFilePath]   string callerFilePath = null, [CallerMemberName] string callerProcName = null,
                                                         [CallerLineNumber] int callerLineNum = -1) {
             // @CopyPasta:
-            var component = extractComponentFromCallerDebugInfo(callerFilePath);
+            var component = callerFilePath;
             var textToPrint = !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName);
             GrabInstance()?.pushToStatsDB(component, textToPrint, append: true);
         }
@@ -159,7 +214,6 @@ namespace CoreSystem {
             UNITY_RedirectLogMessages = before;
         }
 
-        // TODO: this should probably be part of CoreSystem?
         FPSInfo fpsInfo;
 
         const float fpsStatsPollingFrequency = 0.5f;

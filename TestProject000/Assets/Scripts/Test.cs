@@ -1,8 +1,10 @@
+using CoreSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 using static CoreSystem.DebugStats;
 
+[DebugStatsSettings(priority: 1, displayName: "A test class")]
 class Test: MonoBehaviour {
     void Awake() {
         Debug.Log("Hello from Test!");
