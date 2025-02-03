@@ -8,4 +8,8 @@ static class CoreSystemUtils {
         toSet = it;
         return it;
     }
+
+    public static bool IsEmpty(this string text) {
+        return text == null || text.Length == 0;
+    }
 }
