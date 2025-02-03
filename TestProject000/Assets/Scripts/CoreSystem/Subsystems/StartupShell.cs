@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace CoreSystem {
 
-    public class CoreSystem_StartupShell : MonoBehaviour {
+    public class StartupShell : MonoBehaviour {
         void Awake() {
             STSHELL_SetActive(false);
         }

@@ -23,6 +23,17 @@ namespace CoreSystem {
 
             // EditorApplication.ExitPlaymode();
         }
+
+        static void DeduplicateEventSystems() {
+            if (eventSystemsList.Count > 1) {
+                Debug.Log($"[coresystem] multiple event systems ({eventSystemsList.Count}) - de-duplicating event systems...");
+                for (int i = 1; i < eventSystemsList.Count; ++i) {
+                    Debug.Log($"    destroying ES belonging to {eventSystemsList[i].gameObject.name}");
+                    // TODO: are we sure we want to keep the first one (belonging to CoreSystem)?
+                    DestroyImmediate(eventSystemsList[1].gameObject);
+                }
+            }
+        }
     }
 
 }

@@ -410,6 +410,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 749302334}
   m_CullTransparentMesh: 1
+--- !u!1 &859403954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 859403955}
+  - component: {fileID: 859403956}
+  m_Layer: 0
+  m_Name: DebugStats
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &859403955
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859403954}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 952017004}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &859403956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859403954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 472f33801e8774804baf080083ddf707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsTextCom: {fileID: 2107886411}
+  quicklinesContainer: {fileID: 2024131172}
+  quicklineTextPreset: {fileID: 1758062572}
+  statsUpdateMs: 1000
+  quicklineTimeoutSec: 5
 --- !u!1 &952017002
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,6 +489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartupShell: {fileID: 1666321171}
+  DebugStats: {fileID: 859403956}
 --- !u!4 &952017004
 Transform:
   m_ObjectHideFlags: 0
@@ -452,7 +502,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 859403955}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1579069008
@@ -568,7 +619,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1607544312}
-  - component: {fileID: 1607544314}
   - component: {fileID: 1607544313}
   m_Layer: 5
   m_Name: DebugStats
@@ -624,22 +674,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &1607544314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1607544311}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 472f33801e8774804baf080083ddf707, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  statsTextCom: {fileID: 2107886411}
-  quicklinesContainer: {fileID: 2024131172}
-  quicklineTextPreset: {fileID: 1758062572}
-  quicklineTimeoutSec: 5
 --- !u!1 &1666321167
 GameObject:
   m_ObjectHideFlags: 0

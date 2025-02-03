@@ -56,7 +56,7 @@ public class DebugStats : MonoBehaviour {
         line = line.add_caller_debug_info(CallerDebugInfoFlags.FP, caller_file_path, caller_proc_name, caller_line_num);
 
         quickLineLines[quickLineCount++] = line;
-        Debug.Log($"[ql] {line}"); // TEMP: eventually, a logging system should take care of logging out to different targets.
+        // Debug.Log($"[ql] {line}"); // TEMP: eventually, a logging system should take care of logging out to different targets.
     }
 
     // TODO: We want a system here where we could define sections as structures (created with STATS_SectionStart) and could assign
