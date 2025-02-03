@@ -8,6 +8,14 @@ using System.IO;
 
 namespace CoreSystem {
 
+    struct FPSInfo {
+        public int lastFrameCount;
+        public float lastTime;
+
+        public float fpsAccurate;
+        public int fpsRounded;  // This should mostly be in parity with the Unity Editor stats window
+    }
+
     public partial class DebugStats : MonoBehaviour {
         static DebugStats GrabInstance() => CoreSystem.Instance?.DebugStats;
 
@@ -31,7 +39,7 @@ namespace CoreSystem {
 
             // Setup quickline text preset:
             if (quicklineTextPreset) {
-                var obj = Instantiate(quicklineTextPreset);
+                var obj = Instantiate(quicklineTextPreset, quicklinesContainer);
                 var com = obj.GetComponent<TextMeshProUGUI>();
                 if (!com) Debug.LogError("QL Prefab exists, but no TMP_Text was found on it!");
                 com.SetText((string)null);
@@ -50,34 +58,51 @@ namespace CoreSystem {
             Application.logMessageReceived -= UNITY_logMessageReceived;
         }
         
+        const int STATS_STRINGBUILDER_CAPACITY = 200;
+
         class ComponentStatsInfo {
-            public bool          isEnabled = true; // TEMP:
+            public bool          isEnabled     = true; // TODO: @EnableComponents
             public StringBuilder stringBuilder = new(capacity: STATS_STRINGBUILDER_CAPACITY);
         }
 
+        // key:   string -- when printing with STATS_PrintLine(text, ...), the caller file path will be used to determine this, as the "component name".
+        // value: class of info for a given component
+        // pushToStatsDB() is used to add text for a given component into a Dictionary (hashtable), which is then later collected and printed at once in LateUpdate().
         Dictionary<string, ComponentStatsInfo> statsDatabase = new();
 
         static string extractComponentFromCallerDebugInfo(string callerFilePath) {
             return Path.GetFileNameWithoutExtension(callerFilePath);
         }
 
-        const int STATS_STRINGBUILDER_CAPACITY = 200;
-
-        ComponentStatsInfo getAndOrAddPerFrameStatsSB(string key) {
+        ComponentStatsInfo getAndOrAddStatsDBEntry(string key) {
+            // @Performance
+            // I imagine this is probably slow, could profile. Not sure what else could be done here, aside from pre-caching
+            // the keys (Reflection?).
             if (!statsDatabase.ContainsKey(key)) statsDatabase.Add(key, new());
             return statsDatabase[key];
         }
 
-        bool canUpdateStats;
-        void pushPerFrameLine(string component, string text, bool append = false) {
+        // TODO: I'm not really sure about this approach where we deny writing stuff.
+        // In some quick testing, performance does seem to be good, but we would really need to have this be scattered
+        // around multiple components to truly test.
+        bool canUpdateStats = true;
+        void pushToStatsDB(string component, string text, bool append = false) {
             if (!canUpdateStats) return;
             
-            var info = getAndOrAddPerFrameStatsSB(component);
+            var info = getAndOrAddStatsDBEntry(component);
             if (append) info.stringBuilder.Append(text);
             else        info.stringBuilder.AppendLine(text);
         }
 
-        void STATS_PrintAllStatsAndFlush() {
+        void flushStatsDB() {
+            foreach (var kv in statsDatabase) {
+                var info = kv.Value;
+                if (!info.isEnabled) continue; // TODO: this might be bad?
+                info.stringBuilder.Clear();
+            }
+        }
+
+        void printStatsDB() {
             var sb = new StringBuilder();
             foreach (var kv in statsDatabase) {
                 var info = kv.Value;
@@ -86,20 +111,27 @@ namespace CoreSystem {
                 sb.AppendLine($"{kv.Key}:".bold());
                 sb.AppendLine(info.stringBuilder.ToString());
                 sb.AppendLine();
-
-                info.stringBuilder.Clear();
             }
 
             statsTextCom.SetText(sb.ToString());
         }
 
         // Public methods:
-        // TODO: figure out the public API for this!
-        public static void STATS_PrintLine(string component, string text) => GrabInstance()?.pushPerFrameLine(component, text);
+        public static void STATS_PrintLine(string component, string text) => GrabInstance()?.pushToStatsDB(component, text);
         public static void STATS_PrintLine(string text, bool printCallerDebugInfo = true, 
                                                         [CallerFilePath]   string callerFilePath = null, [CallerMemberName] string callerProcName = null,
                                                         [CallerLineNumber] int callerLineNum = -1) {
-            GrabInstance()?.pushPerFrameLine(extractComponentFromCallerDebugInfo(callerFilePath), !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName));
+            var component   = extractComponentFromCallerDebugInfo(callerFilePath);
+            var textToPrint = !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName);
+            GrabInstance()?.pushToStatsDB(component, textToPrint, append: false);
+        }
+        public static void STATS_Append(string text, bool printCallerDebugInfo = true, 
+                                                        [CallerFilePath]   string callerFilePath = null, [CallerMemberName] string callerProcName = null,
+                                                        [CallerLineNumber] int callerLineNum = -1) {
+            // @CopyPasta:
+            var component = extractComponentFromCallerDebugInfo(callerFilePath);
+            var textToPrint = !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName);
+            GrabInstance()?.pushToStatsDB(component, textToPrint, append: true);
         }
 
         // public static void STATS_PrintQuickLine(string text) => GrabInstance()?.quicklinePush(text);
@@ -110,7 +142,7 @@ namespace CoreSystem {
             GrabInstance()?.quicklinePush(text, callerFilePath, callerProcName, callerLineNum);
 
         // TODO: we may want to read/receive messages from DebugConsole instead:
-        static bool UNITY_RedirectLogMessages = true;
+        public static bool UNITY_RedirectLogMessages = true;
         void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
             if (!UNITY_RedirectLogMessages) return;
             
@@ -127,43 +159,56 @@ namespace CoreSystem {
             UNITY_RedirectLogMessages = before;
         }
 
-        float timer;
-        void LateUpdate() {
-            UPDATE_Quicklines();
+        // TODO: this should probably be part of CoreSystem?
+        FPSInfo fpsInfo;
 
-            bool comma = Keyboard.current.commaKey.isPressed;
-
-            if (timer > statsUpdateMs || comma) {
-                if (!canUpdateStats) canUpdateStats = true;
-                else {
-                    STATS_PrintAllStatsAndFlush();
-                    if (!comma) canUpdateStats = false;
-                    timer = 0f;
-                }
+        const float fpsStatsPollingFrequency = 0.5f;
+        float       fpsStatsTimer;
+        void UPDATE_FPSStats() {
+            if (fpsStatsTimer < fpsStatsPollingFrequency) {
+                fpsStatsTimer += Time.deltaTime; return;
             }
 
-            timer += Time.unscaledDeltaTime * 1000f;
+            float timeSpan   = Time.realtimeSinceStartup - fpsInfo.lastTime;
+            int   frameCount = Time.frameCount           - fpsInfo.lastFrameCount;
 
-            STATS_PrintLine($"Test!  {Time.time}  {Time.deltaTime}");
+            fpsInfo.lastFrameCount = Time.frameCount;
+            fpsInfo.lastTime       = Time.realtimeSinceStartup;
+            fpsInfo.fpsAccurate    = frameCount / timeSpan;
+            fpsInfo.fpsRounded     = Mathf.RoundToInt(fpsInfo.fpsAccurate);
+
         }
 
+        void Update() {
+            // NOTE: From this component, we should not print to stats DB in Update(), as we flush it in LateUpdate() / UPDATE_PrintStats().
+            UPDATE_FPSStats();
+        }
+
+        float statsPrintTimer = float.MaxValue; // Print on first frame -- canUpdateStats is also set to true because of this
+        bool  updateOverride;
+        void LATEUPDATE_PrintStats() {
+            if (Keyboard.current.commaKey.wasPressedThisFrame) updateOverride = !updateOverride;
+            
+            if (statsPrintTimer > statsUpdateMs || updateOverride) { // If the timer has elapsed, or overriden:
+                if (!canUpdateStats) canUpdateStats = true;
+                else {
+                    printStatsDB();
+                    canUpdateStats = false;
+                    statsPrintTimer = 0f;
+                }
+            }
+            else {
+                statsPrintTimer += Time.unscaledDeltaTime * 1000f;
+            }
+
+            flushStatsDB(); // @Performance
+        }
+
+        void LateUpdate() {
+            STATS_PrintLine($"FPS: {fpsInfo.fpsAccurate:N2} ({fpsInfo.fpsRounded})"); // TODO: control
+
+            LATEUPDATE_Quicklines();
+            LATEUPDATE_PrintStats();
+        }
     }
 }
-
-/*
-    private IEnumerator FPS()
-    {
-        for (; ; )
-        {
-            int lastFrameCount = Time.frameCount;
-            float lastTime = Time.realtimeSinceStartup;
-            yield return new WaitForSeconds(frequency);
-
-            float timeSpan = Time.realtimeSinceStartup - lastTime;
-            int frameCount = Time.frameCount - lastFrameCount;
-
-            FramesPerSec = Mathf.RoundToInt(frameCount / timeSpan);
-            counter.text = "FPS: " + FramesPerSec.ToString();
-        }
-    }
-*/

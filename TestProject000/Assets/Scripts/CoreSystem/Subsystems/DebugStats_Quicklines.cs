@@ -50,7 +50,7 @@ namespace CoreSystem {
             }
 
             QUICKLINES_COUNT = newCount;
-            quicklines = newQuicklines; // TODO: leak?            
+            quicklines       = newQuicklines; // TODO: leak?            
         }
 
         (GameObject obj, TMP_Text com) _quicklineCreateNewLine() {
@@ -58,16 +58,16 @@ namespace CoreSystem {
             TMP_Text   com;
             
             if (quicklineTextPreset) {
-                obj = Instantiate(quicklineTextPreset);
+                obj = Instantiate(quicklineTextPreset, quicklinesContainer);
                 com = obj.GetComponent<TextMeshProUGUI>();
                 if (!com) Debug.LogError("QL Prefab exists, but no TMP_Text was found on it!");
             } else {
                 obj = new("Quickline");
                 com = obj.AddComponent<TextMeshProUGUI>();
-                //var rectTrans = obj.GetComponent<RectTransform>();
-            }
 
-            obj.transform.SetParent(quicklinesContainer);
+                //var rectTrans = obj.GetComponent<RectTransform>();
+                obj.transform.SetParent(quicklinesContainer);
+            }
 
             return (obj, com);
         }
@@ -116,7 +116,7 @@ namespace CoreSystem {
             target.textCom.SetText(text);
         }
 
-        void UPDATE_Quicklines() {
+        void LATEUPDATE_Quicklines() {
             for (int i = 0; i < QUICKLINES_COUNT; ++i) {
                 var line = quicklines[i];
                 if (!line.isRetired) {
@@ -125,9 +125,9 @@ namespace CoreSystem {
                 }
             }
 
-            if (Keyboard.current.pKey.wasPressedThisFrame) quicklinePush($"Test       {Time.time}");
+            if (Keyboard.current.pKey.wasPressedThisFrame) quicklinePush(   $"Test       {Time.time}");
             if (Keyboard.current.oKey.wasPressedThisFrame) Debug.LogWarning($"Warn Test  {Time.time}");
-            if (Keyboard.current.iKey.wasPressedThisFrame) Debug.LogError($"Err  Test  {Time.time}");
+            if (Keyboard.current.iKey.wasPressedThisFrame) Debug.LogError(  $"Err  Test  {Time.time}");
 
             if (Keyboard.current.nKey.wasPressedThisFrame) resizeQuicklines(6);
             if (Keyboard.current.mKey.wasPressedThisFrame) resizeQuicklines(30);

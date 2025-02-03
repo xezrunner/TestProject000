@@ -21,6 +21,13 @@ namespace CoreSystem {
         return text == null || text == "";
     }
 
+    public static bool Contains(this string text, params string[] what) {
+        foreach (var it in what) {
+            if (text.Contains(it)) return true;
+        }
+        return false;
+    }
+
     // TODO: Make these safe (?)
     public static int   AsInt  (this string text) => int.Parse(text);
     public static float AsFloat(this string text) => float.Parse(text);
