@@ -8,6 +8,11 @@ namespace CoreSystem {
     public partial class CoreSystem : MonoBehaviour {
         public static CoreSystem Instance;
 
+        [Header("Subsystems")]
+        public StartupShell StartupShell;
+        public DebugStats   DebugStats;
+        public DebugConsole DebugConsole;
+
         void Awake() {
             if (Instance) {
                 Debug.LogError("Multiple CoreSystem instances");
@@ -23,13 +28,9 @@ namespace CoreSystem {
                 var obj = new GameObject("Temporary camera (dev)");
                 var cam = obj.AddComponent<Camera>();
                 cam.clearFlags = CameraClearFlags.Color;
-                cam.backgroundColor = new(0.05f,0.05f,0.05f,1f);
+                cam.backgroundColor = new(0.15f,0.20f,0.15f,1f);
             }
         }
-
-        [Header("Subsystems")]
-        public StartupShell StartupShell;
-        public DebugStats   DebugStats;
 
         void OnApplicationQuit() {
             SceneManager.sceneLoaded -= SCENEMANAGER_SceneLoaded;
