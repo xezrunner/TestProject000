@@ -62,11 +62,16 @@ namespace CoreSystem {
 
         }
 
+        void resizeConsole(float newHeight = 500f) {
+            selfRectTrans.sizeDelta = new(selfRectTrans.sizeDelta.x, newHeight);
+            createConsoleLines();
+        }
+
         void createConsoleLines() {
             var consoleHeight = scrollRectTrans.rect.height; // TODO: size var
 
             uiLineHeight = consoleOutputTextPreset.GetComponent<RectTransform>().rect.height;
-            uiLineCount = Mathf.RoundToInt(consoleHeight / uiLineHeight) - 1; // extra buffer: 2
+            uiLineCount = Mathf.RoundToInt(consoleHeight / uiLineHeight) + 1;
 
             for (int i = lines.Count; i < uiLineCount; ++i) {
                 var obj = Instantiate(consoleOutputTextPreset, scrollContentRectTrans);
@@ -86,47 +91,40 @@ namespace CoreSystem {
             consoleOutputTextPreset.SetActive(false);
         }
 
-        void resizeConsole(float newHeight = 500f) {
-            selfRectTrans.sizeDelta = new(selfRectTrans.sizeDelta.x, newHeight);
-            createConsoleLines();
-        }
-
-        // TODO:
-        // For proper virtualized scrolling that appears smooth, we will need to employ the following:
-        //    - Have a couple extra lines out of view.
-        //    - When scrolling, let the lines that are visible in view move, but position them so that they're visible where they normally should be.
-        //    - Keep replacing the out-of-view lines' content.
         void updateLines() {
             // Set scroll content height:
-            var targetHeight = consoleOutput.Count * uiLineHeight;
-            scrollContentRectTrans.sizeDelta = new(scrollContentRectTrans.sizeDelta.x, targetHeight);
+            var fullHeight = (consoleOutput.Count * uiLineHeight) + textPadding.y;
+            scrollContentRectTrans.sizeDelta = new(scrollContentRectTrans.sizeDelta.x, fullHeight);
             
-            var scrollT = consoleOutput.Count <= uiLineCount ? 0 : 1f - scrollRect.verticalNormalizedPosition; // 0-1, top-bottom
-            var indexIntoOutput = Mathf.FloorToInt(scrollT * Mathf.Min(consoleOutput.Count, consoleOutput.Count - uiLineCount));
+            var scroll = consoleOutput.Count <= uiLineCount ? 0 : 1f - scrollRect.verticalNormalizedPosition; // 0-1, top-bottom
+
+            // NOTE: take into consideration the extra UI line that exists, versus what we want to see in the UI.
+            // The extra is only used for smooth scrolling.
+            var indexIntoOutput = Mathf.FloorToInt(scroll * Mathf.Min(consoleOutput.Count, consoleOutput.Count - (uiLineCount - 1)));
             if (indexIntoOutput < 0) indexIntoOutput = 0;
 
             for (int i = 0 ; i < uiLineCount; ++i) {
                 var line = lines[i];
 
-                Vector2 targetPos = new(x: 0,
-                                        y: (uiLineHeight * i) + ((targetHeight - scrollRectTrans.rect.height) * scrollT));
-                targetPos += textPadding;
+                Vector2 targetPos = new(x: 0, y: (indexIntoOutput + i) * uiLineHeight);
+                targetPos += textPadding / 2;
                 targetPos.y *= -1; // UI has top at 1
 
-                scrollDebugTextCom.SetText($"output lines: {consoleOutput.Count} | scroll: {scrollT:N2}  targetHeight: {targetHeight:N3}  *: {(targetHeight * scrollT):N3}  ");
+                scrollDebugTextCom.SetText($"output lines: {consoleOutput.Count} | scroll: {scroll:N2}  targetHeight: {fullHeight:N3}  *: {(fullHeight * scroll):N3}  ");
 
                 line.com.rectTransform.anchoredPosition = targetPos;
                 
                 if (indexIntoOutput + i < consoleOutput.Count) {
                     var outputLine = consoleOutput[indexIntoOutput + i];
                     line.obj.SetActive(true);
-                    line.com.SetText($"visual line index {i:D2}  text output index: {(indexIntoOutput + i):D3} | {outputLine}");
+                    //line.com.SetText($"visual line index {i:D2}  text output index: {(indexIntoOutput + i):D3} | {outputLine}");
+                    line.com.SetText(outputLine);
                 } else {
                     line.obj.SetActive(false);
                 }
             }
         }
-        
+
         public const float SCROLL_TOP    = 1f;
         public const float SCROLL_BOTTOM = 0f;
 
@@ -141,6 +139,7 @@ namespace CoreSystem {
             scrollTarget = t;
         }
 
+        float t = 0;
         void LateUpdate() {
             if (scrollTarget != -1f) {
                 scrollRect.verticalNormalizedPosition = scrollTarget;
@@ -148,7 +147,7 @@ namespace CoreSystem {
             }
 
             if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasReleasedThisFrame) {
-                for (int i = 0; i < 5000; ++i) Debug.Log(i);
+                for (int i = 0; i < 30; ++i) Debug.Log(i);
             }
 
             if (Keyboard.current.spaceKey.wasReleasedThisFrame) {
