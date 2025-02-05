@@ -22,7 +22,7 @@ namespace CoreSystem {
         [Header("Settings")]
         [SerializeField] Vector2 textPadding = new(24, 16);
 
-        List<(GameObject obj, TMP_Text com)> lines = new();
+        List<(GameObject obj, TMP_Text com)> uiLines = new();
 
         float uiLineHeight;
         int   uiLineCount;
@@ -62,28 +62,34 @@ namespace CoreSystem {
 
         }
 
+        // UGUI has the scrolling T flipped:
+        public const float SCROLL_TOP    = 1f;
+        public const float SCROLL_BOTTOM = 0f;
+
         void resizeConsole(float newHeight = 500f) {
             selfRectTrans.sizeDelta = new(selfRectTrans.sizeDelta.x, newHeight);
             createConsoleLines();
         }
 
+        // We use this to add an extra UI line for virtualized, yet smooth scrolling:
+        const int extraLineCountForSmoothScrolling = 2; // NOTE: For larger Y padding, we need more extra lines.
         void createConsoleLines() {
             var consoleHeight = scrollRectTrans.rect.height; // TODO: size var
 
             uiLineHeight = consoleOutputTextPreset.GetComponent<RectTransform>().rect.height;
-            uiLineCount = Mathf.RoundToInt(consoleHeight / uiLineHeight) + 1;
+            uiLineCount = Mathf.RoundToInt(consoleHeight / uiLineHeight) + extraLineCountForSmoothScrolling;
 
-            for (int i = lines.Count; i < uiLineCount; ++i) {
+            for (int i = uiLines.Count; i < uiLineCount; ++i) {
                 var obj = Instantiate(consoleOutputTextPreset, scrollContentRectTrans);
                 var com = obj.GetComponent<TMP_Text>();
 
                 obj.SetActive(true);
                 com.SetText((string)null);
                 
-                lines.Add(new(obj, com));
+                uiLines.Add(new(obj, com));
             }
-            for (int i = lines.Count - 1; i >= uiLineCount; --i) {
-                var line = lines[i];
+            for (int i = uiLines.Count - 1; i >= uiLineCount; --i) {
+                var line = uiLines[i];
                 // Leave these lines intact, since the console might get resized later again:
                 line.obj.SetActive(false);
             }
@@ -92,41 +98,63 @@ namespace CoreSystem {
         }
 
         void updateLines() {
-            // Set scroll content height:
-            var fullHeight = (consoleOutput.Count * uiLineHeight) + textPadding.y;
+            // This function does "virtualized scrolling", where only the visible UI lines are updated with the console log output.
+            // This results in much better performance, compared to keeping the whole log output within the console.
+
+            // Set scroll content height based on how many total log lines there are:
+            var fullHeight = (consoleOutput.Count * uiLineHeight) + (textPadding.y * 2f);
             scrollContentRectTrans.sizeDelta = new(scrollContentRectTrans.sizeDelta.x, fullHeight);
             
-            var scroll = consoleOutput.Count <= uiLineCount ? 0 : 1f - scrollRect.verticalNormalizedPosition; // 0-1, top-bottom
+            // NOTE: despite UGUI's flipped nature, this is [0-1, top-bottom] here:
+            var scroll = (consoleOutput.Count <= uiLineCount) ? 
+                        // If we scroll when scrolling shouldn't be possible (content fits on screen), Unity will claim 
+                        // that we scrolled to the bottom (1) for some reason.
+                        // We'll limit this here such that we always remain scrolled to the top when this is the case.
+                        // TODO: BUG: should we apply this universally?
+                        SCROLL_BOTTOM :
+                        // BUG: UGUI sometimes gives us a scrolling value of like 1.0000014, which if we subtract,
+                        // will obviously give us a negative number. So let's clamp it:
+                        Mathf.Clamp01(SCROLL_TOP - scrollRect.verticalNormalizedPosition);
 
-            // NOTE: take into consideration the extra UI line that exists, versus what we want to see in the UI.
-            // The extra is only used for smooth scrolling.
-            var indexIntoOutput = Mathf.FloorToInt(scroll * Mathf.Min(consoleOutput.Count, consoleOutput.Count - (uiLineCount - 1)));
-            if (indexIntoOutput < 0) indexIntoOutput = 0;
+            // This is the index into the total console log output lines (as opposed to the constant few visible UI lines).
+            // We want this index to be offset by the visible UI line count when scrolling is possible, since we want the
+            // log end with the last UI line.
+            // NOTE: take into consideration the extra UI line that exists (+1), versus what we want to see in the UI.
+            // The extra is used for smooth scrolling.
+            var indexIntoOutput = Mathf.FloorToInt(scroll * Mathf.Min(a: consoleOutput.Count,
+                                                                      b: consoleOutput.Count - (uiLineCount - extraLineCountForSmoothScrolling)));
+
+            scrollDebugTextCom.SetText($"output lines: {consoleOutput.Count} | scroll: {scroll:N2}  height: {fullHeight:N3}  indexIntoOutput: {indexIntoOutput}");
 
             for (int i = 0 ; i < uiLineCount; ++i) {
-                var line = lines[i];
+                var uiLine = uiLines[i];
 
+                // Position line within the scroll content area to the position where it should be:
+                // It is intentional that this is an "integer" that only updates when we scroll one line's worth of space.
+                // With this setup, the lines will move naturally, but also update seamlessly as they "fall into their correct place".
                 Vector2 targetPos = new(x: 0, y: (indexIntoOutput + i) * uiLineHeight);
-                targetPos += textPadding / 2;
-                targetPos.y *= -1; // UI has top at 1
+                // Apply padding:
+                // @Incomplete: large padding values cause the lines to disappear sooner than expected with longer scroll heights
+                // at the top and bottom of the console.
+                // Perhaps we'd need to take the padding into consideration when creating the extra lines, to determine the amount
+                // of extra lines to create.
+                targetPos += textPadding;
+                targetPos.y *= -1; // UI has top at 1, so let's flip our logical calculations from above into that.
 
-                scrollDebugTextCom.SetText($"output lines: {consoleOutput.Count} | scroll: {scroll:N2}  targetHeight: {fullHeight:N3}  *: {(fullHeight * scroll):N3}  ");
-
-                line.com.rectTransform.anchoredPosition = targetPos;
+                uiLine.com.rectTransform.anchoredPosition = targetPos;
                 
                 if (indexIntoOutput + i < consoleOutput.Count) {
+                    // Write the appropriate log index into the line:
                     var outputLine = consoleOutput[indexIntoOutput + i];
-                    line.obj.SetActive(true);
+                    uiLine.obj.SetActive(true);
                     //line.com.SetText($"visual line index {i:D2}  text output index: {(indexIntoOutput + i):D3} | {outputLine}");
-                    line.com.SetText(outputLine);
+                    uiLine.com.SetText(outputLine);
                 } else {
-                    line.obj.SetActive(false);
+                    // Deactivate invisible lines
+                    uiLine.obj.SetActive(false);
                 }
             }
         }
-
-        public const float SCROLL_TOP    = 1f;
-        public const float SCROLL_BOTTOM = 0f;
 
         public void OnValueChanged(Vector2 v) {
             // scrollDebugTextCom.SetText($"scroll: {v}");
@@ -147,7 +175,7 @@ namespace CoreSystem {
             }
 
             if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasReleasedThisFrame) {
-                for (int i = 0; i < 30; ++i) Debug.Log(i);
+                for (int i = 0; i < 1000; ++i) Debug.Log(i);
             }
 
             if (Keyboard.current.spaceKey.wasReleasedThisFrame) {

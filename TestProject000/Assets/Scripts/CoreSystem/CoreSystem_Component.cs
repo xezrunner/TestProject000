@@ -24,7 +24,7 @@ namespace CoreSystem {
         void Start() {
             StartupShell?.STSHELL_SetActive(CORESYSTEM_STARTUP_OPTS.isFullStartup);
 
-            if (SceneManager.GetActiveScene().name == CORESYSTEM_SCENE_NAME && !Camera.main) { // TEMP:
+            if (SceneManager.GetActiveScene().name == CORESYSTEM_SCENE_NAME && !FindAnyObjectByType<Camera>()) { // TEMP:
                 var obj = new GameObject("Temporary camera (dev)");
                 var cam = obj.AddComponent<Camera>();
                 cam.clearFlags = CameraClearFlags.Color;
