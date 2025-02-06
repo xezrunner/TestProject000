@@ -17,6 +17,9 @@ namespace CoreSystem {
 
         public float fpsAccurate;
         public int   fpsRounded; // This should mostly be in parity with the Unity Editor stats window
+
+        public float frameTime;
+        public float avgFrameTime;
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
@@ -173,28 +176,23 @@ namespace CoreSystem {
 
         // Public methods:
         public static void STATS_PrintLine(string component, string text) => GrabInstance()?.pushToStatsDB(component, text);
-        public static void STATS_PrintLine(string text, bool printCallerDebugInfo = true, 
-                                                        [CallerFilePath]   string callerFilePath = null, [CallerMemberName] string callerProcName = null,
-                                                        [CallerLineNumber] int callerLineNum = -1) {
-            var component   = callerFilePath;
-            var textToPrint = !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName);
-            GrabInstance()?.pushToStatsDB(component, textToPrint, append: false);
+        public static void STATS_PrintLine(string text, [CallerFilePath]   string callerFilePath = null,
+                                                        [CallerMemberName] string callerProcName = null,
+                                                        [CallerLineNumber] int    callerLineNum  = -1) {
+            GrabInstance()?.pushToStatsDB(component: callerFilePath, text, append: false);
         }
-        public static void STATS_Append(string text, bool printCallerDebugInfo = true, 
-                                                        [CallerFilePath]   string callerFilePath = null, [CallerMemberName] string callerProcName = null,
-                                                        [CallerLineNumber] int callerLineNum = -1) {
-            // @CopyPasta:
-            var component = callerFilePath;
-            var textToPrint = !printCallerDebugInfo ? text : text.AddCallerDebugInfo(CallerDebugInfoFlags.ProcName);
-            GrabInstance()?.pushToStatsDB(component, textToPrint, append: true);
+        public static void STATS_Append(string text, [CallerFilePath]   string callerFilePath = null,
+                                                     [CallerMemberName] string callerProcName = null,
+                                                     [CallerLineNumber] int    callerLineNum  = -1) {
+            GrabInstance()?.pushToStatsDB(component: callerFilePath, text, append: true);
         }
 
         // public static void STATS_PrintQuickLine(string text) => GrabInstance()?.quicklinePush(text);
-        public static void STATS_PrintQuickLine(string text,
-                                                [CallerFilePath]   string callerFilePath = null,
-                                                [CallerMemberName] string callerProcName = null,
-                                                [CallerLineNumber] int callerLineNum     = -1) =>
+        public static void STATS_PrintQuickLine(string text, [CallerFilePath]   string callerFilePath = null,
+                                                             [CallerMemberName] string callerProcName = null,
+                                                             [CallerLineNumber] int    callerLineNum  = -1) {
             GrabInstance()?.quicklinePush(text, callerFilePath, callerProcName, callerLineNum);
+        }
 
         // TODO: we may want to read/receive messages from DebugConsole instead:
         public static bool UNITY_RedirectLogMessages = true;
@@ -216,21 +214,26 @@ namespace CoreSystem {
 
         FPSInfo fpsInfo;
 
-        const float fpsStatsPollingFrequency = 0.5f;
+        const float fpsStatsPollingFrequency = 0.25f;
         float       fpsStatsTimer;
         void UPDATE_FPSStats() {
             if (fpsStatsTimer < fpsStatsPollingFrequency) {
-                fpsStatsTimer += Time.deltaTime; return;
+                fpsStatsTimer += Time.unscaledDeltaTime; return;
             }
 
-            float timeSpan   = Time.realtimeSinceStartup - fpsInfo.lastTime;
-            int   frameCount = Time.frameCount           - fpsInfo.lastFrameCount;
+            float timeSpan   = Time.unscaledTime - fpsInfo.lastTime;
+            int   frameCount = Time.frameCount   - fpsInfo.lastFrameCount;
 
             fpsInfo.lastFrameCount = Time.frameCount;
-            fpsInfo.lastTime       = Time.realtimeSinceStartup;
-            fpsInfo.fpsAccurate    = frameCount / timeSpan;
-            fpsInfo.fpsRounded     = Mathf.RoundToInt(fpsInfo.fpsAccurate);
+            fpsInfo.lastTime       = Time.unscaledTime;
 
+            fpsInfo.fpsAccurate  = timeSpan <= 0 ? -1f : frameCount / timeSpan;
+            fpsInfo.fpsRounded   = Mathf.RoundToInt(fpsInfo.fpsAccurate);
+            
+            fpsInfo.frameTime    = Time.unscaledDeltaTime     * 1000f;
+            fpsInfo.avgFrameTime = fpsInfo.fpsAccurate <= 0 ? -1f : (1f / fpsInfo.fpsAccurate) * 1000f;
+
+            fpsStatsTimer = 0f;
         }
 
         void Update() {
@@ -259,7 +262,7 @@ namespace CoreSystem {
         }
 
         void LateUpdate() {
-            STATS_PrintLine($"FPS: {fpsInfo.fpsAccurate:N2} ({fpsInfo.fpsRounded})"); // TODO: control
+            STATS_PrintLine($"FPS: {fpsInfo.fpsAccurate:N2} ({fpsInfo.fpsRounded}) [{fpsInfo.frameTime}, avg: {fpsInfo.avgFrameTime}]"); // TODO: control
 
             LATEUPDATE_Quicklines();
             LATEUPDATE_PrintStats();
