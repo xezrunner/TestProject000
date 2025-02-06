@@ -959,7 +959,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 332998895}
   m_HandleRect: {fileID: 332998894}
   m_Direction: 2
-  m_Value: 1.000001
+  m_Value: 1.0000006
   m_Size: 0.675
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1418,9 +1418,8 @@ MonoBehaviour:
   scrollRectTrans: {fileID: 1993658296}
   scrollContentRectTrans: {fileID: 169066575}
   consoleOutputTextPreset: {fileID: 1112422526}
-  scrollDebugTextCom: {fileID: 1622102019}
+  debugTextCom: {fileID: 1622102019}
   textPadding: {x: 16, y: 8}
-  consoleOutput: []
 --- !u!1 &1368585056
 GameObject:
   m_ObjectHideFlags: 0
@@ -2318,7 +2317,7 @@ GameObject:
   - component: {fileID: 1622102020}
   - component: {fileID: 1622102019}
   m_Layer: 5
-  m_Name: scroll debug text
+  m_Name: debug text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2372,8 +2371,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 587202559
-  m_fontColor: {r: 1, g: 1, b: 1, a: 0.13333334}
+    rgba: 1560281087
+  m_fontColor: {r: 1, g: 1, b: 1, a: 0.36078432}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
