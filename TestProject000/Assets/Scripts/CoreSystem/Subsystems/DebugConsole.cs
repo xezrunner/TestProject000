@@ -199,11 +199,6 @@ namespace CoreSystem {
             consoleOutputTextPreset.SetActive(false);
         }
 
-        Dictionary<LogCategory, string> colorLUT = new() {
-            { LogCategory.Unity,      "#fae16460" },
-            { LogCategory.CoreSystem, "#4270db60" },
-        };
-
         void updateConsoleOutputUI() {
             // This function does "virtualized scrolling", where only the visible UI lines are updated with the console log output.
             // This results in much better performance, compared to keeping the whole log output within the console.
@@ -248,7 +243,7 @@ namespace CoreSystem {
                 // Write the appropriate log index into the line:
                 var line = consoleOutputFiltered[indexIntoOutput + i];
                 uiLine.obj.SetActive(true);
-                uiLine.com.SetText($"<size=100%><mark={colorLUT[line.category]}>{line.category.ToString().PadRight(LogCategory.CoreSystem.ToString().Length).bold()}</mark></size> {line.text}");
+                uiLine.com.SetText(line.text);
 
                 // Position line within the scroll content area to the position where it should be:
                 // It is intentional that this is an "integer" that only updates when we scroll one line's worth of space.
