@@ -14,6 +14,8 @@ namespace CoreSystem {
         }
     }
 
+    //public static class 
+
     public static partial class TextExtensions {
     public static string RemoveFileExtension(this string text) => text[.. text.LastIndexOf('.')];
 

@@ -16,6 +16,8 @@ namespace CoreSystem {
         External   = 1 << 3,
     }
 
+    // TODO: completely control console with cmd arg
+
     public class DebugConsole : MonoBehaviour {
         [Header("Components")]
         [SerializeField] RectTransform canvasRectTrans;
@@ -30,6 +32,8 @@ namespace CoreSystem {
         [SerializeField] TMP_Text debugTextCom;
 
         [Header("Settings")]
+        [SerializeField] float opennessSpeed = 3f;
+        [SerializeField] float defaultHeight = 450f;
         [SerializeField] Vector2 textPadding = new(24, 16);
 
         List<(GameObject obj, TMP_Text com)> uiLines = new();
@@ -41,7 +45,8 @@ namespace CoreSystem {
             if (!selfRectTrans)   selfRectTrans   = GetComponent<RectTransform>();
             if (!canvasRectTrans) canvasRectTrans = selfRectTrans.parent.GetComponent<RectTransform>();
 
-            createConsoleLines();
+            setState(state, anim: false);
+            resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
         }
 
         void OnEnable() {
@@ -51,10 +56,54 @@ namespace CoreSystem {
             Application.logMessageReceived -= UNITY_logMessageReceived;
         }
 
-        void setState() {
-            // ...
+        // TEMP: values
+        float open_t;
+        bool  state = false;
+
+        void setState(bool newState, bool anim = true) {
+            if (newState) {
+                updateConsoleFiltering();
+            }
             
-            updateConsoleFiltering();
+            state = newState;
+            open_t = anim ? 0f : 1.1f;
+        }
+
+        void UPDATE_Openness() {
+            if (open_t == 1f) return;
+            if (open_t  > 1f) open_t = 1f;
+
+            float panelY = selfRectTrans.rect.height;
+            if (state) panelY *= EasingFunctions.InQuad (1 - open_t);
+            else       panelY *= EasingFunctions.OutQuad(open_t);
+            
+            selfRectTrans.anchoredPosition = new(selfRectTrans.anchoredPosition.x, panelY);
+
+            open_t += Time.deltaTime * opennessSpeed;
+        }
+
+        void resizeConsole(float newHeight, bool anim = true) {
+            sizing_from = selfRectTrans.sizeDelta.y;
+            sizing_to   = newHeight;
+            sizing_t    = anim ? 0f : 1.1f;
+
+            if (sizing_from < sizing_to) createConsoleLines(sizing_to);
+        }
+
+        float sizing_t, sizing_from, sizing_to;
+        void UPDATE_Sizing() {
+            if (sizing_t == 1f) return;
+            if (sizing_t  > 1f) sizing_t = 1f;
+
+            float panelHeight = Mathf.Lerp(sizing_from, sizing_to, EasingFunctions.OutQuad(sizing_t));
+            selfRectTrans.sizeDelta = new(selfRectTrans.sizeDelta.x, panelHeight);
+
+            if (sizing_t == 1f) {
+                if (sizing_from >= sizing_to) createConsoleLines(sizing_to);
+                updateConsoleOutputUI();
+            }
+
+            sizing_t += Time.deltaTime * opennessSpeed;
         }
 
         public class ConsoleLineInfo {
@@ -84,9 +133,9 @@ namespace CoreSystem {
             consoleOutput.Add(info);
 
             // TODO: If the console is visible:
-            if (true) {
+            if (state) {
                 updateConsoleFiltering();
-                updateLines();
+                updateConsoleOutputUI();
                 scroll(SCROLL_BOTTOM);
             }
         }
@@ -124,15 +173,10 @@ namespace CoreSystem {
         public const float SCROLL_TOP    = 1f;
         public const float SCROLL_BOTTOM = 0f;
 
-        void resizeConsole(float newHeight = 500f) {
-            selfRectTrans.sizeDelta = new(selfRectTrans.sizeDelta.x, newHeight);
-            createConsoleLines();
-        }
-
         // We use this to add an extra UI line for virtualized, yet smooth scrolling:
         const int extraLineCountForSmoothScrolling = 2; // NOTE: For larger Y padding, we need more extra lines.
-        void createConsoleLines() {
-            var consoleHeight = scrollRectTrans.rect.height; // TODO: size var
+        void createConsoleLines(float height = -1f) {
+            var consoleHeight = height == -1f ? scrollRectTrans.rect.height : height; // TODO: size var
 
             uiLineHeight = consoleOutputTextPreset.GetComponent<RectTransform>().rect.height;
             uiLineCount = Mathf.RoundToInt(consoleHeight / uiLineHeight) + extraLineCountForSmoothScrolling;
@@ -155,7 +199,7 @@ namespace CoreSystem {
             consoleOutputTextPreset.SetActive(false);
         }
 
-        void updateLines() {
+        void updateConsoleOutputUI() {
             // This function does "virtualized scrolling", where only the visible UI lines are updated with the console log output.
             // This results in much better performance, compared to keeping the whole log output within the console.
 
@@ -183,7 +227,7 @@ namespace CoreSystem {
             var indexIntoOutput = Mathf.FloorToInt(scroll * Mathf.Min(a: consoleOutputFilteredCount,
                                                                       b: consoleOutputFilteredCount - (uiLineCount - extraLineCountForSmoothScrolling)));
 
-            debugTextCom?.SetText($"total lines: {consoleOutputCount}  filtered lines: {consoleOutputFilteredCount} | "     + 
+            debugTextCom?.SetText($"total lines: {consoleOutputCount}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount} | " + 
                                   $"scroll: {scroll:N2}  height: {contentHeight:N3}  indexIntoOutput: {indexIntoOutput} | " +
                                   $"filter: [{consoleFilterFlags}]");
 
@@ -222,7 +266,7 @@ namespace CoreSystem {
 
         public void OnValueChanged(Vector2 v) {
             // scrollDebugTextCom.SetText($"scroll: {v}");
-            updateLines();
+            updateConsoleOutputUI();
         }
 
         // TODO: we might want to snap scrolling to the next line
@@ -231,8 +275,20 @@ namespace CoreSystem {
             scrollTarget = t;
         }
 
-        float t;
+        void Update() {
+            UPDATE_Openness();
+            if (!state) return;
+
+            UPDATE_Sizing();
+        }
+        
         void LateUpdate() {
+            if (Keyboard.current.tabKey.wasPressedThisFrame) {
+                setState(!state);
+            }
+
+            if (!state) return;
+
             if (scrollTarget != -1f) {
                 scrollRect.verticalNormalizedPosition = scrollTarget;
                 scrollTarget = -1f;
@@ -246,25 +302,21 @@ namespace CoreSystem {
             }
 
             if (Keyboard.current.spaceKey.wasReleasedThisFrame) {
-                float targetHeight = selfRectTrans.sizeDelta.y == 300f ? 500f : selfRectTrans.sizeDelta.y == 500f ? canvasRectTrans.sizeDelta.y : 300f;
+                float targetHeight = sizing_to == 300f ? 500f : sizing_to == 500f ? canvasRectTrans.sizeDelta.y : 300f;
                 resizeConsole(targetHeight);
-            }
-
-            if (Keyboard.current.tabKey.wasReleasedThisFrame) {
-                updateLines();
             }
 
             if (Keyboard.current.qKey.wasPressedThisFrame) {
                 setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.Unity);
-                updateLines();
+                updateConsoleOutputUI();
             }
             if (Keyboard.current.wKey.wasPressedThisFrame) {
                 setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.CoreSystem);
-                updateLines();
+                updateConsoleOutputUI();
             }
             if (Keyboard.current.eKey.wasPressedThisFrame) {
                 setConsoleFilterFlags(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? LogCategory.Unknown : CONSOLEFILTERFLAGS_ALL);
-                updateLines();
+                updateConsoleOutputUI();
             }
         }
     }
