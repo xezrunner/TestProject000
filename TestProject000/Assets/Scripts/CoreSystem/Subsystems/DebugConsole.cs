@@ -32,8 +32,8 @@ namespace CoreSystem {
         [SerializeField] TMP_Text debugTextCom;
 
         [Header("Settings")]
-        [SerializeField] float opennessSpeed = 3f;
-        [SerializeField] float defaultHeight = 450f;
+        [SerializeField] float animationSpeed = 3f;
+        [SerializeField] float defaultHeight  = 450f;
         [SerializeField] Vector2 textPadding = new(24, 16);
 
         List<(GameObject obj, TMP_Text com)> uiLines = new();
@@ -79,7 +79,7 @@ namespace CoreSystem {
             
             selfRectTrans.anchoredPosition = new(selfRectTrans.anchoredPosition.x, panelY);
 
-            open_t += Time.deltaTime * opennessSpeed;
+            open_t += Time.deltaTime * animationSpeed;
         }
 
         void resizeConsole(float newHeight, bool anim = true) {
@@ -103,7 +103,7 @@ namespace CoreSystem {
                 updateConsoleOutputUI();
             }
 
-            sizing_t += Time.deltaTime * opennessSpeed;
+            sizing_t += Time.deltaTime * animationSpeed;
         }
 
         public class ConsoleLineInfo {
@@ -199,6 +199,11 @@ namespace CoreSystem {
             consoleOutputTextPreset.SetActive(false);
         }
 
+        Dictionary<LogCategory, string> colorLUT = new() {
+            { LogCategory.Unity,      "#fae16460" },
+            { LogCategory.CoreSystem, "#4270db60" },
+        };
+
         void updateConsoleOutputUI() {
             // This function does "virtualized scrolling", where only the visible UI lines are updated with the console log output.
             // This results in much better performance, compared to keeping the whole log output within the console.
@@ -229,7 +234,7 @@ namespace CoreSystem {
 
             debugTextCom?.SetText($"total lines: {consoleOutputCount}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount} | " + 
                                   $"scroll: {scroll:N2}  height: {contentHeight:N3}  indexIntoOutput: {indexIntoOutput} | " +
-                                  $"filter: [{consoleFilterFlags}]");
+                                  $"filter: [{(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? "None" : $"{consoleFilterFlags}")}]");
 
             for (int i = 0 ; i < uiLineCount; ++i) {
                 var uiLine = uiLines[i];
@@ -241,10 +246,9 @@ namespace CoreSystem {
                 }
 
                 // Write the appropriate log index into the line:
-                var outputLine = consoleOutputFiltered[indexIntoOutput + i];
+                var line = consoleOutputFiltered[indexIntoOutput + i];
                 uiLine.obj.SetActive(true);
-                //line.com.SetText($"visual line index {i:D2}  text output index: {(indexIntoOutput + i):D3} | {outputLine}");
-                uiLine.com.SetText(outputLine.text);
+                uiLine.com.SetText($"<size=100%><mark={colorLUT[line.category]}>{line.category.ToString().PadRight(LogCategory.CoreSystem.ToString().Length).bold()}</mark></size> {line.text}");
 
                 // Position line within the scroll content area to the position where it should be:
                 // It is intentional that this is an "integer" that only updates when we scroll one line's worth of space.
@@ -295,8 +299,9 @@ namespace CoreSystem {
             }
 
             if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasPressedThisFrame) {
-                for (int i = 0; i < 30; ++i) {
+                for (int i = 1; i <= 30; ++i) {
                     pushText(LogCategory.CoreSystem, $"This is a log entry that belongs to the CoreSystem log category. {i}");
+                    ++i;
                     Debug.LogWarning($"This is a log entry that belongs to the Unity log category. {i}");
                 }
             }

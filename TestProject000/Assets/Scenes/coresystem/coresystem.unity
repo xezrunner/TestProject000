@@ -1419,6 +1419,8 @@ MonoBehaviour:
   scrollContentRectTrans: {fileID: 169066575}
   consoleOutputTextPreset: {fileID: 1112422526}
   debugTextCom: {fileID: 1622102019}
+  animationSpeed: 3.5
+  defaultHeight: 450
   textPadding: {x: 16, y: 8}
 --- !u!1 &1368585056
 GameObject:
