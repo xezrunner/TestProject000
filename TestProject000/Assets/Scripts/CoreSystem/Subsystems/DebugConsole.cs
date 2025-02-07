@@ -46,6 +46,8 @@ namespace CoreSystem {
             if (!canvasRectTrans) canvasRectTrans = selfRectTrans.parent.GetComponent<RectTransform>();
 
             registerEventCallbacks();
+            registerCommandsFromAssemblies();
+            
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
         }
@@ -162,6 +164,18 @@ namespace CoreSystem {
             if (scrollTarget != -1f) {
                 scrollRect.verticalNormalizedPosition = scrollTarget;
                 scrollTarget = -1f;
+            }
+
+            // -----
+
+            if (Keyboard.current.enterKey.wasPressedThisFrame) {
+                var command = commands["test_command"];
+                if (command != null) {
+                    // TODO:
+                    Debug.Log("invoking test_command...");
+                    var invocation = command.invokeFunction(); // command.function(0, 1);
+                    if (invocation.success && invocation.result != null) Debug.Log("  result: " + invocation.result);
+                }
             }
 
             if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasPressedThisFrame) {
