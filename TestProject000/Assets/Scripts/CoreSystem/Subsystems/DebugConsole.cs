@@ -45,15 +45,27 @@ namespace CoreSystem {
             if (!selfRectTrans)   selfRectTrans   = GetComponent<RectTransform>();
             if (!canvasRectTrans) canvasRectTrans = selfRectTrans.parent.GetComponent<RectTransform>();
 
+            registerEventCallbacks();
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
         }
 
-        void OnEnable() {
+        void registerEventCallbacks() {
             Application.logMessageReceived += UNITY_logMessageReceived;
         }
-        void OnDisable() {
+        void OnApplicationQuit() {
             Application.logMessageReceived -= UNITY_logMessageReceived;
+        }
+
+        public static bool UNITY_ReceiveLogMessages = true;
+        void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
+            if (!UNITY_ReceiveLogMessages) return;
+            
+            // TODO: this stuff is also in DebugStats_Quicklines
+            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
+            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
+
+            pushText(LogCategory.Unity, text);
         }
 
         float open_t;
@@ -119,16 +131,6 @@ namespace CoreSystem {
             consoleFilterFlags = flags;
 
             updateConsoleFiltering();
-        }
-
-        public static bool UNITY_RedirectLogMessages = true;
-        void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
-            if (!UNITY_RedirectLogMessages) return;
-            
-            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
-            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
-
-            pushText(LogCategory.Unity, text);
         }
 
         public void OnValueChanged(Vector2 v) {
