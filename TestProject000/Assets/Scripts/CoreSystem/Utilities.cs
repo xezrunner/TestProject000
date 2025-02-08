@@ -1,8 +1,12 @@
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using UnityEditor;
 using UnityEngine;
 
 namespace CoreSystem {
+
+    class RequiredComponentAttribute : System.Attribute { }
 
     static class CoreSystemUtils {
         public static T GetOrFindAndSetObject<T>(ref T toSet) where T : Object {
@@ -11,6 +15,34 @@ namespace CoreSystem {
             var it = Object.FindFirstObjectByType<T>();
             toSet = it;
             return it;
+        }
+
+        public static System.Type getTypeFromFilePath(string path) {
+            if (!File.Exists(path)) return null;
+
+            string unityRelativePath = "Assets" + path.Substring(Application.dataPath.Length); // This can crash!
+            var script = AssetDatabase.LoadAssetAtPath<MonoScript>(unityRelativePath);
+
+            // NOTE: this will only give us the first MonoBehaviour that it finds. Don't have multiple scripts in a file!
+            var type = script.GetClass();
+            return type;
+        }
+
+        public static void processRequiredComponents(object instance, [CallerFilePath] string callerFilePath = null) {
+            var fields = instance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields) {
+                var attribute = field.GetCustomAttribute<RequiredComponentAttribute>();
+                if (attribute == null) continue;
+                if (field.GetValue(instance) == null) {
+                    var type = getTypeFromFilePath(callerFilePath);
+                    Debug.LogError($"{type.Name ?? Path.GetFileName(callerFilePath) ?? "<???>"}: Required Unity component '{field.Name}' (of type {field.FieldType}) has no value after initialization. Assign it in the inspector, provide a fallback in initialization, or disable root component to continue.");
+#if UNITY_EDITOR
+                    EditorApplication.isPlaying = false;
+#else
+                    Application.Quit();
+#endif
+                }
+            }
         }
     }
 

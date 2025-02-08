@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+using static CoreSystem.CoreSystemUtils;
+
 namespace CoreSystem {
 
     [Flags] public enum LogCategory: uint {
@@ -20,16 +22,17 @@ namespace CoreSystem {
 
     public partial class DebugConsole : MonoBehaviour {
         [Header("Components")]
-        [SerializeField] RectTransform canvasRectTrans;
-        [SerializeField] RectTransform selfRectTrans;
+        [RequiredComponent] [SerializeField] RectTransform canvasRectTrans;
+        [RequiredComponent] [SerializeField] RectTransform selfRectTrans;
 
-        [SerializeField] RectTransform contentRectTrans;
+        [RequiredComponent] [SerializeField] RectTransform contentRectTrans;
         
-        [SerializeField] ScrollRect    scrollRect;
-        [SerializeField] RectTransform scrollRectTrans;
-        [SerializeField] RectTransform scrollContentRectTrans;
+        [RequiredComponent] [SerializeField] ScrollRect    scrollRect;
+        [RequiredComponent] [SerializeField] RectTransform scrollRectTrans;
+        [RequiredComponent] [SerializeField] RectTransform scrollContentRectTrans;
         
-        [SerializeField] GameObject consoleOutputTextPreset;
+        [SerializeField]                     GameObject     consoleOutputTextPreset;
+        [RequiredComponent] [SerializeField] TMP_InputField consoleInputField;
 
         [SerializeField] TMP_Text debugTextCom;
 
@@ -44,17 +47,13 @@ namespace CoreSystem {
         int   uiLineCount;
 
         void Awake() {
-            if (!selfRectTrans)   selfRectTrans   = GetComponent<RectTransform>();
-            if (!canvasRectTrans) canvasRectTrans = selfRectTrans.parent.GetComponent<RectTransform>();
-            if (!canvasRectTrans) Debug.LogError("No canvas?");
-
-            if (!contentRectTrans) contentRectTrans = selfRectTrans.GetChild(1).GetComponent<RectTransform>(); // @Hardcoded
-            if (!contentRectTrans) {
-                Debug.LogError("Content rect transform not found. This is fatal.");
-                Application.Quit();
-            }
-
             registerEventCallbacks();
+
+            if (!selfRectTrans)    selfRectTrans    = GetComponent<RectTransform>();
+            if (!canvasRectTrans)  canvasRectTrans  = selfRectTrans?.parent.GetComponent<RectTransform>();
+            if (!contentRectTrans) contentRectTrans = selfRectTrans?.GetChild(1)?.GetComponent<RectTransform>(); // @Hardcoded
+
+            processRequiredComponents(this);
             registerCommandsFromAssemblies();
             
             setState(state, anim: false);
@@ -144,7 +143,7 @@ namespace CoreSystem {
             updateConsoleFiltering();
         }
 
-        public void OnValueChanged(Vector2 v) {
+        public void OnScrollingChanged(Vector2 v) {
             // scrollDebugTextCom.SetText($"scroll: {v}");
             updateConsoleOutputUI();
         }
@@ -155,11 +154,22 @@ namespace CoreSystem {
             scrollTarget = t;
         }
 
+        public void submit(string input) {
+            if (input == null) input = consoleInputField.text;
+
+            pushText(LogCategory.CoreSystem, $"submission: [{input}]");
+        }
+
         void Update() {
             UPDATE_Openness();
             if (!state) return;
 
             UPDATE_Sizing();
+
+            // TODO: better input handling?
+            if (!Keyboard.current.altKey.isPressed && Keyboard.current.enterKey.wasReleasedThisFrame) {
+                submit(null);    
+            }
         }
         
         void LateUpdate() {
@@ -177,15 +187,15 @@ namespace CoreSystem {
 
             // -----
 
-            if (Keyboard.current.enterKey.wasPressedThisFrame) {
-                var command = commands["test_command"];
-                if (command != null) {
-                    // TODO:
-                    Debug.Log("invoking test_command...");
-                    var invocation = command.invokeFunction(); // command.function(0, 1);
-                    if (invocation.success && invocation.result != null) Debug.Log("  result: " + invocation.result);
-                }
-            }
+            // if (Keyboard.current.enterKey.wasPressedThisFrame) {
+            //     var command = commands["test_command"];
+            //     if (command != null) {
+            //         // TODO:
+            //         Debug.Log("invoking test_command...");
+            //         var invocation = command.invokeFunction(); // command.function(0, 1);
+            //         if (invocation.success && invocation.result != null) Debug.Log("  result: " + invocation.result);
+            //     }
+            // }
 
             if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasPressedThisFrame) {
                 for (int i = 1; i <= 30; ++i) {

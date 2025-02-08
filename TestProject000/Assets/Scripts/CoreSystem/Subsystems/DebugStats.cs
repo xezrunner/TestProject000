@@ -6,7 +6,8 @@ using System.Runtime.CompilerServices;
 using UnityEngine.InputSystem;
 using System.IO;
 using System;
-using UnityEditor;
+
+using static CoreSystem.CoreSystemUtils;
 
 namespace CoreSystem {
 
@@ -110,11 +111,7 @@ namespace CoreSystem {
                 // Attempt to get priority from the same-named class:
                 // Using some Unity Editor Asset Database magic/hack here:
                 if (File.Exists(key)) {
-                    string unityRelativePath = "Assets" + key.Substring(Application.dataPath.Length); // This can crash!
-                    var script = AssetDatabase.LoadAssetAtPath<MonoScript>(unityRelativePath);
-
-                    // NOTE: this will only give us the first MonoBehaviour that it finds. Don't have multiple scripts in a file!
-                    var type = script.GetClass();
+                    var type = getTypeFromFilePath(key);
                     if (type != null) attribute = (DebugStatsSettingsAttribute)Attribute.GetCustomAttribute(type, typeof(DebugStatsSettingsAttribute));
                 }
 
