@@ -22,6 +22,8 @@ namespace CoreSystem {
         [Header("Components")]
         [SerializeField] RectTransform canvasRectTrans;
         [SerializeField] RectTransform selfRectTrans;
+
+        [SerializeField] RectTransform contentRectTrans;
         
         [SerializeField] ScrollRect    scrollRect;
         [SerializeField] RectTransform scrollRectTrans;
@@ -44,6 +46,13 @@ namespace CoreSystem {
         void Awake() {
             if (!selfRectTrans)   selfRectTrans   = GetComponent<RectTransform>();
             if (!canvasRectTrans) canvasRectTrans = selfRectTrans.parent.GetComponent<RectTransform>();
+            if (!canvasRectTrans) Debug.LogError("No canvas?");
+
+            if (!contentRectTrans) contentRectTrans = selfRectTrans.GetChild(1).GetComponent<RectTransform>(); // @Hardcoded
+            if (!contentRectTrans) {
+                Debug.LogError("Content rect transform not found. This is fatal.");
+                Application.Quit();
+            }
 
             registerEventCallbacks();
             registerCommandsFromAssemblies();

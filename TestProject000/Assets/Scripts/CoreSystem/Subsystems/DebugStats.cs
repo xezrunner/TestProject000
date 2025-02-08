@@ -166,7 +166,7 @@ namespace CoreSystem {
                 var info = kv.info;
                 if (!info.isEnabled) continue;
 
-                sb.AppendLine($"{info.displayName}:  (priority: {info.priority})".bold());
+                sb.AppendLine($"{info.displayName}:".bold() + $" (priority: {info.priority})".color("#ffffff30"));
                 sb.AppendLine(info.stringBuilder.ToString());
                 sb.AppendLine();
             }
@@ -214,6 +214,7 @@ namespace CoreSystem {
 
         FPSInfo fpsInfo;
 
+        // TODO: FPS stats aren't exactly accurate, seemingly. It deviates from UnityEditor's Stats.
         const float fpsStatsPollingFrequency = 0.25f;
         float       fpsStatsTimer;
         void UPDATE_FPSStats() {

@@ -8,17 +8,17 @@ namespace CoreSystem {
             if (open_t == 1f) return;
             if (open_t  > 1f) open_t = 1f;
 
-            float panelY = selfRectTrans.rect.height;
+            float panelY = contentRectTrans.rect.height;
             if (state) panelY *= EasingFunctions.InQuad (1 - open_t);
             else       panelY *= EasingFunctions.OutQuad(open_t);
             
-            selfRectTrans.anchoredPosition = new(selfRectTrans.anchoredPosition.x, panelY);
+            contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
             open_t += Time.deltaTime * animationSpeed;
         }
 
         void resizeConsole(float newHeight, bool anim = true) {
-            sizing_from = selfRectTrans.sizeDelta.y;
+            sizing_from = contentRectTrans.sizeDelta.y;
             sizing_to   = newHeight;
             sizing_t    = anim ? 0f : 1.1f;
 
@@ -31,7 +31,7 @@ namespace CoreSystem {
             if (sizing_t  > 1f) sizing_t = 1f;
 
             float panelHeight = Mathf.Lerp(sizing_from, sizing_to, EasingFunctions.OutQuad(sizing_t));
-            selfRectTrans.sizeDelta = new(selfRectTrans.sizeDelta.x, panelHeight);
+            contentRectTrans.sizeDelta = new(contentRectTrans.sizeDelta.x, panelHeight);
 
             if (sizing_t == 1f) {
                 if (sizing_from >= sizing_to) createConsoleLines(sizing_to);
