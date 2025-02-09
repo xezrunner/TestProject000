@@ -49,12 +49,15 @@ namespace CoreSystem {
     //public static class 
 
     public static partial class TextExtensions {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string RemoveFileExtension(this string text) => text[.. text.LastIndexOf('.')];
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsEmpty(this string text) {
         return text == null || text == "";
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Contains(this string text, params string[] what) {
         foreach (var it in what) {
             if (text.Contains(it)) return true;
@@ -63,8 +66,11 @@ namespace CoreSystem {
     }
 
     // TODO: Make these safe (?)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int   AsInt  (this string text) => int.Parse(text);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float AsFloat(this string text) => float.Parse(text);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool  AsBool (this string text) {
         switch (text.ToLower()) {
             case "0":
@@ -84,24 +90,32 @@ namespace CoreSystem {
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string bold     (this string text) => $"<b>{text}</b>";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string underline(this string text) => $"<u>{text}</u>";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string italic   (this string text) => $"<i>{text}</i>";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string monospace(this string text) => $"<mspace=0.55em>{text}</mspace>";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string color    (this string text, string color_hex) {
         if (color_hex[0] != '#') color_hex.Insert(0, "#");
         return $"<color={color_hex}>{text}</color>";
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string color    (this string text, UnityEngine.Color unity_color, float alpha = -1f) {
         if (alpha >= 0f) unity_color.a = alpha;
         string hex = UnityColorToHex(unity_color);
         return color(text, hex);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string UnityColorToHex(this UnityEngine.Color color) {
         string result = UnityEngine.ColorUtility.ToHtmlStringRGBA(color);
         return $"#{result}";
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UnityEngine.Color HexToUnityColor(this string hex) {
         UnityEngine.Color color = new(1f, 0f, 0f, 1f);
         UnityEngine.ColorUtility.TryParseHtmlString(hex, out color);
@@ -134,10 +148,12 @@ namespace CoreSystem {
     public static class CallerDebugInfoUtils {
         public static bool CALLER_RemoveExtFromFilenames = true;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string AddCallerDebugInfo(this string text, CallerDebugInfoFlags format_flags, CallerDebugInfo info) {
             return AddCallerDebugInfo(text, format_flags, info.callerFilePath, info.callerProcName, info.callerLineNumber);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string AddCallerDebugInfo(this string text, CallerDebugInfoFlags formatFlags,
                                                   [CallerFilePath]   string callerFilePath = null,
                                                   [CallerMemberName] string callerProcName = null,
