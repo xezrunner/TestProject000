@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem.Controls;
 
 namespace CoreSystem {
 
@@ -46,7 +47,25 @@ namespace CoreSystem {
         }
     }
 
-    //public static class 
+    public static class QuickInput {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool wasPressed(params ButtonControl[] keys) {
+            foreach (var key in keys) if (key.wasPressedThisFrame) return true;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool isHeld(params ButtonControl[] keys) {
+            foreach (var key in keys) if (key.isPressed) return true;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool wasReleased(params ButtonControl[] keys) {
+            foreach (var key in keys) if (key.wasReleasedThisFrame) return true;
+            return false;
+        }
+    }
 
     public static partial class TextExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
