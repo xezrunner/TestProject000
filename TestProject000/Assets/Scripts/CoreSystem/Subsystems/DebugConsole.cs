@@ -150,7 +150,7 @@ namespace CoreSystem {
             
         }
 
-        // TODO: on autocorrection, change caret width temporarily to a thin line
+        // TODO: on predictions/suggestions, change caret width temporarily to a thin line
 
         public void submit(string input) {
             // Use current console input if none provided:

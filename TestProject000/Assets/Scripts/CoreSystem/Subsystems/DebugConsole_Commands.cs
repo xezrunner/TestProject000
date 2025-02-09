@@ -34,22 +34,34 @@ namespace CoreSystem {
         public ConsoleCommandFunction function;
 
         public (bool success, object result) invokeFunction(params object[] args) {
-            // TODO: handle args mismatch!
-            // NOTE: When [required value type args without default values] are missing, C# will use their canonical default values 
-            // if we pass in null in place of the value type args.
-            if (args.Length < functionArgsInfo.Length) Array.Resize(ref args, functionArgsInfo.Length);
+            var processedArgs = new List<object>();
+
             for (int i = 0; i < functionArgsInfo.Length; ++i) {
                 var info  = functionArgsInfo[i];
-                var arg   = i < functionArgsInfo.Length - 1 ? args[i] : null;
+                var arg   = (i < args.Length) ? args[i] : null;
 
                 // TODO: named args?
                 // if (info.Name)
 
                 // If there are default values defined for an arg we didn't pass, use them instead:
-                if (info.HasDefaultValue && arg == null) args[i] = info.DefaultValue;
+                if (arg == null && info.HasDefaultValue) arg = info.DefaultValue;
+                // NOTE: When [required value type args without default values] are missing, C# will use their canonical default values 
+                // if we pass in null in place of the value type args.
+                else if (arg != null) {
+                    if (info.ParameterType != arg.GetType()) {
+                        try {
+                            arg = Convert.ChangeType(arg, info.ParameterType);
+                        } catch (Exception e) {
+                            // TODO: might want to handle some special args that don't convert on their own?
+                            Debug.LogError($"  - argument conversion failed: from: {arg.GetType()} to: {info.ParameterType} -- {e.Message}");
+                            return (false, null);
+                        }
+                    }
+                }
+                processedArgs.Add(arg);
             }
 
-            var result = function(args);
+            var result = function(processedArgs.ToArray());
             return (true, result);
         }
     }
