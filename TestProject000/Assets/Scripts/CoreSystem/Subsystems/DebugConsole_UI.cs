@@ -1,11 +1,20 @@
 using System;
+using System.Collections;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CoreSystem {
 
     public partial class DebugConsole {
+        void setupUI() {
+            consoleInputField.SetTextWithoutNotify(null);
+            inputPredictionText.SetText((string)null);
+
+            setupFilterButtons();
+        }
+        
         void UPDATE_Openness() {
             if (open_t == 1f) return;
             if (open_t  > 1f) open_t = 1f;
@@ -202,6 +211,22 @@ namespace CoreSystem {
             if (filterButtonPreset) filterButtonPreset.SetActive(false);
 
             refreshFilterButtonStates();
+        }
+
+        void updateInlinePredictionUI(string visualText) {
+            inputPredictionText.SetText(visualText);
+
+            if (currentInputPrediction != null) {
+                consoleInputField.ForceLabelUpdate();    // Force the label to update on this frame
+                consoleInputFieldText.ForceMeshUpdate(); // Update the bounds @Performance
+
+                var x = consoleInputFieldText.GetRenderedValues().x; // @Performance
+                inputPredictionTextRectTrans.offsetMin = new(x, inputPredictionTextRectTrans.offsetMin.y);
+            }
+
+            consoleInputField.caretWidth = currentInputPrediction == null ? 
+                                               inputFieldNormalCaretWidth : 
+                                               inputFieldPredictingCaretWidth;
         }
 
     }

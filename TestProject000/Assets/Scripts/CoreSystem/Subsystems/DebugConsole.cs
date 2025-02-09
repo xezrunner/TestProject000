@@ -4,9 +4,11 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
 
 using static CoreSystem.CoreSystemUtils;
+using static CoreSystem.QuickInput;
 
 namespace CoreSystem {
 
@@ -21,6 +23,7 @@ namespace CoreSystem {
     // TODO: completely control console with cmd arg
 
     public partial class DebugConsole : MonoBehaviour {
+        // TODO: would be neat if we didn't have to cache (rect)transes manually:
         [Header("Components")]
         [RequiredComponent] [SerializeField] RectTransform canvasRectTrans;
         [RequiredComponent] [SerializeField] RectTransform selfRectTrans;
@@ -33,33 +36,46 @@ namespace CoreSystem {
         
         [SerializeField]                     GameObject     consoleOutputTextPreset;
         [RequiredComponent] [SerializeField] TMP_InputField consoleInputField;
+        [SerializeField]                     TMP_Text       consoleInputFieldText;
 
         [SerializeField] RectTransform filterButtonsContainer;
         [SerializeField] GameObject    filterButtonPreset;
+
+        [SerializeField] TMP_Text      inputPredictionText;
+        [SerializeField] RectTransform inputPredictionTextRectTrans;
 
         [SerializeField] TMP_Text debugTextCom;
 
         [Header("Settings")]
         [SerializeField] float   animationSpeed = 3f;
         [SerializeField] float   defaultHeight  = 450f;
-        [SerializeField] Vector2 textPadding = new(24, 16);
+        [SerializeField] Vector2 textPadding    = new(24, 16);
+        [SerializeField] int inputFieldNormalCaretWidth     = 9;
+        [SerializeField] int inputFieldPredictingCaretWidth = 1;
 
         List<(GameObject obj, TMP_Text com)> uiLines = new();
 
         float uiLineHeight;
         int   uiLineCount;
 
+        Keyboard keyboard = Keyboard.current;
+
         void Awake() {
             registerEventCallbacks();
+
+            if (keyboard == null) pushText("no keyboard!");
 
             if (!selfRectTrans)    selfRectTrans    = GetComponent<RectTransform>();
             if (!canvasRectTrans)  canvasRectTrans  = selfRectTrans?.parent.GetComponent<RectTransform>();
             if (!contentRectTrans) contentRectTrans = selfRectTrans?.GetChild(1)?.GetComponent<RectTransform>(); // @Hardcoded
 
+            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionText?.rectTransform;
+            if (!consoleInputFieldText)        consoleInputFieldText        = consoleInputField?.textComponent;
+
             processRequiredComponents(this);
             registerCommandsFromAssemblies();
 
-            setupFilterButtons();
+            setupUI();
             
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
@@ -67,9 +83,11 @@ namespace CoreSystem {
 
         void registerEventCallbacks() {
             Application.logMessageReceived += UNITY_logMessageReceived;
+            if (keyboard != null) keyboard.onTextInput += OnKeyboardTextInput;
         }
         void OnApplicationQuit() {
             Application.logMessageReceived -= UNITY_logMessageReceived;
+            if (keyboard != null) keyboard.onTextInput -= OnKeyboardTextInput;
         }
 
         public static bool UNITY_ReceiveLogMessages = true;
@@ -155,8 +173,40 @@ namespace CoreSystem {
             updateConsoleFiltering();
         }
 
+        // Suggestions/predictions:
+        string currentInputPrediction;
+        void updatePrediction(string input) {
+            if (input == null) input = consoleInputField.text;
+            if (!inputPredictionText) return;
+
+            currentInputPrediction = null;
+
+            int shortest = int.MaxValue;
+            if (!input.IsEmpty()) {
+                foreach (var key in commands.Keys) {
+                    if (!key.StartsWith(input))    continue;
+                    if (input.Length >= key.Length) continue;
+
+                    if (key.Length < shortest) {
+                        currentInputPrediction = key;
+                        shortest = key.Length;
+                    }
+                }
+                if (currentInputPrediction == input) currentInputPrediction = null;
+            }
+
+            updateInlinePredictionUI(currentInputPrediction?.Substring(input.Length));
+        }
+
+        void completePrediction() {
+            if (currentInputPrediction == null) return;
+
+            consoleInputField.text = currentInputPrediction;
+            consoleInputField.caretPosition = consoleInputField.text.Length;
+        }
+
         public void OnConsoleInputFieldTextChanged(string text) {
-            
+            updatePrediction(text);
         }
 
         // TODO: on predictions/suggestions, change caret width temporarily to a thin line
@@ -174,7 +224,6 @@ namespace CoreSystem {
             var tokens = input.Split(' ');
             var commandName = tokens[0];
 
-
             if (!commands.ContainsKey(commandName)) pushText($"  - command not found");
             else {
                 var command    = commands[commandName];
@@ -184,12 +233,25 @@ namespace CoreSystem {
             }
 
             // NOTE: order here is important:
-            consoleInputField.ActivateInputField();       // re-focus input field
-            consoleInputField.SetTextWithoutNotify(null); // clear input field after submission
+            consoleInputField.ActivateInputField(); // re-focus input field
+            consoleInputField.text = null;          // clear input field after submission
+        }
+
+        static char[] CONSOLE_TOGGLE_KEYS = {
+            '§', '`'
+        };
+
+        void OnKeyboardTextInput(char c) {
+            // We do this because in my setup, § is the key that's on the intended console key.
+            foreach (var it in CONSOLE_TOGGLE_KEYS) {
+                if (c != it) continue;
+                setState(!state); break;
+            }
         }
 
         void Update() {
-            if (Keyboard.current.tabKey.wasPressedThisFrame) setState(!state);
+            if (isHeld(keyboard?.shiftKey) && wasPressed(keyboard?.f1Key)) setState(!state);
+            
             UPDATE_Openness();
 
             if (!state) return;
@@ -197,40 +259,42 @@ namespace CoreSystem {
             UPDATE_Sizing();
             UPDATE_Scrolling();
 
-            // TODO: better input handling?
-            if (!Keyboard.current.altKey.isPressed && Keyboard.current.enterKey.wasReleasedThisFrame) {
-                submit(null);    
-            }
+            if (!isHeld(keyboard?.altKey) && wasReleased(keyboard?.enterKey)) submit(null);
+
+            if (wasReleased(keyboard.tabKey)) completePrediction();
         }
         
         void LateUpdate() {
             // TODO: ignore when Alt/Cmd is being pressed, if Tab remains the key for toggling the console
             if (!state) return;
 
-            if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasPressedThisFrame) {
-                for (int i = 1; i <= 30; ++i) {
-                    pushText($"This is a log entry that belongs to the CoreSystem log category. {i}");
-                    ++i;
-                    Debug.LogWarning($"This is a log entry that belongs to the Unity log category. {i}");
+            // TEMP:
+            {
+                if (keyboard.shiftKey.isPressed && keyboard.enterKey.wasPressedThisFrame) {
+                    for (int i = 1; i <= 30; ++i) {
+                        pushText($"This is a log entry that belongs to the CoreSystem log category. {i}");
+                        ++i;
+                        Debug.LogWarning($"This is a log entry that belongs to the Unity log category. {i}");
+                    }
                 }
-            }
 
-            if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.spaceKey.wasReleasedThisFrame) {
-                float targetHeight = sizing_to == 300f ? 500f : sizing_to == 500f ? canvasRectTrans.sizeDelta.y : 300f;
-                resizeConsole(targetHeight);
-            }
+                if (keyboard.ctrlKey.isPressed && keyboard.spaceKey.wasReleasedThisFrame) {
+                    float targetHeight = sizing_to == 300f ? 500f : sizing_to == 500f ? canvasRectTrans.sizeDelta.y : 300f;
+                    resizeConsole(targetHeight);
+                }
 
-            if (Keyboard.current.altKey.isPressed && Keyboard.current.qKey.wasPressedThisFrame) {
-                setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.Unity);
-                updateConsoleOutputUI();
-            }
-            if (Keyboard.current.altKey.isPressed && Keyboard.current.wKey.wasPressedThisFrame) {
-                setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.CoreSystem);
-                updateConsoleOutputUI();
-            }
-            if (Keyboard.current.altKey.isPressed && Keyboard.current.eKey.wasPressedThisFrame) {
-                setConsoleFilterFlags(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? LogCategory.Unknown : CONSOLEFILTERFLAGS_ALL);
-                updateConsoleOutputUI();
+                if (keyboard.altKey.isPressed && keyboard.qKey.wasPressedThisFrame) {
+                    setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.Unity);
+                    updateConsoleOutputUI();
+                }
+                if (keyboard.altKey.isPressed && keyboard.wKey.wasPressedThisFrame) {
+                    setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.CoreSystem);
+                    updateConsoleOutputUI();
+                }
+                if (keyboard.altKey.isPressed && keyboard.eKey.wasPressedThisFrame) {
+                    setConsoleFilterFlags(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? LogCategory.Unknown : CONSOLEFILTERFLAGS_ALL);
+                    updateConsoleOutputUI();
+                }
             }
         }
     }
