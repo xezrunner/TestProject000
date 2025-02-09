@@ -80,7 +80,7 @@ namespace CoreSystem {
 
             List<(MethodInfo methodInfo, ConsoleCommandAttribute attribute)> commandMetadatas = new(capacity: 100);
             
-            Debug.Log("- Registering console commands and variables...");
+            pushText("- Registering console commands and variables...");
 
             foreach (var assembly in assemblies) {
                 var assemblyPath = assembly.ManifestModule.FullyQualifiedName; // TODO: this isn't necessarily always the path
@@ -99,7 +99,7 @@ namespace CoreSystem {
                             continue;
                         }
 
-                        Debug.Log($"   - {assembly.ManifestModule.Name}/{type.Name}::" + $"{info.Name}()".bold());
+                        pushText($"   - {assembly.ManifestModule.Name}/{type.Name}::" + $"{info.Name}()".bold());
                         commandMetadatas.Add((info, attribute));
                     }
                 }

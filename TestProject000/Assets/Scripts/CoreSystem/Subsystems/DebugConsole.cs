@@ -34,11 +34,14 @@ namespace CoreSystem {
         [SerializeField]                     GameObject     consoleOutputTextPreset;
         [RequiredComponent] [SerializeField] TMP_InputField consoleInputField;
 
+        [SerializeField] RectTransform filterButtonsContainer;
+        [SerializeField] GameObject    filterButtonPreset;
+
         [SerializeField] TMP_Text debugTextCom;
 
         [Header("Settings")]
-        [SerializeField] float animationSpeed = 3f;
-        [SerializeField] float defaultHeight  = 450f;
+        [SerializeField] float   animationSpeed = 3f;
+        [SerializeField] float   defaultHeight  = 450f;
         [SerializeField] Vector2 textPadding = new(24, 16);
 
         List<(GameObject obj, TMP_Text com)> uiLines = new();
@@ -55,6 +58,8 @@ namespace CoreSystem {
 
             processRequiredComponents(this);
             registerCommandsFromAssemblies();
+
+            setupFilterButtons();
             
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!

@@ -1,5 +1,7 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CoreSystem {
 
@@ -151,6 +153,55 @@ namespace CoreSystem {
                 scrollRect.verticalNormalizedPosition = scrollTarget;
                 scrollTarget = -1f;
             }
+        }
+
+        static (Color normal, Color highlight) filterButtonActiveColors   = (new(1f, 1f, 1f),       new(0.9f, 0.9f, 0.9f));
+        static (Color normal, Color highlight) filterButtonInactiveColors = (new(0.2f, 0.2f, 0.2f), new(0.25f, 0.25f, 0.25f));
+        public void OnFilterButtonClick(Button button) {
+            var flag = Enum.Parse<LogCategory>(button.name);
+            setConsoleFilterFlags(consoleFilterFlags ^ flag);
+
+            refreshFilterButtonStates();
+        }
+
+        void refreshFilterButtonStates() {
+            for (int i = 1; i < filterButtonsContainer.childCount; ++i) {
+                var button = filterButtonsContainer.GetChild(i)?.GetComponent<Button>();
+                if (!button) continue;
+
+                var flag = Enum.Parse<LogCategory>(button.name);
+                
+                // Set colors:
+                var hasFlag = consoleFilterFlags.HasFlag(flag);
+                var colorToSet = hasFlag ? filterButtonActiveColors : filterButtonInactiveColors;
+                var colors = button.colors;
+                colors.normalColor      = colorToSet.normal;
+                colors.selectedColor    = colorToSet.normal;
+                colors.highlightedColor = colorToSet.highlight;
+                button.colors = colors;
+
+                var text = button.GetComponentInChildren<TMP_Text>();
+                if (text) text.color = hasFlag ? Color.black : Color.white;
+            }
+        }
+
+        void setupFilterButtons() {
+            if (!filterButtonsContainer || !filterButtonPreset) {
+                pushText($"Filter button [container / preset] not assigned and will not be available. (container: {(bool)filterButtonsContainer}, preset: {(bool)filterButtonPreset})");
+            }
+            if (filterButtonPreset) filterButtonPreset.SetActive(true);
+
+            var enumNames = Enum.GetNames(typeof(LogCategory));
+            for (int i = 1; i < enumNames.Length; ++i) {
+                var obj = Instantiate(filterButtonPreset, filterButtonsContainer);
+                var com = obj.GetComponentInChildren<TMP_Text>(); // TODO: should we have a button prefab?
+                obj.name = enumNames[i];
+                com.SetText(enumNames[i][0].ToString());
+            }
+
+            if (filterButtonPreset) filterButtonPreset.SetActive(false);
+
+            refreshFilterButtonStates();
         }
 
     }
