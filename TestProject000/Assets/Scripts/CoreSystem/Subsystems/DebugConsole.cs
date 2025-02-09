@@ -110,8 +110,8 @@ namespace CoreSystem {
         int consoleOutputCount;
         List<ConsoleLineInfo> consoleOutput = new(capacity: 500);
 
-        LogCategory consoleFilterFlags = LogCategory.Unity | LogCategory.CoreSystem;
         public const LogCategory CONSOLEFILTERFLAGS_ALL = (LogCategory)uint.MaxValue;
+        LogCategory consoleFilterFlags = CONSOLEFILTERFLAGS_ALL;
 
         int consoleOutputFilteredCount = 0;
         List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
@@ -146,8 +146,12 @@ namespace CoreSystem {
 
         void setConsoleFilterFlags(LogCategory flags) {
             if (flags == consoleFilterFlags) return;
-            consoleFilterFlags = flags;
+            if (flags == LogCategory.Unknown) flags = CONSOLEFILTERFLAGS_ALL;
+            if (consoleFilterFlags == CONSOLEFILTERFLAGS_ALL) {
+                if (flags != LogCategory.Unknown || flags != CONSOLEFILTERFLAGS_ALL) flags ^= CONSOLEFILTERFLAGS_ALL;
+            }
 
+            consoleFilterFlags = flags;
             updateConsoleFiltering();
         }
 
