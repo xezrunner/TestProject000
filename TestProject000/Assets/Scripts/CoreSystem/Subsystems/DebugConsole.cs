@@ -75,7 +75,7 @@ namespace CoreSystem {
             if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
             else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
 
-            pushText(LogCategory.Unity, text);
+            pushText(text, LogCategory.Unity);
         }
 
         float open_t;
@@ -84,6 +84,9 @@ namespace CoreSystem {
         void setState(bool newState, bool anim = true) {
             if (newState) {
                 updateConsoleFiltering();
+                consoleInputField.ActivateInputField();
+            } else {
+                consoleInputField.DeactivateInputField();
             }
             
             state = newState;
@@ -108,7 +111,7 @@ namespace CoreSystem {
         int consoleOutputFilteredCount = 0;
         List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
 
-        void pushText(LogCategory category, string text) {
+        void pushText(string text, LogCategory category = LogCategory.CoreSystem) {
             var info = new ConsoleLineInfo() {
                 category = category,
                 text     = text
@@ -143,28 +146,47 @@ namespace CoreSystem {
             updateConsoleFiltering();
         }
 
-        public void OnScrollingChanged(Vector2 v) {
-            // scrollDebugTextCom.SetText($"scroll: {v}");
-            updateConsoleOutputUI();
+        public void OnConsoleInputFieldTextChanged(string text) {
+            
         }
 
-        // TODO: we might want to snap scrolling to the next line
-        float scrollTarget = -1f;
-        void scroll(float t) {
-            scrollTarget = t;
-        }
+        // TODO: on autocorrection, change caret width temporarily to a thin line
 
         public void submit(string input) {
+            // Use current console input if none provided:
             if (input == null) input = consoleInputField.text;
 
-            pushText(LogCategory.CoreSystem, $"submission: [{input}]");
+            input = input.Trim();
+
+            pushText($"> {input}");
+
+            if (input.Length == 0) return;
+
+            var tokens = input.Split(' ');
+            var commandName = tokens[0];
+
+
+            if (!commands.ContainsKey(commandName)) pushText($"  - command not found");
+            else {
+                var command    = commands[commandName];
+                var invocation = command.invokeFunction(tokens[1..]); // handles args inside
+                if (!invocation.success)       pushText( "  - command execution failed"); // TEMP:
+                if (invocation.result != null) pushText($"  - command result: {invocation.result}");
+            }
+
+            // NOTE: order here is important:
+            consoleInputField.ActivateInputField();       // re-focus input field
+            consoleInputField.SetTextWithoutNotify(null); // clear input field after submission
         }
 
         void Update() {
+            if (Keyboard.current.tabKey.wasPressedThisFrame) setState(!state);
             UPDATE_Openness();
+
             if (!state) return;
 
             UPDATE_Sizing();
+            UPDATE_Scrolling();
 
             // TODO: better input handling?
             if (!Keyboard.current.altKey.isPressed && Keyboard.current.enterKey.wasReleasedThisFrame) {
@@ -174,51 +196,30 @@ namespace CoreSystem {
         
         void LateUpdate() {
             // TODO: ignore when Alt/Cmd is being pressed, if Tab remains the key for toggling the console
-            if (Keyboard.current.tabKey.wasPressedThisFrame) {
-                setState(!state);
-            }
-
             if (!state) return;
-
-            if (scrollTarget != -1f) {
-                scrollRect.verticalNormalizedPosition = scrollTarget;
-                scrollTarget = -1f;
-            }
-
-            // -----
-
-            // if (Keyboard.current.enterKey.wasPressedThisFrame) {
-            //     var command = commands["test_command"];
-            //     if (command != null) {
-            //         // TODO:
-            //         Debug.Log("invoking test_command...");
-            //         var invocation = command.invokeFunction(); // command.function(0, 1);
-            //         if (invocation.success && invocation.result != null) Debug.Log("  result: " + invocation.result);
-            //     }
-            // }
 
             if (Keyboard.current.shiftKey.isPressed && Keyboard.current.enterKey.wasPressedThisFrame) {
                 for (int i = 1; i <= 30; ++i) {
-                    pushText(LogCategory.CoreSystem, $"This is a log entry that belongs to the CoreSystem log category. {i}");
+                    pushText($"This is a log entry that belongs to the CoreSystem log category. {i}");
                     ++i;
                     Debug.LogWarning($"This is a log entry that belongs to the Unity log category. {i}");
                 }
             }
 
-            if (Keyboard.current.spaceKey.wasReleasedThisFrame) {
+            if (Keyboard.current.ctrlKey.isPressed && Keyboard.current.spaceKey.wasReleasedThisFrame) {
                 float targetHeight = sizing_to == 300f ? 500f : sizing_to == 500f ? canvasRectTrans.sizeDelta.y : 300f;
                 resizeConsole(targetHeight);
             }
 
-            if (Keyboard.current.qKey.wasPressedThisFrame) {
+            if (Keyboard.current.altKey.isPressed && Keyboard.current.qKey.wasPressedThisFrame) {
                 setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.Unity);
                 updateConsoleOutputUI();
             }
-            if (Keyboard.current.wKey.wasPressedThisFrame) {
+            if (Keyboard.current.altKey.isPressed && Keyboard.current.wKey.wasPressedThisFrame) {
                 setConsoleFilterFlags(consoleFilterFlags ^ LogCategory.CoreSystem);
                 updateConsoleOutputUI();
             }
-            if (Keyboard.current.eKey.wasPressedThisFrame) {
+            if (Keyboard.current.altKey.isPressed && Keyboard.current.eKey.wasPressedThisFrame) {
                 setConsoleFilterFlags(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? LogCategory.Unknown : CONSOLEFILTERFLAGS_ALL);
                 updateConsoleOutputUI();
             }

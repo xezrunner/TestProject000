@@ -41,10 +41,6 @@ namespace CoreSystem {
             sizing_t += Time.deltaTime * animationSpeed;
         }
 
-        // UGUI has the scrolling T flipped:
-        public const float SCROLL_TOP    = 1f;
-        public const float SCROLL_BOTTOM = 0f;
-
         // We use this to add an extra UI line for virtualized, yet smooth scrolling:
         const int extraLineCountForSmoothScrolling = 2; // NOTE: For larger Y padding, we need more extra lines.
         void createConsoleLines(float height = -1f) {
@@ -133,6 +129,28 @@ namespace CoreSystem {
             }
 
             scrollContentRectTrans.sizeDelta = new(scrollContentRectTrans.sizeDelta.x, contentHeight);
+        }
+
+        // UGUI has the scrolling T flipped:
+        public const float SCROLL_TOP    = 1f;
+        public const float SCROLL_BOTTOM = 0f;
+
+        public void OnScrollingChanged(Vector2 v) {
+            // scrollDebugTextCom.SetText($"scroll: {v}");
+            updateConsoleOutputUI();
+        }
+
+        // TODO: we might want to snap scrolling to the next line
+        float scrollTarget = -1f;
+        void scroll(float t) {
+            scrollTarget = t;
+        }
+
+        void UPDATE_Scrolling() {
+            if (scrollTarget != -1f) {
+                scrollRect.verticalNormalizedPosition = scrollTarget;
+                scrollTarget = -1f;
+            }
         }
 
     }
