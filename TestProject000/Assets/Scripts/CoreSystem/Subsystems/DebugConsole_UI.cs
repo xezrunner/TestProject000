@@ -21,7 +21,7 @@ namespace CoreSystem {
         
         void UPDATE_Openness() {
             if (open_t == 1f) return;
-            if (open_t  > 1f) open_t = 1f;
+            if (open_t  > 1f) open_t = 1f; // this is done twice intentionally
 
             float panelY = contentRectTrans.rect.height;
             if (state) panelY *= EasingFunctions.InQuad (1 - open_t);
@@ -30,6 +30,7 @@ namespace CoreSystem {
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
             open_t += Time.deltaTime * animationSpeed;
+            if (open_t  > 1f) open_t = 1f;
         }
 
         void resizeConsole(float newHeight, bool anim = true) {
@@ -43,7 +44,7 @@ namespace CoreSystem {
         float sizing_t, sizing_from, sizing_to;
         void UPDATE_Sizing() {
             if (sizing_t == 1f) return;
-            if (sizing_t  > 1f) sizing_t = 1f;
+            if (sizing_t  > 1f) sizing_t = 1f; // this is done twice intentionally
 
             float panelHeight = Mathf.Lerp(sizing_from, sizing_to, EasingFunctions.OutQuad(sizing_t));
             contentRectTrans.sizeDelta = new(contentRectTrans.sizeDelta.x, panelHeight);
@@ -54,6 +55,7 @@ namespace CoreSystem {
             }
 
             sizing_t += Time.deltaTime * animationSpeed;
+            if (sizing_t  > 1f) sizing_t = 1f;
         }
 
         // We use this to add an extra UI line for virtualized, yet smooth scrolling:
