@@ -44,6 +44,9 @@ namespace CoreSystem {
         [SerializeField] TMP_Text      inputPredictionText;
         [SerializeField] RectTransform inputPredictionTextRectTrans;
 
+        [SerializeField] TMP_Text      argsPredictionText;
+        [SerializeField] RectTransform argsPredictionTextRectTrans;
+
         [SerializeField] TMP_Text debugTextCom;
 
         [Header("Settings")]
@@ -69,8 +72,9 @@ namespace CoreSystem {
             if (!canvasRectTrans)  canvasRectTrans  = selfRectTrans?.parent.GetComponent<RectTransform>();
             if (!contentRectTrans) contentRectTrans = selfRectTrans?.GetChild(1)?.GetComponent<RectTransform>(); // @Hardcoded
 
-            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionText?.rectTransform;
             if (!consoleInputFieldText)        consoleInputFieldText        = consoleInputField?.textComponent;
+            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionText?.rectTransform;
+            if (!argsPredictionTextRectTrans)  argsPredictionTextRectTrans  = argsPredictionText?.rectTransform;
 
             processRequiredComponents(this);
             registerCommandsFromAssemblies();
@@ -184,7 +188,7 @@ namespace CoreSystem {
             int shortest = int.MaxValue;
             if (!input.IsEmpty()) {
                 foreach (var key in commands.Keys) {
-                    if (!key.StartsWith(input))    continue;
+                    if (!key.StartsWith(input))     continue;
                     if (input.Length >= key.Length) continue;
 
                     if (key.Length < shortest) {
@@ -194,8 +198,19 @@ namespace CoreSystem {
                 }
                 if (currentInputPrediction == input) currentInputPrediction = null;
             }
-
             updateInlinePredictionUI(currentInputPrediction?.Substring(input.Length));
+
+            ConsoleCommand command = null;
+            string[] tokens = null;
+            if (currentInputPrediction == null && !input.IsEmpty()) {
+                // Command argument prediction:
+                tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var commandName = tokens[0];
+                if (commands.ContainsKey(commandName)) command = commands[commandName];
+            }
+            updateInlineArgsPredictionUI(command, tokens);
+
+            updateCaretWidth();
         }
 
         void completePrediction() {
@@ -297,6 +312,13 @@ namespace CoreSystem {
                 }
             }
         }
+
+        [ConsoleCommand]
+        static void resize_console(float height, bool anim = true) {
+            CoreSystem.Instance?.DebugConsole?.resizeConsole(height, anim);
+        }
+
     }
+
 
 }

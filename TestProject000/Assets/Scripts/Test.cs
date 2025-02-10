@@ -13,6 +13,7 @@ class Test: MonoBehaviour {
     // [ConsoleVariable]
     static float awesomeness = 2f;
 
+    // TODO: overloads?
     // aliases: [0] will always be function name ('add_command' here), the rest is any aliases you provide
     [ConsoleCommand(aliases: "add", helpText = "help here", isCheatCommand = false)] // all of the options are optional
     static int add_command(int a = 6, int b = 9) {

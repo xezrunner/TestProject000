@@ -1,7 +1,8 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ namespace CoreSystem {
         void setupUI() {
             consoleInputField.SetTextWithoutNotify(null);
             inputPredictionText.SetText((string)null);
+            argsPredictionText.SetText((string)null);
 
             setupFilterButtons();
         }
@@ -106,9 +108,10 @@ namespace CoreSystem {
             var indexIntoOutput = Mathf.FloorToInt(scroll * Mathf.Min(a: consoleOutputFilteredCount,
                                                                       b: consoleOutputFilteredCount - (uiLineCount - extraLineCountForSmoothScrolling)));
 
-            debugTextCom?.SetText($"total lines: {consoleOutputCount}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount} | " + 
-                                  $"scroll: {scroll:N2}  height: {contentHeight:N3}  indexIntoOutput: {indexIntoOutput} | " +
-                                  $"filter: [{(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? "None" : $"{consoleFilterFlags}")}]");
+            debugTextCom?.SetText($"total lines: {consoleOutputCount}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount}" + 
+                                  $" | scroll: {scroll:N2}  height: {contentHeight:N3}  indexIntoOutput: {indexIntoOutput}" +
+                                  $" | filter: [{(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? "None" : $"{consoleFilterFlags}")}]" +
+                                  $" | current prediction: {currentInputPrediction}");
 
             for (int i = 0 ; i < uiLineCount; ++i) {
                 var uiLine = uiLines[i];
@@ -213,20 +216,72 @@ namespace CoreSystem {
             refreshFilterButtonStates();
         }
 
+        bool showingInlinePrediction    = false;
+        bool showingInlineArgPrediction = false;
+
+        void updateCaretWidth() {
+            var showing = showingInlinePrediction || showingInlineArgPrediction;
+            consoleInputField.caretWidth = showing ? inputFieldPredictingCaretWidth : inputFieldNormalCaretWidth;
+        }
+        
         void updateInlinePredictionUI(string visualText) {
             inputPredictionText.SetText(visualText);
 
             if (currentInputPrediction != null) {
                 consoleInputField.ForceLabelUpdate();    // Force the label to update on this frame
-                consoleInputFieldText.ForceMeshUpdate(); // Update the bounds @Performance
+                consoleInputFieldText.ForceMeshUpdate(); // Update bounds @Performance
 
                 var x = consoleInputFieldText.GetRenderedValues().x; // @Performance
                 inputPredictionTextRectTrans.offsetMin = new(x, inputPredictionTextRectTrans.offsetMin.y);
-            }
 
-            consoleInputField.caretWidth = currentInputPrediction == null ? 
-                                               inputFieldNormalCaretWidth : 
-                                               inputFieldPredictingCaretWidth;
+                showingInlinePrediction = true;
+            } else {
+                showingInlinePrediction = false;
+            }
+        }
+
+        static Dictionary<string, string> friendlyTypeNameAlternatives = new() {
+            { typeof(bool)  .Name, "bool" },
+            { typeof(float) .Name, "float" },
+            { typeof(double).Name, "double" },
+        };
+        string getFriendlyTypeNameAlternative(string typeName) {
+            if (friendlyTypeNameAlternatives.ContainsKey(typeName)) return friendlyTypeNameAlternatives[typeName];
+            else return typeName;
+        }
+
+        void updateInlineArgsPredictionUI(ConsoleCommand command = null, string[] tokens = null) {
+            if (command == null || tokens == null) {
+                showingInlineArgPrediction = false;
+                argsPredictionText.SetText((string)null);
+                return;
+            }
+            
+            // Command argument prediction:
+            StringBuilder builder = new(capacity: 30 * command.functionArgsInfo.Length);
+            for (int i = tokens.Length - 1; i < command.functionArgsInfo.Length; ++i) {
+                var info = command.functionArgsInfo[i];
+                string typeName = getFriendlyTypeNameAlternative(info.ParameterType.Name);
+                builder.Append($"[{info.Name.bold()}: {typeName}{(info.HasDefaultValue ? $" -- {info.DefaultValue.ToString().ToLower()}" : null)}] ");
+            }
+            if (builder.Length > 0) builder.Length -= 1; // Remove trailing space
+            var returnTypeName = getFriendlyTypeNameAlternative(command.functionReturnType.Name);
+            if (command.functionReturnType != typeof(void)) builder.Append($" -> returns: {returnTypeName}");
+
+            argsPredictionText.SetText(builder.ToString());
+
+            // Update bounds @Performance
+            // In case we don't have completions above, we have to update the same text com here regardless:
+            consoleInputFieldText.ForceMeshUpdate();
+            if (!inputPredictionText.text.IsEmpty()) inputPredictionText.ForceMeshUpdate();
+
+            var textInfo = consoleInputFieldText.textInfo;
+            var charInfo = textInfo.characterInfo[consoleInputField.text.Length - 1];
+            var x = consoleInputFieldText.rectTransform.TransformPoint(charInfo.bottomRight).x;
+            x += 20f;
+            argsPredictionTextRectTrans.position = new(x, argsPredictionTextRectTrans.position.y);
+
+            showingInlineArgPrediction = true;
         }
 
     }
