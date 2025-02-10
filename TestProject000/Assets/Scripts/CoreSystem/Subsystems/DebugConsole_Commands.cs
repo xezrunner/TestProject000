@@ -25,38 +25,66 @@ namespace CoreSystem {
             else                      info.aliases[0] = methodInfo.Name;
             this.info = info;
 
-            functionArgsInfo = methodInfo.GetParameters();
-            function         = args => methodInfo.Invoke(null, args);
+            functionArgsInfo   = methodInfo.GetParameters();
+            functionReturnType = methodInfo.ReturnType;
+            function           = args => methodInfo.Invoke(null, args);
         }
         public ConsoleCommandAttribute info;
 
-        public ParameterInfo[]        functionArgsInfo;
+        public ParameterInfo[] functionArgsInfo;
+        public Type            functionReturnType;
         public ConsoleCommandFunction function;
 
         public (bool success, object result) invokeFunction(params object[] args) {
+            if (args.Length > functionArgsInfo.Length) {
+                Debug.LogError($"  - too many arguments: expected {functionArgsInfo.Length}, got {args.Length}");
+                return (false, null);
+            }
+            
             var processedArgs = new List<object>();
 
             for (int i = 0; i < functionArgsInfo.Length; ++i) {
-                var info  = functionArgsInfo[i];
-                var arg   = (i < args.Length) ? args[i] : null;
+                var info    = functionArgsInfo[i];
+
+                string argText = (i < args.Length) ? (string)args[i] : null;
+                object arg     = (i < args.Length) ? args[i] : null;
 
                 // TODO: named args?
                 // if (info.Name)
 
                 // If there are default values defined for an arg we didn't pass, use them instead:
-                if (arg == null && info.HasDefaultValue) arg = info.DefaultValue;
+                if (arg == null) {
+                    if (info.HasDefaultValue) arg = info.DefaultValue;
+                    else {
+                        Debug.LogError($"  - argument #{i} ({info.Name}) was not passed and has no default value.");
+                        return (false, null);
+                    }
+                }
                 // NOTE: When [required value type args without default values] are missing, C# will use their canonical default values 
                 // if we pass in null in place of the value type args.
-                else if (arg != null) {
-                    if (info.ParameterType != arg.GetType()) {
-                        try {
-                            arg = Convert.ChangeType(arg, info.ParameterType);
-                        } catch (Exception e) {
-                            // TODO: might want to handle some special args that don't convert on their own?
-                            Debug.LogError($"  - argument conversion failed: from: {arg.GetType()} to: {info.ParameterType} -- {e.Message}");
-                            return (false, null);
+                else if (arg != null && info.ParameterType != arg.GetType()) {
+                    object converted = null;
+                    string conversionError = null;
+
+                    // TODO: lists/arrays
+                    try {
+                        if      (info.ParameterType == typeof(float)) converted = argText.AsFloat();
+                        else if (info.ParameterType == typeof(int))   converted = argText.AsInt();
+                        else if (info.ParameterType == typeof(bool)) {
+                            var conversion = argText.AsBool();
+                            if (conversion.success) converted = conversion.result;
                         }
+                        else converted = Convert.ChangeType(arg, info.ParameterType);
+                    } catch (Exception e) {
+                        // TODO: might want to handle some special args that don't convert on their own?
+                        conversionError = e.Message;
                     }
+
+                    if (converted == null) {
+                        Debug.LogError($"  - argument conversion failed from: string (\"{argText}\") to: {info.ParameterType}{(conversionError != null ? $" -- {conversionError}" : null)}");
+                        return (false, null);
+                    }
+                    arg = converted;
                 }
                 processedArgs.Add(arg);
             }

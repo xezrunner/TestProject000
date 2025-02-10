@@ -95,7 +95,25 @@ namespace CoreSystem {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float AsFloat(this string text) => float.Parse(text);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool  AsBool (this string text) {
+    public static (bool success, bool result) AsBool (this string text) {
+        switch (text.ToLower()) {
+            case "0":
+            case "false":
+            case "n":
+            case "no":    
+                return (true, false);
+            case "1":
+            case "true":
+            case "y":
+            case "yes":
+                return (true, true);
+            default:
+                return (false, false);
+        }
+    }
+    #if false
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool AsBool (this string text) {
         switch (text.ToLower()) {
             case "0":
             case "false":
@@ -113,6 +131,7 @@ namespace CoreSystem {
             }
         }
     }
+    #endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string bold     (this string text) => $"<b>{text}</b>";
