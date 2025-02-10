@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -30,7 +29,10 @@ namespace CoreSystem {
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
             open_t += Time.deltaTime * animationSpeed;
-            if (open_t  > 1f) open_t = 1f;
+            if (open_t  > 1f) {
+                open_t = 1f;
+                if (!state) contentRectTrans.gameObject.SetActive(false);
+            }
         }
 
         void resizeConsole(float newHeight, bool anim = true) {

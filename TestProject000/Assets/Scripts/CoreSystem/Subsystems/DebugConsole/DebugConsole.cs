@@ -16,6 +16,7 @@ namespace CoreSystem {
         [RequiredComponent] [SerializeField] RectTransform canvasRectTrans;
         [RequiredComponent] [SerializeField] RectTransform selfRectTrans;
 
+        [RequiredComponent] [SerializeField] GameObject    contentObj;
         [RequiredComponent] [SerializeField] RectTransform contentRectTrans;
         
         [RequiredComponent] [SerializeField] ScrollRect    scrollRect;
@@ -57,6 +58,7 @@ namespace CoreSystem {
             if (!selfRectTrans)    selfRectTrans    = GetComponent<RectTransform>();
             if (!canvasRectTrans)  canvasRectTrans  = selfRectTrans?.parent.GetComponent<RectTransform>();
             if (!contentRectTrans) contentRectTrans = selfRectTrans?.GetChild(1)?.GetComponent<RectTransform>(); // @Hardcoded
+            if (!contentObj)       contentObj       = contentRectTrans.gameObject;
 
             if (!consoleInputFieldText)        consoleInputFieldText        = consoleInputField?.textComponent;
             if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionText?.rectTransform;
@@ -97,6 +99,7 @@ namespace CoreSystem {
 
         void setState(bool newState, bool anim = true) {
             if (newState) {
+                contentRectTrans.gameObject.SetActive(true);
                 updateConsoleFiltering();
                 consoleInputField.ActivateInputField();
             } else {
