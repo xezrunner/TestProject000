@@ -19,6 +19,8 @@ namespace CoreSystem {
                 Application.Quit();
             }
             Instance = this;
+            
+            Logging.grabInstances();
         }
 
         void Start() {

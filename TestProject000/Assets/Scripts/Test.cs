@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 using static CoreSystem.DebugStats;
+using static CoreSystem.Logging;
 
 [DebugStatsSettings(priority: 1, displayName: "A test class")]
 class Test: MonoBehaviour {
@@ -19,6 +20,11 @@ class Test: MonoBehaviour {
     static int add_command(int a = 6, int b = 9) {
         Debug.Log($"Hello from a console command!  {a}, {b}");
         return a + b; // Return values supported!
+    }
+
+    [ConsoleCommand()]
+    static void proj_logtest() {
+        log("Logging from TestProject000()!");
     }
 
     void LateUpdate() {

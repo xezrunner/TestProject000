@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 namespace CoreSystem {
 
     partial class CoreSystem {
+        public static bool UNITY_receiveLogMessages = true;
+        
         public static Scene coreSystemScene;
 
         static void SCENEMANAGER_SceneLoaded(Scene scene, LoadSceneMode mode) {

@@ -85,6 +85,8 @@ namespace CoreSystem {
         }
 
         void updateConsoleOutputUI() {
+            if (!state) return;
+
             // This function does "virtualized scrolling", where only the visible UI lines are updated with the console log output.
             // This results in much better performance, compared to keeping the whole log output within the console.
 

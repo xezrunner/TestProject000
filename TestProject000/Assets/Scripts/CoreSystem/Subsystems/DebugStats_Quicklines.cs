@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
+using System.Runtime.CompilerServices;
 
 namespace CoreSystem {
 
@@ -72,8 +73,8 @@ namespace CoreSystem {
             return (obj, com);
         }
 
-        void quicklinePush(string text, string callerFilePath, string callerProcName, int callerLineNum) {
-            quicklinePush(text.AddCallerDebugInfo(CallerDebugInfoFlags.FP, callerFilePath, callerProcName, callerLineNum));
+        void quicklinePush(string text, CallerDebugInfo callerInfo) {
+            quicklinePush(text.AddCallerDebugInfo(CallerDebugInfoFlags.FP, callerInfo));
         }
         
         void quicklinePush(string text) {
@@ -114,6 +115,18 @@ namespace CoreSystem {
             target.timestamp = Time.time;
             target.isRetired = false;
             target.textCom.SetText(text);
+        }
+
+        // public static void STATS_PrintQuickLine(string text) => GrabInstance()?.quicklinePush(text);
+
+        public static void STATS_PrintQuickLine(string text, CallerDebugInfo callerInfo) {
+            GrabInstance()?.quicklinePush(text, callerInfo);
+        }
+
+        public static void STATS_PrintQuickLine(string text, [CallerFilePath]   string callerFilePath = null,
+                                                             [CallerMemberName] string callerProcName = null,
+                                                             [CallerLineNumber] int    callerLineNum  = -1) {
+            GrabInstance()?.quicklinePush(text, new(callerFilePath, callerProcName, callerLineNum));
         }
 
         void LATEUPDATE_Quicklines() {

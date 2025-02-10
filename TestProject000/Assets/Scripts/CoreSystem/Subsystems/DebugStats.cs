@@ -184,29 +184,14 @@ namespace CoreSystem {
             GrabInstance()?.pushToStatsDB(component: callerFilePath, text, append: true);
         }
 
-        // public static void STATS_PrintQuickLine(string text) => GrabInstance()?.quicklinePush(text);
-        public static void STATS_PrintQuickLine(string text, [CallerFilePath]   string callerFilePath = null,
-                                                             [CallerMemberName] string callerProcName = null,
-                                                             [CallerLineNumber] int    callerLineNum  = -1) {
-            GrabInstance()?.quicklinePush(text, callerFilePath, callerProcName, callerLineNum);
-        }
-
         // TODO: we may want to read/receive messages from DebugConsole instead:
-        public static bool UNITY_RedirectLogMessages = true;
         void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
-            if (!UNITY_RedirectLogMessages) return;
+            if (CoreSystem.UNITY_receiveLogMessages) return;
             
             if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
             else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
 
             quicklinePush(text);
-        }
-
-        public static void debugLog_noHandle(string text) {
-            var before = UNITY_RedirectLogMessages;
-            UNITY_RedirectLogMessages = false;
-            Debug.Log(text);
-            UNITY_RedirectLogMessages = before;
         }
 
         FPSInfo fpsInfo;

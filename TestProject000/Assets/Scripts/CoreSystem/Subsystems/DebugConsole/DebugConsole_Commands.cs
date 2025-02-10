@@ -97,10 +97,10 @@ namespace CoreSystem {
     public partial class DebugConsole {
         Dictionary<string, ConsoleCommand> commands = new(capacity: 300);
 
-        static string[] assemblyPathIgnoreListPathContains = {
+        public static readonly string[] assemblyPathIgnoreListPathContains = {
             Path.Combine("Unity", "Hub", "Editor"),
         };
-        static string[] assemblyPathIgnoreListFileNameStartsWith = {
+        public static readonly string[] assemblyPathIgnoreListFileNameStartsWith = {
             "mscorlib",
             "Unity.", "UnityEngine.", "UnityEditor.", "Mono.", "System.", "nunit"
         };

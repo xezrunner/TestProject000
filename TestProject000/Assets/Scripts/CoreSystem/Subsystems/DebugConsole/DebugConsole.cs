@@ -4,24 +4,12 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
 
 using static CoreSystem.CoreSystemUtils;
 using static CoreSystem.QuickInput;
 
 namespace CoreSystem {
-
-    [Flags] public enum LogCategory: uint {
-        Unknown    = 0,
-        Unity      = 1 << 0,
-        CoreSystem = 1 << 1,
-        Project    = 1 << 2,
-        External   = 1 << 3,
-    }
-
-    // TODO: completely control console with cmd arg
-
     public partial class DebugConsole : MonoBehaviour {
         // TODO: would be neat if we didn't have to cache (rect)transes manually:
         [Header("Components")]
@@ -94,9 +82,8 @@ namespace CoreSystem {
             if (keyboard != null) keyboard.onTextInput -= OnKeyboardTextInput;
         }
 
-        public static bool UNITY_ReceiveLogMessages = true;
         void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
-            if (!UNITY_ReceiveLogMessages) return;
+            if (!CoreSystem.UNITY_receiveLogMessages) return;
             
             // TODO: this stuff is also in DebugStats_Quicklines
             if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
@@ -146,7 +133,7 @@ namespace CoreSystem {
         int consoleOutputFilteredCount = 0;
         List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
 
-        void pushText(string text, LogCategory category = LogCategory.CoreSystem) {
+        public void pushText(string text, LogCategory category = LogCategory.CoreSystem, LogLevel level = LogLevel.Info) {
             var info = new ConsoleLineInfo() {
                 category = category,
                 text     = text
@@ -183,6 +170,7 @@ namespace CoreSystem {
 
             consoleFilterFlags = flags;
             updateConsoleFiltering();
+            updateConsoleOutputUI();
         }
 
         // Suggestions/predictions:
