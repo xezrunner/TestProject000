@@ -181,7 +181,7 @@ namespace CoreSystemFramework {
             var flag = Enum.Parse<LogCategory>(button.name);
             LogCategory filterFlags = consoleFilterFlags;
 
-            if (isHeld(keyboard.leftCtrlKey) || isHeld(keyboard.leftCommandKey))
+            if (isHeld_internal(keyboard.leftCtrlKey) || isHeld_internal(keyboard.leftCommandKey))
                  filterFlags = flag;
             else filterFlags ^= flag;
             
