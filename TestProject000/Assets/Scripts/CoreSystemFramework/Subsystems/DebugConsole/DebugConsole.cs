@@ -147,6 +147,7 @@ namespace CoreSystemFramework {
         int consoleOutputFilteredCount = 0;
         List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
 
+        // TODO: colors for levels
         public void pushText(LogLevel level, string text) => pushText(text, level: level);
 
         public void pushText(string text, LogCategory category = LogCategory.CoreSystem, LogLevel level = LogLevel.Info, CallerDebugInfo callerInfo = null) {

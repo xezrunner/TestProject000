@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEngine;
 
 using static CoreSystemFramework.Logging;
@@ -91,71 +93,128 @@ namespace CoreSystemFramework {
         // TODO: how do we want to log console-specific "meta" stuff?
         // For instance, if a command throws an exception, should we log that normally?
 
-        (bool success, object result) invokeFunction(ConsoleCommand command, params string[] args) {
-            var functionArgsInfo = command.functionArgsInfo;
+        const char ARGS_ARRAY_START_TOKEN = '[';
+        const char ARGS_ARRAY_END_TOKEN   = ']';
+        static (int endIndex, string[] result) parseArrayFromArgs(string[] args, int startIndex = 0) {
+            if (args[startIndex][0] != ARGS_ARRAY_START_TOKEN) return (-1, null);
             
-            // [0] is the command name:
-            if (args.Length-1 > functionArgsInfo.Length) {
-                pushText(LogLevel.Error, $"  - too many arguments: expected {functionArgsInfo.Length}, got {args.Length-1}");
-                return (false, null);
-            }
-            
-            var processedArgs = new List<object>();
+            StringBuilder sb = new();
 
-            for (int i = 0; i < functionArgsInfo.Length; ++i) {
-                var info = functionArgsInfo[i];
+            int endIndex = -1;
+            for (int i = startIndex; i < args.Length; ++i) {
+                var it = args[i];
+                if (it[0] == ARGS_ARRAY_START_TOKEN) it = it[1..];
 
-                // [0] is the command name:
-                string argText = (i+1 < args.Length) ? args[i+1] : null;
-                object arg     = argText;
+                sb.Append(it.Trim());
 
-                // TODO: named args?
-                // if (info.Name)
-
-                // If there are default values defined for an arg we didn't pass, use them instead:
-                if (arg == null) {
-                    if (info.HasDefaultValue) arg = info.DefaultValue;
-                    else {
-                        pushText(LogLevel.Error, $"  - argument #{i} ('{info.Name}') was not passed and has no default value.");
-                        return (false, null);
-                    }
+                if (!it.IsEmpty() && it[it.Length-1] == ARGS_ARRAY_END_TOKEN) {
+                    endIndex = i;
+                    sb.Length -= 1; // Remove trailing END_TOKEN
+                    break;
                 }
-                // NOTE: When [required value type args without default values] are missing, C# will use their canonical default values 
-                // if we pass in null in place of the value type args.
-                else if (arg != null && info.ParameterType != arg.GetType()) {
-                    object converted = null;
-                    string conversionError = null;
-
-                    // TODO: lists/arrays
-                    try {
-                        if      (info.ParameterType == typeof(float)) converted = argText.AsFloat();
-                        else if (info.ParameterType == typeof(int))   converted = argText.AsInt();
-                        else if (info.ParameterType == typeof(bool)) {
-                            var conversion = argText.AsBool();
-                            if (conversion.success) converted = conversion.result;
-                        }
-                        else converted = Convert.ChangeType(arg, info.ParameterType);
-                    } catch (Exception e) {
-                        // TODO: might want to handle some special args that don't convert on their own?
-                        conversionError = e.Message;
-                    }
-
-                    if (converted == null) {
-                        pushText(LogLevel.Error, $"  - argument conversion failed from: string (\"{argText}\") to: {info.ParameterType}{(conversionError != null ? $" -- {conversionError}" : null)}");
-                        return (false, null);
-                    }
-                    arg = converted;
-                }
-                processedArgs.Add(arg);
             }
 
+            if (endIndex == -1) return (-1, null);
+
+            args = sb.ToString().Split(',');            
+            return (endIndex, args);
+        }
+
+        static object attemptStringConversionToDesiredType(string source, Type targetType) {
             try {
-                var result = command.function(processedArgs.ToArray());
-                return (true, result);
+                switch (targetType) {
+                    case Type t when t == typeof(float): return source.AsFloat();
+                    case Type t when t == typeof(int):   return source.AsInt();
+                    case Type t when t == typeof(bool): 
+                        var conversion = source.AsBool();
+                        if (conversion.success) return conversion.result;
+                        else                    throw new("Boolean conversion failed");
+                }
+                // Attempt generic conversion, if none of the above:
+                return Convert.ChangeType(source, targetType);
             } catch (Exception ex) {
-                pushText(LogLevel.Error, $"  - command execution threw an exception: {ex.Message}");
-                return (false, null);
+                logError($"Argument conversion failed - from type string(\"{source}\") to {targetType.Name}: {ex.Message}");
             }
+
+            return null;
+        }
+
+        (bool success, object[] result) processArgsForInvocation(ParameterInfo[] functionArgsInfo, string[] args) {
+            if (functionArgsInfo == null || args == null) return (false, null);
+            
+            bool debug = false;
+            
+            List<object> processedArgs = new(capacity: functionArgsInfo.Length);
+            
+            for (int i_funcArgs = 0, i_args = 1; i_funcArgs < functionArgsInfo.Length; ++i_funcArgs, ++i_args) {
+                // NOTE: we want to detect it like this, since we'd only know the corrent number of args passed once
+                // we process array inputs.
+                if (processedArgs.Count > functionArgsInfo.Length) {
+                    pushText(LogLevel.Error, $"Too many arguments were provided (expected {functionArgsInfo.Length}, got {args.Length})");
+                }
+                
+                var funcArgInfo = functionArgsInfo[i_funcArgs];
+                var arg     = (i_args < args.Length) ? args[i_args] : null;
+
+                if (debug) pushText($"{i_funcArgs}: processing argInfo: {funcArgInfo.Name} of type {funcArgInfo.ParameterType} with arg: {arg}"); // TEMP:
+
+                var funcArgType = funcArgInfo.ParameterType;
+
+                if (funcArgType == arg?.GetType()) {
+                    processedArgs.Add(arg);
+                    continue;
+                }
+
+                if (funcArgType.IsArray) {
+                    var arraySubtype = funcArgType.GetElementType();
+                    if (debug) pushText($"  - this is supposed to be an array! subtype: {arraySubtype}, listing:"); // TEMP:
+
+                    object result = null;
+                    var processed = parseArrayFromArgs(args, i_args);
+                    if (processed.endIndex != -1) {
+                        if (debug) foreach (var it in processed.result) pushText("     - " + it); // TEMP:
+                        result = processed.result;
+                        i_args = processed.endIndex;
+                    }
+                    processedArgs.Add(result);
+                    continue;
+                }
+
+                // Conversion required:
+                object toAdd = arg;
+                if (arg != null) {
+                    toAdd = attemptStringConversionToDesiredType(arg, funcArgType);
+                }
+
+                if (toAdd == null) {
+                    if (funcArgInfo.HasDefaultValue) toAdd = funcArgInfo.DefaultValue;
+                    else {
+                        pushText(LogLevel.Error, $"Argument {i_funcArgs} ('{funcArgInfo.Name}') was not passed and no default value is present for it.");
+                        return (false, null);
+                    }
+                }
+
+                processedArgs.Add(toAdd);
+            }
+
+            return (true, processedArgs.ToArray());
+        }
+
+        (bool success, object result) invokeFunction(ConsoleCommand command, params string[] args) {
+            bool debug = false;
+            var functionArgsInfo = command.functionArgsInfo;
+
+            var processedArgs = processArgsForInvocation(functionArgsInfo, args);
+
+            if (!processedArgs.success) return (false, null);
+
+            if (debug) {
+                pushText("Listing final args:");
+                foreach (var arg in processedArgs.result) pushText($"  - {arg}");
+            }
+            
+            var funcResult = command.function(processedArgs.result);
+            return (true, funcResult);
         }
     }
     

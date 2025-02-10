@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -265,16 +266,47 @@ namespace CoreSystemFramework {
             }
         }
 
+        // TODO: this could be a little flaky with incorrect input!
+        string[] preProcessInlineArgs(ParameterInfo[] functionArgsInfo, string[] args = null) {
+            if (functionArgsInfo == null || args == null) return null;
+
+            List<string> processedArgs = new();
+
+            for (int i_funcArgs = 0, i_args = 1; i_funcArgs < functionArgsInfo.Length; ++i_funcArgs, ++i_args) {
+                var funcArgInfo = functionArgsInfo[i_funcArgs];
+                var arg     = (i_args < args.Length) ? args[i_args] : null;
+
+                if (arg == null) continue;
+
+                var funcArgType = funcArgInfo.ParameterType;
+
+                if (funcArgType.IsArray) {
+                    var processed = parseArrayFromArgs(args, i_args);
+                    if (processed.endIndex != -1) i_args = processed.endIndex;
+                    else                          i_args = args.Length - 1;
+                    
+                    processedArgs.Add(null);
+                    continue;
+                }
+                
+                processedArgs.Add(arg);
+            }
+
+            return processedArgs.ToArray();
+        }
+
         void updateInlineArgsPredictionUI(ConsoleCommand command = null, string[] tokens = null) {
-            if (command == null || tokens == null || tokens.Length - 1 >= command.functionArgsInfo.Length) {
-                showingInlineArgPrediction = false;
+            tokens = preProcessInlineArgs(command?.functionArgsInfo, tokens);
+
+            if (command == null || tokens == null || tokens.Length > command.functionArgsInfo.Length) {
                 argsPredictionText.SetText((string)null);
+                showingInlineArgPrediction = false;
                 return;
             }
             
             // Command argument prediction:
             StringBuilder builder = new(capacity: 30 * command.functionArgsInfo.Length);
-            for (int i = tokens.Length - 1; i < command.functionArgsInfo.Length; ++i) {
+            for (int i = tokens.Length; i < command.functionArgsInfo.Length; ++i) {
                 var info = command.functionArgsInfo[i];
                 string typeName = getFriendlyTypeNameAlternative(info.ParameterType.Name);
                 builder.Append($"[{info.Name.bold()}: {typeName}{(info.HasDefaultValue ? $" -- {info.DefaultValue.ToString().ToLower()}" : null)}] ");
@@ -296,7 +328,7 @@ namespace CoreSystemFramework {
             x += 20f;
             argsPredictionTextRectTrans.position = new(x, argsPredictionTextRectTrans.position.y);
 
-            showingInlineArgPrediction = true;
+            showingInlineArgPrediction = tokens.Length < command.functionArgsInfo.Length;
         }
 
     }
