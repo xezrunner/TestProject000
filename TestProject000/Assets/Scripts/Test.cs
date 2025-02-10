@@ -17,7 +17,7 @@ class Test: MonoBehaviour {
 
     // TODO: overloads?
     // aliases: [0] will always be function name ('add_command' here), the rest is any aliases you provide
-    [ConsoleCommand(aliases: "add", helpText = "help here", isCheatCommand = false)] // all of the options are optional
+    [ConsoleCommand(aliases: "add", help = "help here", isCheatCommand = false)] // all of the options are optional
     static int add_command(int a = 6, int b = 9) {
         Debug.Log($"Hello from a console command!  {a}, {b}");
         return a + b; // Return values supported!

@@ -15,7 +15,7 @@ namespace CoreSystemFramework {
         }
 
         public string[] aliases;
-        public string   helpText;
+        public string   help;
         public bool     isCheatCommand;
     }
 
