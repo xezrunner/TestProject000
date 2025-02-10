@@ -97,13 +97,24 @@ namespace CoreSystemFramework {
         
         public bool getState() => state;
 
+        // TODO: abstract this away!
+        CursorLockMode previousCursorLockState;
+        bool           previousCursorVisibility;
         void setState(bool newState, bool anim = true) {
             if (newState) {
                 contentRectTrans.gameObject.SetActive(true);
                 updateConsoleFiltering();
                 consoleInputField.ActivateInputField();
+
+                previousCursorLockState  = Cursor.lockState;
+                previousCursorVisibility = Cursor.visible;
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible   = true;
             } else {
                 consoleInputField.DeactivateInputField();
+
+                Cursor.lockState = previousCursorLockState;
+                Cursor.visible   = previousCursorVisibility;
             }
             
             state = newState;
