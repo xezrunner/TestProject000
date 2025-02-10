@@ -67,7 +67,7 @@ namespace CoreSystemFramework {
         }
 
         static bool preCoreSystemInitLoggingWarning = false;
-        static void log_main(LogCategory category, LogLevel level, string text, CallerDebugInfo callerInfo) {
+        static void log_main(LogCategory category, LogLevel level, string text, CallerDebugInfo callerInfo, string tag = null) {
             // If you attempt logging before CoreSystem is initialized, force stuff to go to Unity instead:
             if (!coreSystemInstance && !preCoreSystemInitLoggingWarning) {
                 Debug.LogWarning("Attempted to log before CoreSystem was initialized. This and further log attempts will be forced to LogCategory.Unity, until CoreSystem is initialized.");
@@ -103,7 +103,7 @@ namespace CoreSystemFramework {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void sendToCoreSystem(string text, LogCategory category, LogLevel level, CallerDebugInfo callerInfo) {
+        static void sendToCoreSystem(string text, LogCategory category, LogLevel level, CallerDebugInfo callerInfo, string tag = null) {
             // Debug console:
             if (debugConsoleInstance) debugConsoleInstance.pushText(text, category, level, callerInfo);
 
@@ -125,17 +125,6 @@ namespace CoreSystemFramework {
     // Public API:
     partial class Logging {
         // Log:
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void log(
-            LogCategory category,
-            string text,
-            [CallerFilePath]   string callerFilePath = null,
-            [CallerMemberName] string callerProcName = null,
-            [CallerLineNumber] int    callerLineNum  = -1) {
-            log_main(category, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void log(
             LogCategory category,
@@ -149,11 +138,42 @@ namespace CoreSystemFramework {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void log(
+            LogCategory category,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(category, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void log(
+            LogLevel level,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(LogCategory.Unknown, level, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void log(
             string text,
             [CallerFilePath]   string callerFilePath = null,
             [CallerMemberName] string callerProcName = null,
             [CallerLineNumber] int    callerLineNum  = -1) {
             log_main(LogCategory.Unknown, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        // Warning:
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logWarning(
+            LogCategory category,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(category, LogLevel.Warning, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -165,6 +185,17 @@ namespace CoreSystemFramework {
             log_main(LogCategory.Unknown, LogLevel.Warning, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
         }
 
+        // Error:
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logError(
+            LogCategory category,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(category, LogLevel.Error, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void logError(
             string text,
@@ -172,6 +203,39 @@ namespace CoreSystemFramework {
             [CallerMemberName] string callerProcName = null,
             [CallerLineNumber] int    callerLineNum  = -1) {
             log_main(LogCategory.Unknown, LogLevel.Error, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        // Log (tag):
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logTag(
+            string tag,
+            LogCategory category, LogLevel level,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(category, level, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum), tag);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logTag(
+            string tag,
+            LogLevel level,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(LogCategory.Unknown, level, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum), tag);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logTag(
+            string tag,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(LogCategory.Unknown, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum), tag);
         }
 
         // Stats:

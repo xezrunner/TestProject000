@@ -217,6 +217,9 @@ namespace CoreSystemFramework {
             }
             if (filterButtonPreset) filterButtonPreset.SetActive(true);
 
+            // TODO: resize the whole container, as we might have a bunch of filter buttons to work with.
+            // Perhaps even have a max number of buttons, and then a +1 for a dropdown menu.
+
             var enumNames = Enum.GetNames(typeof(LogCategory));
             for (int i = 1; i < enumNames.Length; ++i) {
                 var obj = Instantiate(filterButtonPreset, filterButtonsContainer);
