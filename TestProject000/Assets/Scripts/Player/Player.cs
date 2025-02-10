@@ -49,6 +49,6 @@ public class Player : MonoBehaviour
             if (isHeld(keyboard.shiftKey)) Time.timeScale = 0.1f; else Time.timeScale = 0.5f;
         }
         else if (isHeld(keyboard.tKey)) Time.timeScale = 5f;
-        else if (Time.timeScale != 1f) Time.timeScale = 1f;
+        else if (wasReleased(keyboard.rKey, keyboard.tKey)) Time.timeScale = 1f;
     }
 }

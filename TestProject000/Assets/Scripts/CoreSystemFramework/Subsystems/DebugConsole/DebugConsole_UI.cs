@@ -29,7 +29,7 @@ namespace CoreSystemFramework {
             
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
-            open_t += Time.deltaTime * animationSpeed;
+            open_t += Time.unscaledDeltaTime * animationSpeed;
             if (open_t  > 1f) {
                 open_t = 1f;
                 if (!state) contentRectTrans.gameObject.SetActive(false);
@@ -57,7 +57,7 @@ namespace CoreSystemFramework {
                 updateConsoleOutputUI();
             }
 
-            sizing_t += Time.deltaTime * animationSpeed;
+            sizing_t += Time.unscaledDeltaTime * animationSpeed;
             if (sizing_t  > 1f) sizing_t = 1f;
         }
 
