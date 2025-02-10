@@ -147,10 +147,11 @@ namespace CoreSystemFramework {
         int consoleOutputFilteredCount = 0;
         List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
 
-        public void pushText(string text, LogCategory category = LogCategory.CoreSystem, LogLevel level = LogLevel.Info) {
+        public void pushText(string text, LogCategory category = LogCategory.CoreSystem, LogLevel level = LogLevel.Info, CallerDebugInfo callerInfo = null) {
             var info = new ConsoleLineInfo() {
                 category = category,
                 text     = text
+                // TODO: caller info
             };
             consoleOutputCount += 1;
             consoleOutput.Add(info);

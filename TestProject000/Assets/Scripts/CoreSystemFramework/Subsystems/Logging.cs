@@ -104,11 +104,8 @@ namespace CoreSystemFramework {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void sendToCoreSystem(string text, LogCategory category, LogLevel level, CallerDebugInfo callerInfo) {
-            // TEMP:
-            text = buildString("[", Enum.GetName(typeof(LogCategory), category), "] ", text);
-            
             // Debug console:
-            if (debugConsoleInstance) debugConsoleInstance.pushText(text, category, level);
+            if (debugConsoleInstance) debugConsoleInstance.pushText(text, category, level, callerInfo);
 
             // Debug stats:
             // TODO: log level support in quickstats! Maybe we just want to read console lines, to not duplicate effort (coloring based on level would be already done for us).
@@ -125,8 +122,30 @@ namespace CoreSystemFramework {
         }
     }
 
+    // Public API:
     partial class Logging {
         // Log:
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void log(
+            LogCategory category,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(category, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void log(
+            LogCategory category,
+            LogLevel    level,
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(category, level, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void log(
@@ -135,6 +154,24 @@ namespace CoreSystemFramework {
             [CallerMemberName] string callerProcName = null,
             [CallerLineNumber] int    callerLineNum  = -1) {
             log_main(LogCategory.Unknown, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logWarning(
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(LogCategory.Unknown, LogLevel.Warning, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void logError(
+            string text,
+            [CallerFilePath]   string callerFilePath = null,
+            [CallerMemberName] string callerProcName = null,
+            [CallerLineNumber] int    callerLineNum  = -1) {
+            log_main(LogCategory.Unknown, LogLevel.Error, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
         }
 
         // Stats:

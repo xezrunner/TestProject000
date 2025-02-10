@@ -190,7 +190,7 @@ namespace CoreSystemFramework {
         FL = FileName | LineNumber,
     }
 
-    public struct CallerDebugInfo {
+    public class CallerDebugInfo {
         public CallerDebugInfo(string callerFilePath, string callerProcName, int callerLineNumber) {
             this.callerFilePath   = callerFilePath;
             this.callerProcName   = callerProcName;

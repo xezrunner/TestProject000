@@ -37,8 +37,6 @@ namespace CoreSystemFramework {
 
     [DebugStatsSettings(priority: 9999)]
     public partial class DebugStats : MonoBehaviour {
-        static DebugStats GrabInstance() => CoreSystem.Instance?.DebugStats;
-
         [Header("Components")]
         [SerializeField] TMP_Text      statsTextCom;
 
@@ -215,7 +213,7 @@ namespace CoreSystemFramework {
         }
 
         float statsPrintTimer = float.MaxValue; // Print on first frame -- canUpdateStats is also set to true because of this
-        bool  updateOverride;
+        bool  updateOverride = true;
         void LATEUPDATE_PrintStats() {
             if (wasPressed(keyboard.commaKey)) updateOverride = !updateOverride;
             
