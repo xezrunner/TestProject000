@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-using CoreSystemFramework;
-
 namespace CoreSystemFramework {
 
     public partial class CoreSystem : MonoBehaviour {
@@ -39,7 +37,7 @@ namespace CoreSystemFramework {
         }
 
         void Update() {
-            DeduplicateEventSystems();
+            UPDATE_DeduplicateEventSystems();
         }
     }
 

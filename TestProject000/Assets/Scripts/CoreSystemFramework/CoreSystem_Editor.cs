@@ -13,7 +13,7 @@ namespace CoreSystemFramework {
 
             if (!EditorApplication.isPlaying) return;
 
-            if (CoreSystem.eventSystemsList != null) EditorGUILayout.LabelField($"Event system count: {CoreSystem.eventSystemsList.Count}");
+            if (CoreSystem.eventSystemList != null) EditorGUILayout.LabelField($"Event system count: {CoreSystem.eventSystemList.Count}");
         }
     }
 

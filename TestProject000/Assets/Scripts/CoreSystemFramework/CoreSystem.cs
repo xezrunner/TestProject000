@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
+using static CoreSystemFramework.Logging;
+
 namespace CoreSystemFramework {
 
     partial class CoreSystem {
@@ -16,23 +18,39 @@ namespace CoreSystemFramework {
             Debug.Log($"scene loaded: {scene.name}  mode: {(mode == LoadSceneMode.Single ? "single" : "additive")}");
         }
 
-        public static List<EventSystem> eventSystemsList;
+        public static List<EventSystem> eventSystemList;
 
         static void grabReferenceToEventSystemList() {
             Type type = typeof(EventSystem);
             var field = type.GetField("m_EventSystems", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-            eventSystemsList = (List<EventSystem>)field.GetValue(null);
+            eventSystemList = (List<EventSystem>)field.GetValue(null);
 
             // EditorApplication.ExitPlaymode();
         }
 
-        static void DeduplicateEventSystems() {
-            if (eventSystemsList.Count > 1) {
-                Debug.Log($"[coresystem] multiple event systems ({eventSystemsList.Count}) - de-duplicating event systems...");
-                for (int i = 1; i < eventSystemsList.Count; ++i) {
-                    Debug.Log($"    destroying ES belonging to {eventSystemsList[i].gameObject.name}");
+        static void UPDATE_DeduplicateEventSystems() {
+            if (eventSystemList.Count > 1) {
+                log($"multiple event systems ({eventSystemList.Count}) - de-duplicating event systems...");
+
+                // @Performance
+                // Have to copy this list, because the acutal list changes as we disable the event systems:
+                var eventSystems = new EventSystem[eventSystemList.Count];
+                eventSystemList.CopyTo(eventSystems);
+                
+                foreach (var it in eventSystems) {
+                    var obj = it.gameObject;
+
+                    var sceneName = obj.scene.name;
+                    if (sceneName == CORESYSTEM_SCENE_NAME) continue;
+
                     // TODO: are we sure we want to keep the first one (belonging to CoreSystem)?
-                    DestroyImmediate(eventSystemsList[1].gameObject);
+                    #if false
+                    log($"  - destroying object with EventSystem on it: {sceneName}::'{obj.name}'");
+                    DestroyImmediate(obj);
+                    #else
+                    log($"  - disabling EventSystem belonging to {sceneName}::'{obj.name}'");
+                    it.enabled = false;
+                    #endif
                 }
             }
         }

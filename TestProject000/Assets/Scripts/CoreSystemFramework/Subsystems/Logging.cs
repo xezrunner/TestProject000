@@ -19,6 +19,8 @@ namespace CoreSystemFramework {
         Info = 0, Warning = 1, Error = 2
     }
 
+    // TODO: Move console output log in here, and maintain entries before the console even spwans.
+
     public static partial class Logging {
         public static void grabInstances() {
             coreSystemInstance   = CoreSystem.Instance;
