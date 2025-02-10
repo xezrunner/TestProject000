@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine.Rendering;
 using CoreSystemFramework;
 
+using static CoreSystemFramework.QuickInput;
+
 namespace Fragsurf.Movement {
 
     /// <summary>
@@ -282,6 +284,9 @@ namespace Fragsurf.Movement {
             if (!moveConfig.enableMovement) return;
             if (CoreSystem.IsInputCapturedByCoreSystem()) return;
 
+            // TODO: move this over to the new input system
+            // TODO: key/axis bindings
+
             _moveData.verticalAxis = Input.GetAxisRaw ("Vertical");
             _moveData.horizontalAxis = Input.GetAxisRaw ("Horizontal");
 
@@ -297,7 +302,7 @@ namespace Fragsurf.Movement {
             bool moveRight = _moveData.horizontalAxis > 0f;
             bool moveFwd = _moveData.verticalAxis > 0f;
             bool moveBack = _moveData.verticalAxis < 0f;
-            bool jump = Input.GetButton ("Jump");
+            bool jump = isHeld(keyboard.spaceKey);
 
             if (!moveLeft && !moveRight)
                 _moveData.sideMove = 0f;
@@ -313,12 +318,8 @@ namespace Fragsurf.Movement {
             else if (moveBack)
                 _moveData.forwardMove = -moveConfig.acceleration;
             
-            if (Input.GetButtonDown ("Jump"))
-                _moveData.wishJump = true;
+            _moveData.wishJump = jump;
 
-            if (!Input.GetButton ("Jump"))
-                _moveData.wishJump = false;
-            
             _moveData.viewAngles = _angles;
 
         }
