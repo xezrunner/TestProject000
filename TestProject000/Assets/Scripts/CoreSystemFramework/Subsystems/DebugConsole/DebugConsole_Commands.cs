@@ -4,6 +4,8 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 
+using static CoreSystemFramework.Logging;
+
 namespace CoreSystemFramework {
 
     public class ConsoleCommandAttribute : Attribute {
@@ -34,66 +36,6 @@ namespace CoreSystemFramework {
         public ParameterInfo[] functionArgsInfo;
         public Type            functionReturnType;
         public ConsoleCommandFunction function;
-
-        public (bool success, object result) invokeFunction(params string[] args) {
-            // [0] is the command name:
-            if (args.Length-1 > functionArgsInfo.Length) {
-                Debug.LogError($"  - too many arguments: expected {functionArgsInfo.Length}, got {args.Length-1}");
-                return (false, null);
-            }
-            
-            var processedArgs = new List<object>();
-
-            for (int i = 0; i < functionArgsInfo.Length; ++i) {
-                var info = functionArgsInfo[i];
-
-                // [0] is the command name:
-                string argText = (i+1 < args.Length) ? args[i+1] : null;
-                object arg     = argText;
-
-                // TODO: named args?
-                // if (info.Name)
-
-                // If there are default values defined for an arg we didn't pass, use them instead:
-                if (arg == null) {
-                    if (info.HasDefaultValue) arg = info.DefaultValue;
-                    else {
-                        Debug.LogError($"  - argument #{i} ('{info.Name}') was not passed and has no default value.");
-                        return (false, null);
-                    }
-                }
-                // NOTE: When [required value type args without default values] are missing, C# will use their canonical default values 
-                // if we pass in null in place of the value type args.
-                else if (arg != null && info.ParameterType != arg.GetType()) {
-                    object converted = null;
-                    string conversionError = null;
-
-                    // TODO: lists/arrays
-                    try {
-                        if      (info.ParameterType == typeof(float)) converted = argText.AsFloat();
-                        else if (info.ParameterType == typeof(int))   converted = argText.AsInt();
-                        else if (info.ParameterType == typeof(bool)) {
-                            var conversion = argText.AsBool();
-                            if (conversion.success) converted = conversion.result;
-                        }
-                        else converted = Convert.ChangeType(arg, info.ParameterType);
-                    } catch (Exception e) {
-                        // TODO: might want to handle some special args that don't convert on their own?
-                        conversionError = e.Message;
-                    }
-
-                    if (converted == null) {
-                        Debug.LogError($"  - argument conversion failed from: string (\"{argText}\") to: {info.ParameterType}{(conversionError != null ? $" -- {conversionError}" : null)}");
-                        return (false, null);
-                    }
-                    arg = converted;
-                }
-                processedArgs.Add(arg);
-            }
-
-            var result = function(processedArgs.ToArray());
-            return (true, result);
-        }
     }
 
     public partial class DebugConsole {
@@ -130,7 +72,7 @@ namespace CoreSystemFramework {
 
                         if (!info.IsStatic) {
                             // TODO: we could do a thing where we'd find instances of Objects/MonoBehaviours and let you choose, as an arg or at invocation.
-                            Debug.LogWarning($"   - method {type.Name}::{info.Name}() has [ConsoleCommand] attribute, but is not static. Ignoring!");
+                            pushText(LogLevel.Warning, $"   - method {type.Name}::{info.Name}() has [ConsoleCommand] attribute, but is not static. Ignoring!");
                             continue;
                         }
 
@@ -143,6 +85,72 @@ namespace CoreSystemFramework {
             foreach (var metadata in commandMetadatas) {
                 var command = new ConsoleCommand(metadata.attribute, metadata.methodInfo);
                 foreach (var alias in metadata.attribute.aliases) commands.Add(alias, command);
+            }
+        }
+
+        // TODO: how do we want to log console-specific "meta" stuff?
+        // For instance, if a command throws an exception, should we log that normally?
+
+        (bool success, object result) invokeFunction(ConsoleCommand command, params string[] args) {
+            var functionArgsInfo = command.functionArgsInfo;
+            
+            // [0] is the command name:
+            if (args.Length-1 > functionArgsInfo.Length) {
+                pushText(LogLevel.Error, $"  - too many arguments: expected {functionArgsInfo.Length}, got {args.Length-1}");
+                return (false, null);
+            }
+            
+            var processedArgs = new List<object>();
+
+            for (int i = 0; i < functionArgsInfo.Length; ++i) {
+                var info = functionArgsInfo[i];
+
+                // [0] is the command name:
+                string argText = (i+1 < args.Length) ? args[i+1] : null;
+                object arg     = argText;
+
+                // TODO: named args?
+                // if (info.Name)
+
+                // If there are default values defined for an arg we didn't pass, use them instead:
+                if (arg == null) {
+                    if (info.HasDefaultValue) arg = info.DefaultValue;
+                    else {
+                        pushText(LogLevel.Error, $"  - argument #{i} ('{info.Name}') was not passed and has no default value.");
+                        return (false, null);
+                    }
+                }
+                // NOTE: When [required value type args without default values] are missing, C# will use their canonical default values 
+                // if we pass in null in place of the value type args.
+                else if (arg != null && info.ParameterType != arg.GetType()) {
+                    object converted = null;
+                    string conversionError = null;
+
+                    // TODO: lists/arrays
+                    try {
+                        if      (info.ParameterType == typeof(float)) converted = argText.AsFloat();
+                        else if (info.ParameterType == typeof(int))   converted = argText.AsInt();
+                        else if (info.ParameterType == typeof(bool)) {
+                            var conversion = argText.AsBool();
+                            if (conversion.success) converted = conversion.result;
+                        }
+                        else converted = Convert.ChangeType(arg, info.ParameterType);
+                    } catch (Exception e) {
+                        // TODO: might want to handle some special args that don't convert on their own?
+                        conversionError = e.Message;
+                    }
+
+                    if (converted == null) {
+                        pushText(LogLevel.Error, $"  - argument conversion failed from: string (\"{argText}\") to: {info.ParameterType}{(conversionError != null ? $" -- {conversionError}" : null)}");
+                        return (false, null);
+                    }
+                    arg = converted;
+                }
+                processedArgs.Add(arg);
+            }
+
+                var result = command.function(processedArgs.ToArray());
+                return (true, result);
             }
         }
     }

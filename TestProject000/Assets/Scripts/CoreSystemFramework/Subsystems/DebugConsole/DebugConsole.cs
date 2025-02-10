@@ -147,6 +147,8 @@ namespace CoreSystemFramework {
         int consoleOutputFilteredCount = 0;
         List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
 
+        public void pushText(LogLevel level, string text) => pushText(text, level: level);
+
         public void pushText(string text, LogCategory category = LogCategory.CoreSystem, LogLevel level = LogLevel.Info, CallerDebugInfo callerInfo = null) {
             var info = new ConsoleLineInfo() {
                 category = category,
@@ -255,7 +257,7 @@ namespace CoreSystemFramework {
             if (!commands.ContainsKey(commandName)) pushText($"  - command not found");
             else {
                 var command    = commands[commandName];
-                var invocation = command.invokeFunction(tokens); // handles args inside
+                var invocation = invokeFunction(command, tokens); // handles args inside
                 if (!invocation.success)       pushText( "  - command execution failed"); // TEMP:
                 if (invocation.result != null) pushText($"  - command result: {invocation.result}");
             }
