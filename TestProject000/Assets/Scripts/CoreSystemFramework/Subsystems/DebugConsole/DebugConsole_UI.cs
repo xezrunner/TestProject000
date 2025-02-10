@@ -29,6 +29,8 @@ namespace CoreSystemFramework {
             
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
+            if (EXPERIMENT_PauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-open_t : open_t;
+
             open_t += Time.unscaledDeltaTime * animationSpeed;
             if (open_t  > 1f) {
                 open_t = 1f;

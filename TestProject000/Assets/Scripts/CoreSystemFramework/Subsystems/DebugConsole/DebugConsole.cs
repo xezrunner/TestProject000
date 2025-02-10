@@ -15,6 +15,8 @@ namespace CoreSystemFramework {
         [RequiredComponent] [SerializeField] RectTransform canvasRectTrans;
         [RequiredComponent] [SerializeField] RectTransform selfRectTrans;
 
+        [SerializeField] CanvasGroup backgroundCanvasGroup;
+
         [RequiredComponent] [SerializeField] GameObject    contentObj;
         [RequiredComponent] [SerializeField] RectTransform contentRectTrans;
         
@@ -91,6 +93,10 @@ namespace CoreSystemFramework {
             pushText(text, LogCategory.Unity);
         }
 
+        // TODO: register as console variable!
+        static bool  EXPERIMENT_PauseTimeWhileConsoleIsOpen = true;
+        static float EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = 1f;
+
         float open_t;
         bool  state = false;
         
@@ -110,8 +116,14 @@ namespace CoreSystemFramework {
                 previousCursorVisibility = Cursor.visible;
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible   = true;
+
+                if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) {
+                    EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = Time.timeScale;
+                    Time.timeScale = 0f;
+                }
             } else {
                 consoleInputField.DeactivateInputField();
+                if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) Time.timeScale = EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale;
 
                 Cursor.lockState = previousCursorLockState;
                 Cursor.visible   = previousCursorVisibility;
