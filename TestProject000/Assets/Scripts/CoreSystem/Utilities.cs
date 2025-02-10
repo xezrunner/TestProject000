@@ -78,11 +78,16 @@ namespace CoreSystem {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Contains(this string text, params string[] what) {
-        foreach (var it in what) {
-            if (text.Contains(it)) return true;
-        }
+        foreach (var it in what) if (text.Contains(it)) return true;
         return false;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool StartsWith(this string text, params string[] what) {
+        foreach (var it in what) if (text.StartsWith(it)) return true;
+        return false;
+    }
+    
 
     // TODO: Make these safe (?)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

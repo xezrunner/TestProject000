@@ -69,9 +69,11 @@ namespace CoreSystem {
     public partial class DebugConsole {
         Dictionary<string, ConsoleCommand> commands = new(capacity: 300);
 
-        static string[] assemblyPathIgnoreList = {
-            "mscorlib",
+        static string[] assemblyPathIgnoreListPathContains = {
             Path.Combine("Unity", "Hub", "Editor"),
+        };
+        static string[] assemblyPathIgnoreListFileNameStartsWith = {
+            "mscorlib",
             "Unity.", "UnityEngine.", "UnityEditor.", "Mono.", "System.", "nunit"
         };
         
@@ -84,7 +86,10 @@ namespace CoreSystem {
 
             foreach (var assembly in assemblies) {
                 var assemblyPath = assembly.ManifestModule.FullyQualifiedName; // TODO: this isn't necessarily always the path
-                if (assemblyPath.Contains(assemblyPathIgnoreList)) continue;
+                if (assemblyPath.Contains(assemblyPathIgnoreListPathContains)) continue;
+                if (Path.GetFileNameWithoutExtension(assemblyPath).StartsWith(assemblyPathIgnoreListFileNameStartsWith)) {
+                    continue;
+                }
                 
                 var types = assembly.GetTypes();
                 foreach (var type in types) {
