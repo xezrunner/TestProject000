@@ -3595,7 +3595,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: <stats>
+  m_text: "<stats>\n  -- multiline output, so make sure\n  -- line height is set
+    up correctly"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a9cb9fbe68ab54bd4b7b284cfe2c6fab, type: 2}
   m_sharedMaterial: {fileID: 5951881825797800500, guid: a9cb9fbe68ab54bd4b7b284cfe2c6fab, type: 2}

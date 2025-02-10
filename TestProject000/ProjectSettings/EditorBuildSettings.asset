@@ -6,16 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/test1a.unity
+    path: Assets/Scenes/test1a/test1a.unity
     guid: cd41cb48d506b413ca75c99390d06d9f
   - enabled: 0
-    path: Assets/Scenes/dh2_blink_test.unity
+    path: Assets/Scenes/dh2_blink_test/dh2_blink_test.unity
     guid: edd3c897dc9264df49fad81adc31df2d
   - enabled: 0
     path: Assets/Scenes/orbing_particles_test.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 0
-    path: Assets/Scenes/urp_render_test.unity
+    path: Assets/Scenes/urp_render_test/urp_render_test.unity
     guid: aea07b25c429c42c4b9eedb5e15887ac
   - enabled: 1
     path: Assets/Scenes/coresystem/coresystem.unity
