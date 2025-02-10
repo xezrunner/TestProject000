@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-using static CoreSystem.Logging;
+using static CoreSystemFramework.Logging;
 
 // Dishonored 1 Blink VFX
 //

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     class RequiredComponentAttribute : System.Attribute { }
 

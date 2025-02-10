@@ -3,9 +3,9 @@ using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-using static CoreSystem.CoreSystemUtils;
+using static CoreSystemFramework.CoreSystemUtils;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
     
     [Flags] public enum LogCategory: uint {
         Unknown    = 0,

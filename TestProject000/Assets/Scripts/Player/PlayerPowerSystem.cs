@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using static CoreSystem.Logging;
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.Logging;
+using static CoreSystemFramework.QuickInput;
 
 class PlayerPowerSystem: MonoBehaviour {
     public PlayerPower equippedPower;

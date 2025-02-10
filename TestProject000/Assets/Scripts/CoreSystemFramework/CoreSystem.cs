@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     partial class CoreSystem {
         public static bool UNITY_receiveLogMessages = true;

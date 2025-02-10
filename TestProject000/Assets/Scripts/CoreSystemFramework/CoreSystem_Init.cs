@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     partial class CoreSystem {
         const string CORESYSTEM_SCENES_PATH = "coresystem";

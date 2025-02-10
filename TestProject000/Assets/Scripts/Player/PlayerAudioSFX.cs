@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using static CoreSystem.Logging;
+using static CoreSystemFramework.Logging;
 
 public class PlayerAudioSFX : MonoBehaviour {
     public static PlayerAudioSFX Instance;

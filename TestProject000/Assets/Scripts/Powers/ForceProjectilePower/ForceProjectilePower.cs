@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-using static CoreSystem.Logging;
+using static CoreSystemFramework.Logging;
 
 public enum ForceProjectilePowerState { None = 0, Aiming = 1, Shooting = 2 }
 

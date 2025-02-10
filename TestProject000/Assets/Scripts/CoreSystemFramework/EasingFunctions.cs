@@ -7,7 +7,7 @@ using UnityEngine;
 // A few equations, very simplified:	https://gist.github.com/gre/1650294
 // Easings.net equations, simplified:	https://github.com/ai/easings.net/blob/master/src/easings/easingsFunctions.ts
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     public static class EasingFunctions {
         public static float Linear(float t) => t;

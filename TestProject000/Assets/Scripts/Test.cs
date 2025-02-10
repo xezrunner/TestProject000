@@ -1,10 +1,10 @@
-using CoreSystem;
+using CoreSystemFramework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using static CoreSystem.DebugStats;
-using static CoreSystem.Logging;
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.DebugStats;
+using static CoreSystemFramework.Logging;
+using static CoreSystemFramework.QuickInput;
 
 [DebugStatsSettings(priority: 1, displayName: "A test class")]
 class Test: MonoBehaviour {

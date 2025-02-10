@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     public class StartupShell : MonoBehaviour {
         void Awake() {

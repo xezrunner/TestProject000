@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     [CustomEditor(typeof(CoreSystem))]
     public class EditorCoreSystem : Editor {

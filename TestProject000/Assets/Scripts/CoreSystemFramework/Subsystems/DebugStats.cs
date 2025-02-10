@@ -5,11 +5,11 @@ using System.Text;
 using System.IO;
 using System;
 
-using static CoreSystem.CoreSystemUtils;
-using static CoreSystem.Logging;
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.CoreSystemUtils;
+using static CoreSystemFramework.Logging;
+using static CoreSystemFramework.QuickInput;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     // TODO: this (along with the fpsInfo local variable below) should probably be part of CoreSystem?
     public struct FPSInfo {

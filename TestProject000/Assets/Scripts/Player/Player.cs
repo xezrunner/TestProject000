@@ -2,8 +2,8 @@ using System;
 using Fragsurf.Movement;
 using UnityEngine;
 
-using static CoreSystem.Logging;
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.Logging;
+using static CoreSystemFramework.QuickInput;
 
 public class Player : MonoBehaviour
 {

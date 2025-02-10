@@ -1,10 +1,10 @@
 using UnityEngine;
 using TMPro;
 
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.QuickInput;
 using System.Runtime.CompilerServices;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     partial class DebugStats {
         class QuicklineInfo {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static CoreSystem.Logging;
+using static CoreSystemFramework.Logging;
 
 public enum TransversalPowerState { None = 0, Aiming = 1, Casting = 2, Cooldown = 3 }
 

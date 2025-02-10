@@ -5,9 +5,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.QuickInput;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     public partial class DebugConsole {
         void setupUI() {

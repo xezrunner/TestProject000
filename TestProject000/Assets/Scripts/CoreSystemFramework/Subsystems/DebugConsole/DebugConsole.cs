@@ -6,10 +6,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-using static CoreSystem.CoreSystemUtils;
-using static CoreSystem.QuickInput;
+using static CoreSystemFramework.CoreSystemUtils;
+using static CoreSystemFramework.QuickInput;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
     public partial class DebugConsole : MonoBehaviour {
         // TODO: would be neat if we didn't have to cache (rect)transes manually:
         [Header("Components")]

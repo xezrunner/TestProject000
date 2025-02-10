@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     public class ConsoleCommandAttribute : Attribute {
         public ConsoleCommandAttribute(params string[] aliases) {

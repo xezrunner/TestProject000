@@ -1,6 +1,6 @@
 using UnityEngine;
 
-using static CoreSystem.Logging;
+using static CoreSystemFramework.Logging;
 
 public class PlayerHealthSystem : MonoBehaviour {
     public int maxHealth = 100;

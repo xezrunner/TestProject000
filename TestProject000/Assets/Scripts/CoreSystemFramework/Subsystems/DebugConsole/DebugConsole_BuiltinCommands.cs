@@ -1,6 +1,6 @@
-using static CoreSystem.Logging;
+using static CoreSystemFramework.Logging;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     partial class DebugConsole {
         static DebugConsole console => CoreSystem.Instance?.DebugConsole;

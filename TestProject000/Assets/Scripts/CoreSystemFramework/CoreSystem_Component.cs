@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-using CoreSystem;
+using CoreSystemFramework;
 
-namespace CoreSystem {
+namespace CoreSystemFramework {
 
     public partial class CoreSystem : MonoBehaviour {
         public static CoreSystem Instance;
