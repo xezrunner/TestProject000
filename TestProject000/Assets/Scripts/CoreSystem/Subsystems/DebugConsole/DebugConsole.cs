@@ -49,8 +49,6 @@ namespace CoreSystem {
         float uiLineHeight;
         int   uiLineCount;
 
-        Keyboard keyboard = Keyboard.current;
-
         void Awake() {
             registerEventCallbacks();
 

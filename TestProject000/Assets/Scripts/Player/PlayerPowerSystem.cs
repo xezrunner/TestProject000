@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 using static DebugStats;
+using static CoreSystem.QuickInput;
 
 class PlayerPowerSystem: MonoBehaviour {
     public PlayerPower equippedPower;
@@ -27,14 +28,14 @@ class PlayerPowerSystem: MonoBehaviour {
     }
 
     void UPDATE_Input() {
-        if (Keyboard.current.jKey.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame) castEquippedPower();
-        if (Keyboard.current.kKey.wasPressedThisFrame) cancelEquippedPower();
+        if (wasPressed(keyboard.jKey, mouse.rightButton)) castEquippedPower();
+        if (wasPressed(keyboard.kKey))                    cancelEquippedPower();
 
         // TEMP: switch powers
         // TODO: will need to have a switchPower() that will automatically cancel any on-going powers
         var prevPower = equippedPower;
-        if (Keyboard.current.qKey.wasPressedThisFrame) equippedPower = FindAnyObjectByType<TransversalPower>();
-        if (Keyboard.current.eKey.wasPressedThisFrame) equippedPower = FindAnyObjectByType<ForceProjectilePower>();
+        if (wasPressed(keyboard.qKey)) equippedPower = FindAnyObjectByType<TransversalPower>();
+        if (wasPressed(keyboard.eKey)) equippedPower = FindAnyObjectByType<ForceProjectilePower>();
 
         if (equippedPower != prevPower) prevPower.POWER_Cancel();
     }

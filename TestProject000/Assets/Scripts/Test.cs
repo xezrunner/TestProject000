@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 using static CoreSystem.DebugStats;
 using static CoreSystem.Logging;
+using static CoreSystem.QuickInput;
 
 [DebugStatsSettings(priority: 1, displayName: "A test class")]
 class Test: MonoBehaviour {
@@ -29,7 +30,7 @@ class Test: MonoBehaviour {
 
     void LateUpdate() {
         STATS_PrintStats();
-        if (Keyboard.current.cKey.wasPressedThisFrame) awesomeness += 1;
+        if (wasPressed(keyboard.cKey)) awesomeness += 1;
     }
 
     void STATS_PrintStats() {

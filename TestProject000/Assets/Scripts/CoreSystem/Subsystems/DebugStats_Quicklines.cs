@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.InputSystem;
 using System.Runtime.CompilerServices;
+
+using static CoreSystem.QuickInput;
 
 namespace CoreSystem {
 
@@ -138,12 +139,12 @@ namespace CoreSystem {
                 }
             }
 
-            if (Keyboard.current.pKey.wasPressedThisFrame) quicklinePush(   $"Test       {Time.time}");
-            if (Keyboard.current.oKey.wasPressedThisFrame) Debug.LogWarning($"Warn Test  {Time.time}");
-            if (Keyboard.current.iKey.wasPressedThisFrame) Debug.LogError(  $"Err  Test  {Time.time}");
+            if (wasPressed(keyboard.pKey)) quicklinePush(   $"Test       {Time.time}");
+            if (wasPressed(keyboard.oKey)) Debug.LogWarning($"Warn Test  {Time.time}");
+            if (wasPressed(keyboard.iKey)) Debug.LogError(  $"Err  Test  {Time.time}");
 
-            if (Keyboard.current.nKey.wasPressedThisFrame) resizeQuicklines(6);
-            if (Keyboard.current.mKey.wasPressedThisFrame) resizeQuicklines(30);
+            if (wasPressed(keyboard.nKey)) resizeQuicklines(6);
+            if (wasPressed(keyboard.mKey)) resizeQuicklines(30);
         }
     }
 

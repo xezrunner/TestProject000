@@ -8,6 +8,7 @@ using System.IO;
 using System;
 
 using static CoreSystem.CoreSystemUtils;
+using static CoreSystem.QuickInput;
 
 namespace CoreSystem {
 
@@ -227,7 +228,7 @@ namespace CoreSystem {
         float statsPrintTimer = float.MaxValue; // Print on first frame -- canUpdateStats is also set to true because of this
         bool  updateOverride;
         void LATEUPDATE_PrintStats() {
-            if (Keyboard.current.commaKey.wasPressedThisFrame) updateOverride = !updateOverride;
+            if (wasPressed(keyboard.commaKey)) updateOverride = !updateOverride;
             
             if (statsPrintTimer > statsUpdateMs || updateOverride) { // If the timer has elapsed, or overriden:
                 if (!canUpdateStats) canUpdateStats = true;

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
 namespace CoreSystem {
@@ -49,6 +50,9 @@ namespace CoreSystem {
 
     public static class QuickInput {
         // TODO: TODO: TODO: and/or?
+
+        public static Keyboard keyboard = Keyboard.current;
+        public static Mouse    mouse    = Mouse.current;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool wasPressed(params ButtonControl[] keys) {

@@ -49,6 +49,7 @@ public class PlayerAiming : MonoBehaviour
 	private void Update()
 	{
 #if UNITY_EDITOR
+        // TODO: CoreSystem
         if      (Keyboard.current.escapeKey.wasPressedThisFrame) isPaused = !isPaused;
         else if (Keyboard.current.enterKey. wasPressedThisFrame) isPaused = false;
         if (isPaused) return;

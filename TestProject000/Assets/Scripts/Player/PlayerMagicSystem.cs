@@ -1,6 +1,7 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+
 using static DebugStats;
+using static CoreSystem.QuickInput;
 
 public enum PlayerManaRefillState {
     Idle = 0, Waiting = 1, Refilling = 2 
@@ -87,8 +88,8 @@ public class PlayerMagicSystem : MonoBehaviour {
     }
 
     void UPDATE_Debug() {
-        if (Keyboard.current.hKey.wasPressedThisFrame) ConsumeMana(20);
-        if (Keyboard.current.gKey.wasPressedThisFrame) mana = 100;
+        if (wasPressed(keyboard.hKey)) ConsumeMana(20);
+        if (wasPressed(keyboard.gKey)) mana = 100;
     }
 
     void Update() {
