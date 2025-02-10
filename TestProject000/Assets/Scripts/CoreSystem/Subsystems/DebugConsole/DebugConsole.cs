@@ -183,7 +183,7 @@ namespace CoreSystem {
             if (!input.IsEmpty()) {
                 foreach (var key in commands.Keys) {
                     if (!key.StartsWith(input))     continue;
-                    if (input.Length >= key.Length) continue;
+                    if (input.Length >= key.Length) continue; // If we match a shorter alias, we should provide the next prediction
 
                     if (key.Length < shortest) {
                         currentInputPrediction = key;
@@ -236,7 +236,7 @@ namespace CoreSystem {
             if (!commands.ContainsKey(commandName)) pushText($"  - command not found");
             else {
                 var command    = commands[commandName];
-                var invocation = command.invokeFunction(tokens[1..]); // handles args inside
+                var invocation = command.invokeFunction(tokens); // handles args inside
                 if (!invocation.success)       pushText( "  - command execution failed"); // TEMP:
                 if (invocation.result != null) pushText($"  - command result: {invocation.result}");
             }

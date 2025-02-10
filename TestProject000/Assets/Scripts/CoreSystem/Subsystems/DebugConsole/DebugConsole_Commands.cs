@@ -35,19 +35,21 @@ namespace CoreSystem {
         public Type            functionReturnType;
         public ConsoleCommandFunction function;
 
-        public (bool success, object result) invokeFunction(params object[] args) {
-            if (args.Length > functionArgsInfo.Length) {
-                Debug.LogError($"  - too many arguments: expected {functionArgsInfo.Length}, got {args.Length}");
+        public (bool success, object result) invokeFunction(params string[] args) {
+            // [0] is the command name:
+            if (args.Length-1 > functionArgsInfo.Length) {
+                Debug.LogError($"  - too many arguments: expected {functionArgsInfo.Length}, got {args.Length-1}");
                 return (false, null);
             }
             
             var processedArgs = new List<object>();
 
             for (int i = 0; i < functionArgsInfo.Length; ++i) {
-                var info    = functionArgsInfo[i];
+                var info = functionArgsInfo[i];
 
-                string argText = (i < args.Length) ? (string)args[i] : null;
-                object arg     = (i < args.Length) ? args[i] : null;
+                // [0] is the command name:
+                string argText = (i+1 < args.Length) ? args[i+1] : null;
+                object arg     = argText;
 
                 // TODO: named args?
                 // if (info.Name)
