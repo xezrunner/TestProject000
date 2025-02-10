@@ -185,6 +185,8 @@ namespace CoreSystemFramework {
 
             consoleFilterFlags = flags;
             updateConsoleFiltering();
+            refreshFilterButtonStates();
+
             updateConsoleOutputUI();
         }
 

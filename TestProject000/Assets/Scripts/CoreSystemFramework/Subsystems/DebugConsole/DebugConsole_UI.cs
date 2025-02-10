@@ -186,8 +186,6 @@ namespace CoreSystemFramework {
             else filterFlags ^= flag;
             
             setConsoleFilterFlags(filterFlags);
-
-            refreshFilterButtonStates();
         }
 
         void refreshFilterButtonStates() {
