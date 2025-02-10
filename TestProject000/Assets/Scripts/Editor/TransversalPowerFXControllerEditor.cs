@@ -68,7 +68,7 @@ public class TransversalPowerFXControllerEditor: Editor {
         {
             GUILayout.Label("State:");
             newState = (TransversalPowerEffectsState)EditorGUILayout.EnumPopup(newState);
-            if (GUILayout.Button("Set state")) instance.SetState(newState);
+            if (GUILayout.Button("Set state")) instance.setState(newState);
         }
         GUILayout.EndHorizontal();
     }

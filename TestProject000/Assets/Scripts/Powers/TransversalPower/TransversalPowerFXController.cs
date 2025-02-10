@@ -55,7 +55,7 @@ public class TransversalPowerFXController : MonoBehaviour {
     float temp_startFov;
     void Start() {
         if (!playerCamera) {
-            Debug.LogWarning("TransversalPowerFXController: player camera has not been assigned. Setting IsActive to false!");
+            logWarning("player camera has not been assigned. Setting IsActive to false!");
             IsActive = false;
             return;
         }
@@ -66,8 +66,8 @@ public class TransversalPowerFXController : MonoBehaviour {
 
     float temp_t_timer;
 
-    public void SetState(TransversalPowerEffectsState newState = TransversalPowerEffectsState.In) {
-        Debug.Log($"TransversalPowerFXController SetState(): {state} -> {newState}");
+    public void setState(TransversalPowerEffectsState newState = TransversalPowerEffectsState.In) {
+        log($"{state} -> {newState}");
 
         t = 0f;
         animData_prev = animData; // Store current values, before state change
@@ -157,8 +157,8 @@ public class TransversalPowerFXController : MonoBehaviour {
         }
 
         if (!IsTest && t >= 1f) {
-            if      (state == TransversalPowerEffectsState.In)  SetState(TransversalPowerEffectsState.Out);
-            else if (state == TransversalPowerEffectsState.Out) SetState(TransversalPowerEffectsState.Idle);
+            if      (state == TransversalPowerEffectsState.In)  setState(TransversalPowerEffectsState.Out);
+            else if (state == TransversalPowerEffectsState.Out) setState(TransversalPowerEffectsState.Idle);
         }
     }
 
@@ -181,7 +181,7 @@ public class TransversalPowerFXController : MonoBehaviour {
             t = 1f;
 
             // TEMP: measure how long it takes to reach 1 for state:Out - it should take 0.7s * 10.
-            if (temp_t_timer > 0f) Debug.Log($"Took {temp_t_timer}s to reach t:1 for state: {state} -- out:0.7*10={0.7f*10f}");
+            // if (temp_t_timer > 0f) Debug.Log($"Took {temp_t_timer}s to reach t:1 for state: {state} -- out:0.7*10={0.7f*10f}");
             temp_t_timer = 0f;
         }
     }

@@ -110,7 +110,7 @@ public class TransversalPower: PlayerPower {
         state = newState;
         
         playStateSFX();
-        vfxController?.SetState((TransversalPowerEffectsState)state);
+        vfxController?.setState((TransversalPowerEffectsState)state);
         
         timer = 0f;
     }
