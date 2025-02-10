@@ -48,6 +48,8 @@ namespace CoreSystem {
     }
 
     public static class QuickInput {
+        // TODO: TODO: TODO: and/or?
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool wasPressed(params ButtonControl[] keys) {
             foreach (var key in keys) if (key.wasPressedThisFrame) return true;

@@ -6,6 +6,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+using static CoreSystem.QuickInput;
+
 namespace CoreSystem {
 
     public partial class DebugConsole {
@@ -171,7 +173,13 @@ namespace CoreSystem {
         static (Color normal, Color highlight) filterButtonInactiveColors = (new(0.2f, 0.2f, 0.2f), new(0.25f, 0.25f, 0.25f));
         public void OnFilterButtonClick(Button button) {
             var flag = Enum.Parse<LogCategory>(button.name);
-            setConsoleFilterFlags(consoleFilterFlags ^ flag);
+            LogCategory filterFlags = consoleFilterFlags;
+
+            if (isHeld(keyboard.leftCtrlKey) || isHeld(keyboard.leftCommandKey))
+                 filterFlags = flag;
+            else filterFlags ^= flag;
+            
+            setConsoleFilterFlags(filterFlags);
 
             refreshFilterButtonStates();
         }

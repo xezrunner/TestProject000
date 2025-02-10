@@ -169,9 +169,9 @@ namespace CoreSystem {
         void setConsoleFilterFlags(LogCategory flags) {
             if (flags == consoleFilterFlags) return;
             if (flags == LogCategory.Unknown) flags = CONSOLEFILTERFLAGS_ALL;
-            if (consoleFilterFlags == CONSOLEFILTERFLAGS_ALL) {
-                if (flags != LogCategory.Unknown || flags != CONSOLEFILTERFLAGS_ALL) flags ^= CONSOLEFILTERFLAGS_ALL;
-            }
+            // if (consoleFilterFlags == CONSOLEFILTERFLAGS_ALL) {
+            //     if (flags != LogCategory.Unknown || flags != CONSOLEFILTERFLAGS_ALL) flags ^= CONSOLEFILTERFLAGS_ALL;
+            // }
 
             consoleFilterFlags = flags;
             updateConsoleFiltering();
