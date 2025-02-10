@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
+using CoreSystemFramework;
 
 namespace Fragsurf.Movement {
 
@@ -279,6 +280,7 @@ namespace Fragsurf.Movement {
 
         private void UpdateMoveData () {
             if (!moveConfig.enableMovement) return;
+            if (CoreSystem.IsInputCapturedByCoreSystem()) return;
 
             _moveData.verticalAxis = Input.GetAxisRaw ("Vertical");
             _moveData.horizontalAxis = Input.GetAxisRaw ("Horizontal");

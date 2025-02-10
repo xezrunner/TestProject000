@@ -1,5 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using CoreSystemFramework;
+using UnityEngine;
+
+using static CoreSystemFramework.QuickInput;
 
 public class PlayerAiming : MonoBehaviour
 {
@@ -50,20 +52,23 @@ public class PlayerAiming : MonoBehaviour
 	{
 #if UNITY_EDITOR
         // TODO: CoreSystem
-        if      (Keyboard.current.escapeKey.wasPressedThisFrame) isPaused = !isPaused;
-        else if (Keyboard.current.enterKey. wasPressedThisFrame) isPaused = false;
+        if      (wasPressed(keyboard.escapeKey)) isPaused = !isPaused;
+        else if (wasPressed(keyboard.enterKey))  isPaused = false;
         if (isPaused) return;
 #endif
 
         // Fix pausing
-		if (Mathf.Abs(Time.timeScale) <= 0)
-			return;
+		if (Mathf.Abs(Time.timeScale) <= 0) return;
 
 		DecayPunchAngle();
 
 		// Input
-		float xMovement = Input.GetAxisRaw("Mouse X") * horizontalSensitivity * sensitivityMultiplier;
-		float yMovement = -Input.GetAxisRaw("Mouse Y") * verticalSensitivity  * sensitivityMultiplier;
+        float xMovement = 0f;
+        float yMovement = 0f;
+        if (!CoreSystem.IsInputCapturedByCoreSystem()) {
+            xMovement =  Input.GetAxisRaw("Mouse X") * horizontalSensitivity * sensitivityMultiplier;
+            yMovement = -Input.GetAxisRaw("Mouse Y") * verticalSensitivity   * sensitivityMultiplier;
+        }
 
 		// Calculate real rotation from input
 		realRotation   = new Vector3(Mathf.Clamp(realRotation.x + yMovement, minYRotation, maxYRotation), realRotation.y + xMovement, realRotation.z);
