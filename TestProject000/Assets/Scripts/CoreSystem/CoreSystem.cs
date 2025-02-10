@@ -36,6 +36,15 @@ namespace CoreSystem {
                 }
             }
         }
+
+        // TODO: we'll have to think about this...
+        public static bool IsInputCapturedByCoreSystem() {
+            if (Instance) {
+                if (Instance.DebugConsole?.getState() ?? false) return true;
+            }
+            
+            return false;
+        }
     }
 
 }

@@ -54,23 +54,30 @@ namespace CoreSystem {
         public static Keyboard keyboard = Keyboard.current;
         public static Mouse    mouse    = Mouse.current;
 
+        // if (CoreSystem.IsInputCapturedByCoreSystem()) return false;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool wasPressed(params ButtonControl[] keys) {
+        internal static bool wasPressed_internal(params ButtonControl[] keys) {
             foreach (var key in keys) if (key.wasPressedThisFrame) return true;
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool isHeld(params ButtonControl[] keys) {
+        internal static bool wasReleased_internal(params ButtonControl[] keys) {
+            foreach (var key in keys) if (key.wasReleasedThisFrame) return true;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool isHeld_internal(params ButtonControl[] keys) {
             foreach (var key in keys) if (key.isPressed) return true;
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool wasReleased(params ButtonControl[] keys) {
-            foreach (var key in keys) if (key.wasReleasedThisFrame) return true;
-            return false;
-        }
+        public static bool wasPressed (params ButtonControl[] keys) => !CoreSystem.IsInputCapturedByCoreSystem() ? wasPressed_internal (keys) : false;
+        public static bool wasReleased(params ButtonControl[] keys) => !CoreSystem.IsInputCapturedByCoreSystem() ? wasReleased_internal(keys) : false;
+        public static bool isHeld     (params ButtonControl[] keys) => !CoreSystem.IsInputCapturedByCoreSystem() ? isHeld_internal     (keys) : false;
     }
 
     public static partial class TextExtensions {

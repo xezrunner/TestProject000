@@ -139,9 +139,9 @@ namespace CoreSystem {
                 }
             }
 
-            if (wasPressed(keyboard.pKey)) quicklinePush(   $"Test       {Time.time}");
-            if (wasPressed(keyboard.oKey)) Debug.LogWarning($"Warn Test  {Time.time}");
             if (wasPressed(keyboard.iKey)) Debug.LogError(  $"Err  Test  {Time.time}");
+            if (wasPressed(keyboard.oKey)) Debug.LogWarning($"Warn Test  {Time.time}");
+            if (wasPressed(keyboard.pKey)) quicklinePush(   $"Test       {Time.time}");
 
             if (wasPressed(keyboard.nKey)) resizeQuicklines(6);
             if (wasPressed(keyboard.mKey)) resizeQuicklines(30);

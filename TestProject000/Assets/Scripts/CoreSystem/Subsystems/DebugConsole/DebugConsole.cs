@@ -92,6 +92,8 @@ namespace CoreSystem {
 
         float open_t;
         bool  state = false;
+        
+        public bool getState() => state;
 
         void setState(bool newState, bool anim = true) {
             if (newState) {
@@ -259,7 +261,7 @@ namespace CoreSystem {
         }
 
         void Update() {
-            if (isHeld(keyboard?.shiftKey) && wasPressed(keyboard?.f1Key)) setState(!state);
+            if (isHeld_internal(keyboard?.shiftKey) && wasPressed_internal(keyboard?.f1Key)) setState(!state);
             
             UPDATE_Openness();
 
@@ -268,9 +270,9 @@ namespace CoreSystem {
             UPDATE_Sizing();
             UPDATE_Scrolling();
 
-            if (!isHeld(keyboard?.altKey) && wasReleased(keyboard?.enterKey)) submit(null);
+            if (!isHeld_internal(keyboard?.altKey) && wasReleased_internal(keyboard?.enterKey)) submit(null);
 
-            if (wasReleased(keyboard.tabKey)) completePrediction();
+            if (wasReleased_internal(keyboard.tabKey)) completePrediction();
         }
         
         void LateUpdate() {
