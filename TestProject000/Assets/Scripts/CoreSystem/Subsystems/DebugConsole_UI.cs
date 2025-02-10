@@ -224,6 +224,16 @@ namespace CoreSystem {
             refreshFilterButtonStates();
         }
 
+        static Dictionary<string, string> friendlyTypeNameAlternatives = new() {
+            { typeof(bool)  .Name, "bool" },
+            { typeof(float) .Name, "float" },
+            { typeof(double).Name, "double" },
+        };
+        string getFriendlyTypeNameAlternative(string typeName) {
+            if (friendlyTypeNameAlternatives.ContainsKey(typeName)) return friendlyTypeNameAlternatives[typeName];
+            else return typeName;
+        }
+
         bool showingInlinePrediction    = false;
         bool showingInlineArgPrediction = false;
 
@@ -248,18 +258,8 @@ namespace CoreSystem {
             }
         }
 
-        static Dictionary<string, string> friendlyTypeNameAlternatives = new() {
-            { typeof(bool)  .Name, "bool" },
-            { typeof(float) .Name, "float" },
-            { typeof(double).Name, "double" },
-        };
-        string getFriendlyTypeNameAlternative(string typeName) {
-            if (friendlyTypeNameAlternatives.ContainsKey(typeName)) return friendlyTypeNameAlternatives[typeName];
-            else return typeName;
-        }
-
         void updateInlineArgsPredictionUI(ConsoleCommand command = null, string[] tokens = null) {
-            if (command == null || tokens == null) {
+            if (command == null || tokens == null || tokens.Length - 1 >= command.functionArgsInfo.Length) {
                 showingInlineArgPrediction = false;
                 argsPredictionText.SetText((string)null);
                 return;

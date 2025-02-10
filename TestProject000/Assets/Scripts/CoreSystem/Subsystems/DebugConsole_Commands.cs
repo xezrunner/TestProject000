@@ -56,7 +56,7 @@ namespace CoreSystem {
                 if (arg == null) {
                     if (info.HasDefaultValue) arg = info.DefaultValue;
                     else {
-                        Debug.LogError($"  - argument #{i} ({info.Name}) was not passed and has no default value.");
+                        Debug.LogError($"  - argument #{i} ('{info.Name}') was not passed and has no default value.");
                         return (false, null);
                     }
                 }
