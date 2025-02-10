@@ -2,12 +2,11 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using System.Text;
-using System.Runtime.CompilerServices;
-using UnityEngine.InputSystem;
 using System.IO;
 using System;
 
 using static CoreSystem.CoreSystemUtils;
+using static CoreSystem.Logging;
 using static CoreSystem.QuickInput;
 
 namespace CoreSystem {
@@ -82,12 +81,15 @@ namespace CoreSystem {
         const int STATS_STRINGBUILDER_CAPACITY = 200;
 
         class ComponentStatsInfo {
-            public ComponentStatsInfo() { }
+            // public ComponentStatsInfo() { }
             public ComponentStatsInfo(string key, DebugStatsSettingsAttribute attribute = null) {
                 if (attribute != null) {
                     isEnabled    = attribute.startEnabled;
                     priority     = attribute.priority;
                     displayName  = attribute.displayName.IsEmpty() ? Path.GetFileNameWithoutExtension(key) : attribute.displayName;
+                } else {
+                    if (File.Exists(key)) displayName = Path.GetFileNameWithoutExtension(key);
+                    else displayName = key;
                 }
             }
 
@@ -128,7 +130,7 @@ namespace CoreSystem {
         // In some quick testing, performance does seem to be good, but we would really need to have this be scattered
         // around multiple components to truly test.
         bool canUpdateStats = true;
-        void pushToStatsDB(string component, string text, bool append = false) {
+        public void pushToStatsDB(string component, string text, bool append = false) {
             if (!canUpdateStats) return;
             
             var info = getAndOrAddStatsDBEntry(component);
@@ -166,23 +168,10 @@ namespace CoreSystem {
 
                 sb.AppendLine($"{info.displayName}:".bold() + $" (priority: {info.priority})".color("#ffffff30"));
                 sb.AppendLine(info.stringBuilder.ToString());
-                sb.AppendLine();
+                // sb.AppendLine();
             }
 
             statsTextCom.SetText(sb.ToString());
-        }
-
-        // Public methods:
-        public static void STATS_PrintLine(string component, string text) => GrabInstance()?.pushToStatsDB(component, text);
-        public static void STATS_PrintLine(string text, [CallerFilePath]   string callerFilePath = null,
-                                                        [CallerMemberName] string callerProcName = null,
-                                                        [CallerLineNumber] int    callerLineNum  = -1) {
-            GrabInstance()?.pushToStatsDB(component: callerFilePath, text, append: false);
-        }
-        public static void STATS_Append(string text, [CallerFilePath]   string callerFilePath = null,
-                                                     [CallerMemberName] string callerProcName = null,
-                                                     [CallerLineNumber] int    callerLineNum  = -1) {
-            GrabInstance()?.pushToStatsDB(component: callerFilePath, text, append: true);
         }
 
         // TODO: we may want to read/receive messages from DebugConsole instead:

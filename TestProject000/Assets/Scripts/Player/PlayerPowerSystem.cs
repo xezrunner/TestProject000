@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 using static CoreSystem.QuickInput;
 
 class PlayerPowerSystem: MonoBehaviour {
@@ -45,11 +45,7 @@ class PlayerPowerSystem: MonoBehaviour {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Power system");
-
         STATS_PrintLine($"equipped: {equippedPower?.ToString() ?? "(none)"}");
-
-        STATS_SectionEnd();
     }
 
     void LateUpdate() {

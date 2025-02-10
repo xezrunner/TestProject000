@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 
 public enum ForceProjectilePowerState { None = 0, Aiming = 1, Shooting = 2 }
 
@@ -152,11 +152,7 @@ public class ForceProjectilePower : PlayerPower {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Force Projectile Power");
-        
-        STATS_SectionPrintLine($"state: {state}");
-
-        STATS_SectionEnd();
+        STATS_PrintLine($"state: {state}");
     }
 
     void LateUpdate() => UPDATE_PrintStats();

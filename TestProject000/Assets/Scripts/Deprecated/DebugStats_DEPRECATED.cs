@@ -3,6 +3,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
+#if false
 public class DebugStats : MonoBehaviour {
     public static DebugStats Instance;
 
@@ -71,7 +72,7 @@ public class DebugStats : MonoBehaviour {
                          Instance?.addQuickLine(line, caller_file_path, caller_proc_name, caller_line_num);
 
     public static void STATS_SectionStart    (string name) => Instance?.addPerFrameLine(name.bold());
-    public static void STATS_SectionPrintLine(string line) => Instance?.addPerFrameLine($"   {line}");
+    public static void STATS_PrintLine(string line) => Instance?.addPerFrameLine($"   {line}");
     public static void STATS_SectionEnd()                  => Instance?.addPerFrameLine("");
 
     int quickLineViewIndex = 0;
@@ -84,7 +85,7 @@ public class DebugStats : MonoBehaviour {
     void LateUpdate() {
         if (STATS_EnableDebugInfo) {
             STATS_SectionStart("Debug stats");
-            STATS_SectionPrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  ql timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
+            STATS_PrintLine($"ql count: {quickLineCount} ql view index: {quickLineViewIndex}  ql timer: {quickLineRemovalTimerSec:0.00}/{quickLineTimeoutSec:0.00}");
             STATS_SectionEnd();
         }
 
@@ -118,3 +119,4 @@ public class DebugStats : MonoBehaviour {
         }
     }
 }
+#endif

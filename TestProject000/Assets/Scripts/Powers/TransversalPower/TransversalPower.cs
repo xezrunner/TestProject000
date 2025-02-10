@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static DebugStats;
+using static CoreSystem.Logging;
 
 public enum TransversalPowerState { None = 0, Aiming = 1, Casting = 2, Cooldown = 3 }
 
@@ -323,19 +323,15 @@ public class TransversalPower: PlayerPower {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Transversal power");
-
-        STATS_SectionPrintLine($"state: {state}");
-        STATS_SectionPrintLine($"timer (dummy): {timer}");
-        STATS_SectionPrintLine($"aiming point: absolute: {DEBUGVIS_AimTargetPosition_BeforePullback}  indicator: {aimingIndicatorTransform.position}");
+        STATS_PrintLine($"state: {state}");
+        STATS_PrintLine($"timer (dummy): {timer}");
+        STATS_PrintLine($"aiming point: absolute: {DEBUGVIS_AimTargetPosition_BeforePullback}  indicator: {aimingIndicatorTransform.position}");
         if (true || state == TransversalPowerState.Casting) {
-            STATS_SectionPrintLine(" - Casting state properties:");
-            STATS_SectionPrintLine($"    casting start point: {castingStartPoint}  target point: {castingTargetPoint}");
-            STATS_SectionPrintLine($"    distance: {Vector3.Distance(playerTransform.position, castingTargetPoint)}m   mult: {castingDistanceFrac} (*baseline: {(1f + castingDistanceFrac) * castingBaselineMult})");
-            STATS_SectionPrintLine($"    casting t: {casting_t}");
+            STATS_PrintLine(" - Casting state properties:");
+            STATS_PrintLine($"    casting start point: {castingStartPoint}  target point: {castingTargetPoint}");
+            STATS_PrintLine($"    distance: {Vector3.Distance(playerTransform.position, castingTargetPoint)}m   mult: {castingDistanceFrac} (*baseline: {(1f + castingDistanceFrac) * castingBaselineMult})");
+            STATS_PrintLine($"    casting t: {casting_t}");
         }
-        
-        STATS_SectionEnd();
     }
 
     void LateUpdate() => UPDATE_PrintStats();

@@ -1,8 +1,8 @@
 using UnityEngine;
 using TMPro;
-using System.Runtime.CompilerServices;
 
 using static CoreSystem.QuickInput;
+using System.Runtime.CompilerServices;
 
 namespace CoreSystem {
 
@@ -74,11 +74,12 @@ namespace CoreSystem {
             return (obj, com);
         }
 
-        void quicklinePush(string text, CallerDebugInfo callerInfo) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void quicklinePush(string text, CallerDebugInfo callerInfo) {
             quicklinePush(text.AddCallerDebugInfo(CallerDebugInfoFlags.FP, callerInfo));
         }
         
-        void quicklinePush(string text) {
+        public void quicklinePush(string text) {
             // Find available QL line:
             QuicklineInfo target = null;
             for (int i = 0; i < QUICKLINES_COUNT; ++i) {
@@ -116,18 +117,6 @@ namespace CoreSystem {
             target.timestamp = Time.time;
             target.isRetired = false;
             target.textCom.SetText(text);
-        }
-
-        // public static void STATS_PrintQuickLine(string text) => GrabInstance()?.quicklinePush(text);
-
-        public static void STATS_PrintQuickLine(string text, CallerDebugInfo callerInfo) {
-            GrabInstance()?.quicklinePush(text, callerInfo);
-        }
-
-        public static void STATS_PrintQuickLine(string text, [CallerFilePath]   string callerFilePath = null,
-                                                             [CallerMemberName] string callerProcName = null,
-                                                             [CallerLineNumber] int    callerLineNum  = -1) {
-            GrabInstance()?.quicklinePush(text, new(callerFilePath, callerProcName, callerLineNum));
         }
 
         void LATEUPDATE_Quicklines() {

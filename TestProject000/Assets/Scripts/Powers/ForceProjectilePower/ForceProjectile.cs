@@ -1,6 +1,6 @@
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 
 public class ForceProjectile : MonoBehaviour {
     [SerializeField] AudioClip SFX_Hit;

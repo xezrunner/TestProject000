@@ -2,7 +2,7 @@ using System;
 using Fragsurf.Movement;
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 using static CoreSystem.QuickInput;
 
 public class Player : MonoBehaviour
@@ -38,10 +38,8 @@ public class Player : MonoBehaviour
 
         bool isFallingOutOfBounds = transform.position.y < -150 && surfCharacter.moveData.velocity.y < -100;
         
-        STATS_SectionStart("Player info");
         STATS_PrintLine($"position: {transform.position}  {(isFallingOutOfBounds && ((int)(Time.time * 2) % 2 == 0) ? $"  FALLING OUT OF BOUNDS".color(Color.red).bold() : null)}");
         STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}  forward: {Vector3.Dot(surfCharacter.moveData.velocity, cameraContainerTransform.forward)}");
-        STATS_SectionEnd();
     }
 
     void LateUpdate() {

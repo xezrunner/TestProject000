@@ -1,6 +1,6 @@
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 
 public class PlayerHealthSystem : MonoBehaviour {
     public int maxHealth = 100;
@@ -19,11 +19,7 @@ public class PlayerHealthSystem : MonoBehaviour {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Health system");
-
-        STATS_SectionPrintLine($"health: {currentHealth}");
-
-        STATS_SectionEnd();
+        STATS_PrintLine($"health: {currentHealth}");
     }
 
     void LateUpdate() {

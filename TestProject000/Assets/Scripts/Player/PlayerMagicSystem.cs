@@ -1,6 +1,6 @@
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 using static CoreSystem.QuickInput;
 
 public enum PlayerManaRefillState {
@@ -98,20 +98,16 @@ public class PlayerMagicSystem : MonoBehaviour {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Magic system");
-
         // Mana:
         string manaText = "mana: ";
         for (int i = 0; i < 10; i++) manaText += i < (mana / 10) ? '█' : ' ';
         manaText += $"  {mana, 0:##0.000}/{manaMax}  target: {manaTarget}";
         if (mana <= 0f && (int)(Time.time * 2) % 2 == 0) manaText += $"  OUT OF MANA!".color(Color.red).bold();
-        STATS_SectionPrintLine(manaText.monospace());
+        STATS_PrintLine(manaText.monospace());
 
-        STATS_SectionPrintLine($"refill state: {manaRefillState}  {manaRefillTimer:0.00}/{manaRefillDelaySec:0.00}");
+        STATS_PrintLine($"refill state: {manaRefillState}  {manaRefillTimer:0.00}/{manaRefillDelaySec:0.00}");
 
         // ...
-
-        STATS_SectionEnd();
     }
     
     void LateUpdate() {

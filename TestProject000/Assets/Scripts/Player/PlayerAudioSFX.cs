@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 
 public class PlayerAudioSFX : MonoBehaviour {
     public static PlayerAudioSFX Instance;
@@ -41,19 +41,15 @@ public class PlayerAudioSFX : MonoBehaviour {
         if (!PLAYERSFX_EnableStats) return;
         if (meta_currentlyPlaying.Count == 0) return;
 
-        STATS_SectionStart("Player Audio (SFX)");
-
         for (int i = 0; i < meta_currentlyPlaying.Count; ++i) {
             var (clip, volume, start) = meta_currentlyPlaying[i];
 
-            STATS_SectionPrintLine($"{"meta:".bold()} '{clip.name}'  vol: {volume}  {Time.time - start, 0:##0.00}/{clip.length, 0:##0.00}");
+            STATS_PrintLine($"{"meta:".bold()} '{clip.name}'  vol: {volume}  {Time.time - start, 0:##0.00}/{clip.length, 0:##0.00}");
             if (Time.time - start >= clip.length) {
                 meta_currentlyPlaying.Remove((clip, volume, start));
                 break; // collection modified
             }
         }
-
-        STATS_SectionEnd();
     }
 
     void LateUpdate() {

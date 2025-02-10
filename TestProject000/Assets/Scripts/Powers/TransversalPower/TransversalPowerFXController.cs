@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystem.Logging;
 
 // Dishonored 1 Blink VFX
 //
@@ -206,16 +206,12 @@ public class TransversalPowerFXController : MonoBehaviour {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Transversal VFX Controller");
-        
-        STATS_SectionPrintLine($"animSpeed: {animSpeed}");
-        STATS_SectionPrintLine($"state: {state}");
-        STATS_SectionPrintLine($"t: {t}");
+        STATS_PrintLine($"animSpeed: {animSpeed}");
+        STATS_PrintLine($"state: {state}");
+        STATS_PrintLine($"t: {t}");
 
         // var wobbleVars = getValueForOutStateWobble();
-        // STATS_SectionPrintLine($"wobble: sine: {wobbleVars.sine}  value: {wobbleVars.value}");
-
-        STATS_SectionEnd();
+        // STATS_PrintLine($"wobble: sine: {wobbleVars.sine}  value: {wobbleVars.value}");
     }
 
     void LateUpdate() => UPDATE_PrintStats();

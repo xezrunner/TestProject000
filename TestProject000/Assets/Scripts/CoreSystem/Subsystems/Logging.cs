@@ -19,7 +19,7 @@ namespace CoreSystem {
         Info = 0, Warning = 1, Error = 2
     }
 
-    public static class Logging {
+    public static partial class Logging {
         public static void grabInstances() {
             coreSystemInstance   = CoreSystem.Instance;
             if (!coreSystemInstance) {
@@ -112,7 +112,7 @@ namespace CoreSystem {
 
             // Debug stats:
             // TODO: log level support in quickstats! Maybe we just want to read console lines, to not duplicate effort (coloring based on level would be already done for us).
-            if (debugStatsInstance) DebugStats.STATS_PrintQuickLine(text, callerInfo);
+            if (debugStatsInstance) debugStatsInstance.quicklinePush(text, callerInfo);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -123,8 +123,10 @@ namespace CoreSystem {
             else if (level == LogLevel.Warning) Debug.LogWarning(text);
             else if (level == LogLevel.Error)   Debug.LogError(text);
         }
+    }
 
-        // -----
+    partial class Logging {
+        // Log:
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void log(
@@ -135,6 +137,40 @@ namespace CoreSystem {
             log_main(LogCategory.Unknown, LogLevel.Info, text, new CallerDebugInfo(callerFilePath, callerProcName, callerLineNum));
         }
 
+        // Stats:
+
+        // Sections:
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void STATS_PrintLine(string component, string text) {
+            debugStatsInstance?.pushToStatsDB(component, text);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void STATS_PrintLine(string text, [CallerFilePath]   string callerFilePath = null,
+                                                        [CallerMemberName] string callerProcName = null,
+                                                        [CallerLineNumber] int    callerLineNum  = -1) {
+            debugStatsInstance?.pushToStatsDB(component: callerFilePath, text, append: false);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void STATS_Append(string text, [CallerFilePath]   string callerFilePath = null,
+                                                     [CallerMemberName] string callerProcName = null,
+                                                     [CallerLineNumber] int    callerLineNum  = -1) {
+            debugStatsInstance?.pushToStatsDB(component: callerFilePath, text, append: true);
+        }
+
+        // Quicklines:
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void STATS_PrintQuickLine(string text, CallerDebugInfo callerInfo) {
+            debugStatsInstance?.quicklinePush(text, callerInfo);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void STATS_PrintQuickLine(string text, [CallerFilePath]   string callerFilePath = null,
+                                                             [CallerMemberName] string callerProcName = null,
+                                                             [CallerLineNumber] int    callerLineNum  = -1) {
+            debugStatsInstance?.quicklinePush(text, new(callerFilePath, callerProcName, callerLineNum));
+        }
     }
 
 }
