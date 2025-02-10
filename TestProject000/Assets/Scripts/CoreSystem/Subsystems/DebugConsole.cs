@@ -132,6 +132,14 @@ namespace CoreSystem {
         int consoleOutputCount;
         List<ConsoleLineInfo> consoleOutput = new(capacity: 500);
 
+        void clearConsoleOutput() {
+            consoleOutput.Clear();
+            consoleOutputCount = 0;
+            
+            updateConsoleFiltering();
+            updateConsoleOutputUI();
+        }
+
         public const LogCategory CONSOLEFILTERFLAGS_ALL = (LogCategory)uint.MaxValue;
         LogCategory consoleFilterFlags = CONSOLEFILTERFLAGS_ALL;
 
@@ -312,12 +320,6 @@ namespace CoreSystem {
                 }
             }
         }
-
-        [ConsoleCommand]
-        static void resize_console(float height, bool anim = true) {
-            CoreSystem.Instance?.DebugConsole?.resizeConsole(height, anim);
-        }
-
     }
 
 
