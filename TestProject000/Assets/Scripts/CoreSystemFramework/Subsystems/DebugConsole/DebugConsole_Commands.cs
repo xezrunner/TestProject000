@@ -149,8 +149,12 @@ namespace CoreSystemFramework {
                 processedArgs.Add(arg);
             }
 
+            try {
                 var result = command.function(processedArgs.ToArray());
                 return (true, result);
+            } catch (Exception ex) {
+                pushText(LogLevel.Error, $"  - command execution threw an exception: {ex.Message}");
+                return (false, null);
             }
         }
     }
