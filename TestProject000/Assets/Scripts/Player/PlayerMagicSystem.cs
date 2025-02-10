@@ -50,7 +50,7 @@ public class PlayerMagicSystem : MonoBehaviour {
         manaRefillTimer = 0f;
         manaRefillState = PlayerManaRefillState.Waiting;
 
-        STATS_PrintQuickLine($"-{amount.ToString().bold()} -> [mana:{mana}/refill:{manaRefillValue} = {Mathf.Ceil(mana / manaRefillValue)}] * refill:{manaRefillValue} = {manaTarget}");
+        log($"-{amount.ToString().bold()} -> [mana:{mana}/refill:{manaRefillValue} = {Mathf.Ceil(mana / manaRefillValue)}] * refill:{manaRefillValue} = {manaTarget}");
 
         return true;
     }

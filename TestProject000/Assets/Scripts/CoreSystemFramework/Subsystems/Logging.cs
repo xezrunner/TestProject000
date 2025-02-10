@@ -197,6 +197,7 @@ namespace CoreSystemFramework {
         }
 
         // Quicklines:
+#if false
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void STATS_PrintQuickLine(string text, CallerDebugInfo callerInfo) {
             debugStatsInstance?.quicklinePush(text, callerInfo);
@@ -208,6 +209,7 @@ namespace CoreSystemFramework {
                                                              [CallerLineNumber] int    callerLineNum  = -1) {
             debugStatsInstance?.quicklinePush(text, new(callerFilePath, callerProcName, callerLineNum));
         }
+#endif
     }
 
 }

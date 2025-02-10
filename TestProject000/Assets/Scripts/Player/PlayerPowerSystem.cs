@@ -9,22 +9,22 @@ class PlayerPowerSystem: MonoBehaviour {
 
     void castEquippedPower() {
         if (equippedPower == null) {
-            STATS_PrintQuickLine("no equipped power");
+            log("no equipped power");
             return;
         }
 
         var result = equippedPower.RequestCast(); 
-        STATS_PrintQuickLine($"{equippedPower.name} -- success: {result.success} {(result.reason != null ? $"({result.reason})" : null)}");
+        log($"{equippedPower.name} -- success: {result.success} {(result.reason != null ? $"({result.reason})" : null)}");
     }
 
     void cancelEquippedPower() {
         if (equippedPower == null) {
-            STATS_PrintQuickLine("no equipped power");
+            log("no equipped power");
             return;
         }
 
         bool success = equippedPower.RequestCancel();
-        STATS_PrintQuickLine($"{equippedPower.name} -- success: {success}");
+        log($"{equippedPower.name} -- success: {success}");
     }
 
     void UPDATE_Input() {

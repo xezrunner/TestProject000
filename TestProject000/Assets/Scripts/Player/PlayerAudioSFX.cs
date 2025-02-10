@@ -26,7 +26,7 @@ public class PlayerAudioSFX : MonoBehaviour {
     // TODO: call this ..OneShot, depending on future functions
     public void playMetaSFXClip(AudioClip clip, float volume = 1f, float speed = 1f) {
         if (!clip) {
-            STATS_PrintQuickLine("null clip was passed, not playing!");
+            log("null clip was passed, not playing!");
             return;
         }
 

@@ -105,6 +105,7 @@ namespace CoreSystemFramework {
                 contentRectTrans.gameObject.SetActive(true);
                 updateConsoleFiltering();
                 consoleInputField.ActivateInputField();
+                scroll(SCROLL_BOTTOM); // TODO: this is flaky!
 
                 previousCursorLockState  = Cursor.lockState;
                 previousCursorVisibility = Cursor.visible;

@@ -38,7 +38,7 @@ public class ForceProjectilePower : PlayerPower {
         shootDirection = playerCameraTransform.forward + (playerCameraTransform.up * 0.13f); // TODO: TEMP: offset for force projectile collision size
         shootOrigin = playerTransform.position; // + (shootDirection * 2f); // TODO: how much to offset forwards by?
 
-        STATS_PrintQuickLine($"shootOrigin: {shootOrigin}  shootDirection: {shootDirection}");
+        log($"shootOrigin: {shootOrigin}  shootDirection: {shootDirection}");
 
         // TODO: pre-cache a few! (?)
         var projectileObject = Instantiate(PREFAB_ForceProjectile, position: shootOrigin, rotation: Quaternion.identity);
