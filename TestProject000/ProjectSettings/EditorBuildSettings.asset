@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/coresystem/coresystem.unity
+    guid: 53f1371a85fd1a04f839b7204282261e
+  - enabled: 1
     path: Assets/Scenes/test1a/test1a.unity
     guid: cd41cb48d506b413ca75c99390d06d9f
   - enabled: 0
@@ -17,9 +20,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/urp_render_test/urp_render_test.unity
     guid: aea07b25c429c42c4b9eedb5e15887ac
-  - enabled: 1
-    path: Assets/Scenes/coresystem/coresystem.unity
-    guid: 53f1371a85fd1a04f839b7204282261e
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: fd9952567b2204b0aae50775e7decf62, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

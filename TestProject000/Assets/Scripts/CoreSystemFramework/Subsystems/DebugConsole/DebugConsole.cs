@@ -41,9 +41,9 @@ namespace CoreSystemFramework {
         [SerializeField] TMP_Text debugTextCom;
 
         [Header("Settings")]
-        [SerializeField] float   animationSpeed = 3f;
-        [SerializeField] float   defaultHeight  = 450f;
-        [SerializeField] Vector2 textPadding    = new(24, 16);
+        [SerializeField] float animationSpeed = 3f;
+        [SerializeField] float defaultHeight = 450f;
+        [SerializeField] Vector2 textPadding = new(24, 16);
         [SerializeField] int inputFieldNormalCaretWidth     = 9;
         [SerializeField] int inputFieldPredictingCaretWidth = 1;
 

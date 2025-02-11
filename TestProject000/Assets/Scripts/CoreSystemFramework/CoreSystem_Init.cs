@@ -56,8 +56,8 @@ namespace CoreSystemFramework {
             };
         }
 
-        static bool verifyAndOrAddSceneToBuildSettings(string scenePath) {
-            List<EditorBuildSettingsScene> buildScenes = EditorBuildSettings.globalScenes.ToList();
+        static bool verifyAndOrAddSceneToBuildSettings(string scenePath, bool asFirst = false) {
+            var buildScenes = EditorBuildSettings.globalScenes;
 
             var absolutePath = $"Assets/Scenes/{scenePath}.unity";
             var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(absolutePath);
@@ -73,8 +73,13 @@ namespace CoreSystemFramework {
             }
 
             if (!found) {
-                buildScenes.Add(new(absolutePath, enabled: true));
-                EditorBuildSettings.globalScenes = buildScenes.ToArray();
+                var sceneConfig = new EditorBuildSettingsScene(absolutePath, enabled: true);
+
+                var newBuildScenes = new EditorBuildSettingsScene[buildScenes.Length + 1];
+                newBuildScenes[asFirst ? 0 : newBuildScenes.Length - 1] = sceneConfig;
+                buildScenes.CopyTo(newBuildScenes, asFirst ? 1 : 0);
+                EditorBuildSettings.globalScenes = newBuildScenes;
+
                 // A restart is required for the build scenes to take effect:
                 Debug.LogWarning("A CoreSystem scene was not in the global scene list of the build profiles. It has been added, but a restart is required.");
                 EditorApplication.ExitPlaymode();
