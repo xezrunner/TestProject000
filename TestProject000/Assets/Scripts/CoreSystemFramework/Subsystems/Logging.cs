@@ -29,7 +29,6 @@ namespace CoreSystemFramework {
         public string text;
     }
 
-    // TODO: Move console output log in here, and maintain entries before the console even spwans.
     // TODO: Unity's logger can be replaced with a custom implementation that implements some interface.
     //       Maybe we should look into that, instead of capturing the output.
 

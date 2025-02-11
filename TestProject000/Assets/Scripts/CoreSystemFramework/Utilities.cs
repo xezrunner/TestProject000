@@ -22,12 +22,17 @@ namespace CoreSystemFramework {
         public static System.Type getTypeFromFilePath(string path) {
             if (!File.Exists(path)) return null;
 
+            #if !UNITY_EDITOR
+            // TODO: replacement!
+            return null;
+#else
             string unityRelativePath = "Assets" + path.Substring(Application.dataPath.Length); // This can crash!
             var script = AssetDatabase.LoadAssetAtPath<MonoScript>(unityRelativePath);
 
             // NOTE: this will only give us the first MonoBehaviour that it finds. Don't have multiple scripts in a file!
             var type = script.GetClass();
             return type;
+#endif
         }
 
         public static void processRequiredComponents(object instance, [CallerFilePath] string callerFilePath = null) {

@@ -34,20 +34,27 @@ namespace CoreSystemFramework {
             var currentSceneName = SceneManager.GetActiveScene().name;
             Debug.Log($"current scene name: {currentSceneName}");
 
-            // Load CoreSystem scene:
-            if (currentSceneName != CORESYSTEM_SCENE_NAME) {
+#if UNITY_EDITOR
+            if (!EditorBuildSettings.globalScenes[0].path.EndsWith(CORESYSTEM_SCENE_NAME)) {
+                verifyAndOrAddSceneToBuildSettings($"{CORESYSTEM_SCENES_PATH}/{CORESYSTEM_SCENE_NAME}", true);
+            }
+#endif
+
+            // This should be tackled!
+            // We are running here prior to any scenes being loaded, which is not ideal at full startup when no scene
+            // has even loaded yet:
+            // For the Unity Editor (as well), if doing a full startup, explicitly load CoreSystem:
+            if (currentSceneName is not null or CORESYSTEM_SCENE_NAME) {
                 // TODO: not sure if we want to handle further scene loading on initialization ourselves:
                 var loadMode = isFullStartup ? LoadSceneMode.Single : LoadSceneMode.Additive;
                 var fullPath = $"Scenes/{CORESYSTEM_SCENES_PATH}/{CORESYSTEM_SCENE_NAME}";
 
                 Debug.Log($"loading coresystem scene: {fullPath}");
-                bool success = verifyAndOrAddSceneToBuildSettings($"{CORESYSTEM_SCENES_PATH}/{CORESYSTEM_SCENE_NAME}");
-                Assert.IsTrue(success);
 
                 SceneManager.LoadScene(fullPath, loadMode);
                 coreSystemScene = SceneManager.GetSceneByName(CORESYSTEM_SCENE_NAME);
             } else {
-                Debug.Log("not loading CoreSystem scene, as the currently loaded scene is already it.");
+                Debug.Log("not loading CoreSystem scene during init");
             }
 
             // Prepare startup options:
@@ -57,7 +64,10 @@ namespace CoreSystemFramework {
         }
 
         static bool verifyAndOrAddSceneToBuildSettings(string scenePath, bool asFirst = false) {
-            var buildScenes = EditorBuildSettings.globalScenes;
+#if !UNITY_EDITOR
+            return false;
+#else
+            var buildScenes = EditorBuildSettings.globalScenes.ToList();
 
             var absolutePath = $"Assets/Scenes/{scenePath}.unity";
             var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(absolutePath);
@@ -66,16 +76,21 @@ namespace CoreSystemFramework {
                 return false;
             }
 
-            var found = false;
+            EditorBuildSettingsScene found = null;
             foreach (var scene in buildScenes) {
                 if (scene.path != absolutePath) continue;
-                found = true; break;
+                found = scene; break;
             }
 
-            if (!found) {
+            if (found != null && asFirst && buildScenes[0].path != absolutePath) {
+                buildScenes.Remove(found);
+                found = null;
+            }
+
+            if (found == null) {
                 var sceneConfig = new EditorBuildSettingsScene(absolutePath, enabled: true);
 
-                var newBuildScenes = new EditorBuildSettingsScene[buildScenes.Length + 1];
+                var newBuildScenes = new EditorBuildSettingsScene[buildScenes.Count + 1];
                 newBuildScenes[asFirst ? 0 : newBuildScenes.Length - 1] = sceneConfig;
                 buildScenes.CopyTo(newBuildScenes, asFirst ? 1 : 0);
                 EditorBuildSettings.globalScenes = newBuildScenes;
@@ -86,6 +101,7 @@ namespace CoreSystemFramework {
             }
 
             return true;
+            #endif
         }
     }
 

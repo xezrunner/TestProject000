@@ -56,7 +56,9 @@ namespace CoreSystemFramework {
             consoleOutput = Logging.logMessages;
             if (consoleOutput == null) {
                 Debug.LogError("No console output!");
+#if UNITY_EDITOR
                 EditorApplication.isPaused = true;
+#endif
             }
 
             registerEventCallbacks();
