@@ -18,8 +18,10 @@ namespace CoreSystemFramework {
         }
         static StartupOptions CORESYSTEM_STARTUP_OPTS;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)] // TODO: what do we want here, actually?
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)] // TODO: what do we want here, actually?
         static void CORESYSTEM_Init() {
+            Logging.LOGGING_Init();
+            
             SceneManager.sceneLoaded += SCENEMANAGER_SceneLoaded;
 
             grabReferenceToEventSystemList();

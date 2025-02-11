@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using UnityEngine;
 using static CoreSystemFramework.Logging;
 
 namespace CoreSystemFramework {
@@ -7,7 +8,8 @@ namespace CoreSystemFramework {
     partial class DebugConsole {
         static DebugConsole console => CoreSystem.Instance?.DebugConsole;
 
-        [ConsoleCommand] static void core_logtest() => log("Logging from CoreSystem!");
+        [ConsoleCommand] static void core_logtest()   => log      ("Logging from CoreSystem!");
+        [ConsoleCommand] static void core_unity_log() => Debug.Log("Logging from CoreSystem through Unity's Debug.Log()!");
         
         [ConsoleCommand] static void resize_console(float height, bool anim = true) => console?.resizeConsole(height, anim);
         

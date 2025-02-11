@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using static CoreSystemFramework.CoreSystemUtils;
+using System.Collections.Generic;
 
 namespace CoreSystemFramework {
     
@@ -19,9 +20,32 @@ namespace CoreSystemFramework {
         Info = 0, Warning = 1, Error = 2
     }
 
+    public class LogLineInfo {
+        public LogCategory category;
+        // TODO: 
+        // log level?
+        // caller member info?
+        // stack trace?
+        public string text;
+    }
+
     // TODO: Move console output log in here, and maintain entries before the console even spwans.
+    // TODO: Unity's logger can be replaced with a custom implementation that implements some interface.
+    //       Maybe we should look into that, instead of capturing the output.
 
     public static partial class Logging {
+        public static void LOGGING_Init() {
+            Application.quitting += OnApplicationQuit;
+            Application.logMessageReceived += UNITY_logMessageReceived;
+
+            logMessages.Clear();
+        }
+
+        static void OnApplicationQuit() {
+            Application.quitting -= OnApplicationQuit;
+            Application.logMessageReceived -= UNITY_logMessageReceived;
+        }
+
         public static void grabInstances() {
             coreSystemInstance   = CoreSystem.Instance;
             if (!coreSystemInstance) {
@@ -36,6 +60,19 @@ namespace CoreSystemFramework {
         static DebugConsole debugConsoleInstance;
         static DebugStats   debugStatsInstance;
 
+        public static event Action<LogLineInfo> onLogMessageReceived;
+        public static List<LogLineInfo> logMessages = new(capacity: 500);
+
+        static void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
+            if (!CoreSystem.UNITY_receiveLogMessages) return;
+            
+            // TODO: this stuff is also in DebugStats_Quicklines
+            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
+            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
+
+            addAndBroadcastLogMessage(new() { text = text, category = LogCategory.Unity });
+        }
+
         static StringBuilder stringBuilder = new(capacity: 100);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -43,6 +80,12 @@ namespace CoreSystemFramework {
             stringBuilder.Clear();
             foreach (var arg in args) stringBuilder.Append(arg);
             return stringBuilder.ToString();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void addAndBroadcastLogMessage(LogLineInfo info) {
+            logMessages.Add(info);
+            onLogMessageReceived?.Invoke(info);
         }
 
         public static LogCategory figureOutCategoryBasedOnCallingInfo(string callerFilePath) {
@@ -102,13 +145,14 @@ namespace CoreSystemFramework {
                     break;
                 }
             }
+
+            LogLineInfo info = new() { text = text, category = category };
+            addAndBroadcastLogMessage(info);
         }
 
+        // TODO: This function should actually be unnecessary, since each component should react to the onLogMessageReceived event:
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void sendToCoreSystem(string text, LogCategory category, LogLevel level, CallerDebugInfo callerInfo, string tag = null) {
-            // Debug console:
-            if (debugConsoleInstance) debugConsoleInstance.pushText(text, category, level, callerInfo);
-
             // Debug stats:
             // TODO: log level support in quickstats! Maybe we just want to read console lines, to not duplicate effort (coloring based on level would be already done for us).
             if (debugStatsInstance) debugStatsInstance.quicklinePush(text, callerInfo);

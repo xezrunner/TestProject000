@@ -75,6 +75,16 @@ namespace CoreSystemFramework {
         void OnDisable() {
             Application.logMessageReceived -= UNITY_logMessageReceived;
         }
+
+        // TODO: we may want to read/receive messages from DebugConsole instead:
+        void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
+            if (!CoreSystem.UNITY_receiveLogMessages) return;
+            
+            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
+            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
+
+            quicklinePush(text);
+        }
         
         const int STATS_STRINGBUILDER_CAPACITY = 200;
 
@@ -170,16 +180,6 @@ namespace CoreSystemFramework {
             }
 
             statsTextCom.SetText(sb.ToString());
-        }
-
-        // TODO: we may want to read/receive messages from DebugConsole instead:
-        void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
-            if (!CoreSystem.UNITY_receiveLogMessages) return;
-            
-            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
-            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
-
-            quicklinePush(text);
         }
 
         FPSInfo fpsInfo;

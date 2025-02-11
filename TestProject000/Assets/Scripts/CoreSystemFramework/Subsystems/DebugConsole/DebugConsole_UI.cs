@@ -20,47 +20,42 @@ namespace CoreSystemFramework {
         }
         
         void UPDATE_Openness() {
-            if (open_t == 1f) return;
-            if (open_t  > 1f) open_t = 1f; // this is done twice intentionally
+            if (openness_t == 1f) return;
+            if (openness_t  > 1f) openness_t = 1f; // this is done twice intentionally
 
-            float panelY = contentRectTrans.rect.height;
-            if (state) panelY *= EasingFunctions.InQuad (1 - open_t);
-            else       panelY *= EasingFunctions.OutQuad(open_t);
-            
+            float panelY = Mathf.Lerp(opennessTargets.from, opennessTargets.to, EasingFunctions.OutQuad(openness_t));
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
-            if (EXPERIMENT_PauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-open_t : open_t;
+            if (EXPERIMENT_PauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-openness_t : openness_t;
 
-            open_t += Time.unscaledDeltaTime * animationSpeed;
-            if (open_t  > 1f) {
-                open_t = 1f;
+            if (openness_t < 1f) openness_t += Time.unscaledDeltaTime * animationSpeed;
+            else {
                 if (!state) contentRectTrans.gameObject.SetActive(false);
             }
         }
 
         void resizeConsole(float newHeight, bool anim = true) {
-            sizing_from = contentRectTrans.sizeDelta.y;
-            sizing_to   = newHeight;
+            sizingTargets = new(contentRectTrans.sizeDelta.y, newHeight);
             sizing_t    = anim ? 0f : 1.1f;
 
-            if (sizing_from < sizing_to) createConsoleLines(sizing_to);
+            if (sizingTargets.from < sizingTargets.to) createConsoleLines(sizingTargets.to);
         }
 
-        float sizing_t, sizing_from, sizing_to;
+        float sizing_t;
+        (float from, float to) sizingTargets;
         void UPDATE_Sizing() {
             if (sizing_t == 1f) return;
             if (sizing_t  > 1f) sizing_t = 1f; // this is done twice intentionally
 
-            float panelHeight = Mathf.Lerp(sizing_from, sizing_to, EasingFunctions.OutQuad(sizing_t));
+            float panelHeight = Mathf.Lerp(sizingTargets.from, sizingTargets.to, EasingFunctions.OutQuad(sizing_t));
             contentRectTrans.sizeDelta = new(contentRectTrans.sizeDelta.x, panelHeight);
 
             if (sizing_t == 1f) {
-                if (sizing_from >= sizing_to) createConsoleLines(sizing_to);
+                if (sizingTargets.from >= sizingTargets.to) createConsoleLines(sizingTargets.to);
                 updateConsoleOutputUI();
             }
 
-            sizing_t += Time.unscaledDeltaTime * animationSpeed;
-            if (sizing_t  > 1f) sizing_t = 1f;
+            if (sizing_t < 1f) sizing_t += Time.unscaledDeltaTime * animationSpeed;
         }
 
         // We use this to add an extra UI line for virtualized, yet smooth scrolling:
@@ -96,6 +91,7 @@ namespace CoreSystemFramework {
             // This results in much better performance, compared to keeping the whole log output within the console.
 
             // Set scroll content height based on how many log lines there are:
+            var consoleOutputFilteredCount = consoleOutputFiltered.Count;
             var contentHeight = (consoleOutputFilteredCount * uiLineHeight) + (textPadding.y * 2f);
 
             // NOTE: despite UGUI's flipped nature, this is [0-1, top-bottom] here:
@@ -119,7 +115,7 @@ namespace CoreSystemFramework {
             var indexIntoOutput = Mathf.FloorToInt(scroll * Mathf.Min(a: consoleOutputFilteredCount,
                                                                       b: consoleOutputFilteredCount - (uiLineCount - extraLineCountForSmoothScrolling)));
 
-            debugTextCom?.SetText($"total lines: {consoleOutputCount}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount}" + 
+            debugTextCom?.SetText($"total lines: {consoleOutput.Count}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount}" + 
                                   $" | scroll: {scroll:N2}  height: {contentHeight:N3}  indexIntoOutput: {indexIntoOutput}" +
                                   $" | filter: [{(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? "None" : $"{consoleFilterFlags}")}]" +
                                   $" | current prediction: {currentInputPrediction}");

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -52,6 +53,12 @@ namespace CoreSystemFramework {
         int   uiLineCount;
 
         void Awake() {
+            consoleOutput = Logging.logMessages;
+            if (consoleOutput == null) {
+                Debug.LogError("No console output!");
+                EditorApplication.isPaused = true;
+            }
+
             registerEventCallbacks();
 
             if (keyboard == null) pushText("no keyboard!");
@@ -75,32 +82,33 @@ namespace CoreSystemFramework {
         }
 
         void registerEventCallbacks() {
-            Application.logMessageReceived += UNITY_logMessageReceived;
+            Logging.onLogMessageReceived += logMessageReceived;
             if (keyboard != null) keyboard.onTextInput += OnKeyboardTextInput;
         }
         void OnApplicationQuit() {
-            Application.logMessageReceived -= UNITY_logMessageReceived;
+            Logging.onLogMessageReceived -= logMessageReceived;
             if (keyboard != null) keyboard.onTextInput -= OnKeyboardTextInput;
         }
 
-        void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
-            if (!CoreSystem.UNITY_receiveLogMessages) return;
-            
-            // TODO: this stuff is also in DebugStats_Quicklines
-            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
-            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
+        List<LogLineInfo> consoleOutput;
 
-            pushText(text, LogCategory.Unity);
+        void logMessageReceived(LogLineInfo info) {
+            if (state) {
+                updateConsoleFiltering();
+                updateConsoleOutputUI();
+                scroll(SCROLL_BOTTOM);
+            }
         }
 
         // TODO: register as console variable!
         static bool  EXPERIMENT_PauseTimeWhileConsoleIsOpen = true;
         static float EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = 1f;
 
-        float open_t;
-        bool  state = false;
-        
+        bool state = false;
         public bool getState() => state;
+
+        float openness_t;
+        (float from, float to) opennessTargets;
 
         // TODO: abstract this away!
         CursorLockMode previousCursorLockState;
@@ -108,7 +116,10 @@ namespace CoreSystemFramework {
         void setState(bool newState, bool anim = true) {
             if (newState) {
                 contentRectTrans.gameObject.SetActive(true);
+                
                 updateConsoleFiltering();
+                updateConsoleOutputUI();
+
                 consoleInputField.ActivateInputField();
                 scroll(SCROLL_BOTTOM); // TODO: this is flaky!
 
@@ -121,33 +132,25 @@ namespace CoreSystemFramework {
                     EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = Time.timeScale;
                     Time.timeScale = 0f;
                 }
+
+                opennessTargets.to = 0;
             } else {
                 consoleInputField.DeactivateInputField();
                 if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) Time.timeScale = EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale;
 
                 Cursor.lockState = previousCursorLockState;
                 Cursor.visible   = previousCursorVisibility;
+
+                opennessTargets.to = contentRectTrans.rect.height;
             }
             
             state = newState;
-            open_t = anim ? 0f : 1.1f;
+            opennessTargets.from = contentRectTrans.anchoredPosition.y;
+            openness_t = anim ? 0f : 1.1f;
         }
-
-        public class ConsoleLineInfo {
-            public LogCategory category;
-            // TODO: 
-            // log level?
-            // caller member info?
-            // stack trace?
-            public string text;
-        }
-
-        int consoleOutputCount;
-        List<ConsoleLineInfo> consoleOutput = new(capacity: 500);
 
         void clearConsoleOutput() {
             consoleOutput.Clear();
-            consoleOutputCount = 0;
             
             updateConsoleFiltering();
             updateConsoleOutputUI();
@@ -156,39 +159,30 @@ namespace CoreSystemFramework {
         public const LogCategory CONSOLEFILTERFLAGS_ALL = (LogCategory)uint.MaxValue;
         LogCategory consoleFilterFlags = CONSOLEFILTERFLAGS_ALL;
 
-        int consoleOutputFilteredCount = 0;
-        List<ConsoleLineInfo> consoleOutputFiltered = new(capacity: 500);
+        List<LogLineInfo> consoleOutputFiltered = new(capacity: 500);
 
         // TODO: colors for levels
         public void pushText(LogLevel level, string text) => pushText(text, level: level);
 
         public void pushText(string text, LogCategory category = LogCategory.CoreSystem, LogLevel level = LogLevel.Info, CallerDebugInfo callerInfo = null) {
-            var info = new ConsoleLineInfo() {
+            var info = new LogLineInfo() {
                 category = category,
                 text     = text
                 // TODO: caller info
             };
-            consoleOutputCount += 1;
             consoleOutput.Add(info);
 
-            // TODO: If the console is visible:
-            if (state) {
-                updateConsoleFiltering();
-                updateConsoleOutputUI();
-                scroll(SCROLL_BOTTOM);
-            }
+            logMessageReceived(info);
         }
 
         void updateConsoleFiltering() {
             if ((consoleFilterFlags & CONSOLEFILTERFLAGS_ALL) == CONSOLEFILTERFLAGS_ALL) {
                 consoleOutputFiltered = consoleOutput;
-                consoleOutputFilteredCount = consoleOutputCount;
                 return;
             }
 
             // TODO: @Performance
             consoleOutputFiltered = consoleOutput.Where(x => consoleFilterFlags.HasFlag(x.category)).ToList();
-            consoleOutputFilteredCount = consoleOutputFiltered.Count;
         }
 
         void setConsoleFilterFlags(LogCategory flags) {
@@ -271,8 +265,8 @@ namespace CoreSystemFramework {
             else {
                 var command    = commands[commandName];
                 var invocation = invokeFunction(command, tokens); // handles args inside
-                if (!invocation.success)       pushText( "  - command execution failed"); // TEMP:
-                if (invocation.result != null) pushText($"  - command result: {invocation.result}");
+                if (!invocation.success)       pushText( "command execution failed"); // TEMP:
+                if (invocation.result != null) pushText($"command result: {invocation.result}");
             }
 
             // NOTE: order here is important:
@@ -322,7 +316,7 @@ namespace CoreSystemFramework {
                 }
 
                 if (keyboard.ctrlKey.isPressed && keyboard.spaceKey.wasReleasedThisFrame) {
-                    float targetHeight = sizing_to == 300f ? 500f : sizing_to == 500f ? canvasRectTrans.sizeDelta.y : 300f;
+                    float targetHeight = sizingTargets.to == 300f ? 500f : sizingTargets.to == 500f ? canvasRectTrans.sizeDelta.y : 300f;
                     resizeConsole(targetHeight);
                 }
 

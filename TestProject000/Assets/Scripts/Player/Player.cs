@@ -34,12 +34,11 @@ public class Player : MonoBehaviour
     public PlayerAudioSFX audioSFX;
 
     void UPDATE_PrintStats() {
-        if (Time.timeScale != 1f) STATS_PrintLine($"Timescale: {Time.timeScale}");
-
         bool isFallingOutOfBounds = transform.position.y < -150 && surfCharacter.moveData.velocity.y < -100;
         
         STATS_PrintLine($"position: {transform.position}  {(isFallingOutOfBounds && ((int)(Time.time * 2) % 2 == 0) ? $"  FALLING OUT OF BOUNDS".color(Color.red).bold() : null)}");
         STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}  forward: {Vector3.Dot(surfCharacter.moveData.velocity, cameraContainerTransform.forward)}");
+        if (true || Time.timeScale != 1f) STATS_PrintLine($"timescale: {Time.timeScale}");
     }
 
     void LateUpdate() {
