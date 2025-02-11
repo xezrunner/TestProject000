@@ -299,6 +299,9 @@ namespace CoreSystemFramework {
             if (!isHeld_internal(keyboard?.altKey) && wasReleased_internal(keyboard?.enterKey)) submit(null);
 
             if (wasReleased_internal(keyboard.tabKey)) completePrediction();
+
+            // TODO: convenience input stuff, like word navigation/select/delete
+            if (isHeld_internal(keyboard.ctrlKey) && wasPressed_internal(keyboard.cKey)) consoleInputField.text = null;
         }
         
         void LateUpdate() {
