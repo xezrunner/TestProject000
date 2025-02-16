@@ -226,7 +226,7 @@ namespace CoreSystemFramework {
 
             ConsoleCommand command = null;
             string[] tokens = null;
-            if (currentInputPrediction == null && !input.IsEmpty()) {
+            if (currentInputPrediction == null && !input.IsEmpty() && tokens.Length > 0) {
                 // Command argument prediction:
                 tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var commandName = tokens[0];
