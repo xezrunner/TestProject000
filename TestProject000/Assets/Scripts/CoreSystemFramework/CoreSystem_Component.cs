@@ -52,7 +52,7 @@ namespace CoreSystemFramework {
             log($"'{TEMP_fullStartupTargetScene}' has been set as the active scene, after loading it from a full startup.");
         }
 
-        void OnApplicationQuit() {
+        void OnDisable() {
             SceneManager.sceneLoaded -= SCENEMANAGER_SceneLoaded;
         }
 

@@ -87,7 +87,7 @@ namespace CoreSystemFramework {
             Logging.onLogMessageReceived += logMessageReceived;
             if (keyboard != null) keyboard.onTextInput += OnKeyboardTextInput;
         }
-        void OnApplicationQuit() {
+        void OnDisable() {
             Logging.onLogMessageReceived -= logMessageReceived;
             if (keyboard != null) keyboard.onTextInput -= OnKeyboardTextInput;
         }

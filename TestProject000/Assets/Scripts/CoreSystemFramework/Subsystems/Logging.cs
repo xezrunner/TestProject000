@@ -34,14 +34,14 @@ namespace CoreSystemFramework {
 
     public static partial class Logging {
         public static void LOGGING_Init() {
-            Application.quitting += OnApplicationQuit;
+            Application.quitting += LOGGING_OnApplicationQuit;
             Application.logMessageReceived += UNITY_logMessageReceived;
 
             logMessages.Clear();
         }
 
-        static void OnApplicationQuit() {
-            Application.quitting -= OnApplicationQuit;
+        static void LOGGING_OnApplicationQuit() {
+            Application.quitting -= LOGGING_OnApplicationQuit;
             Application.logMessageReceived -= UNITY_logMessageReceived;
         }
 
