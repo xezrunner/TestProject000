@@ -224,11 +224,10 @@ namespace CoreSystemFramework {
             }
             updateInlinePredictionUI(currentInputPrediction?.Substring(input.Length));
 
+            // Command argument prediction:
             ConsoleCommand command = null;
-            string[] tokens = null;
+            string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);;
             if (currentInputPrediction == null && !input.IsEmpty() && tokens.Length > 0) {
-                // Command argument prediction:
-                tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 var commandName = tokens[0];
                 if (commands.ContainsKey(commandName)) command = commands[commandName];
             }
