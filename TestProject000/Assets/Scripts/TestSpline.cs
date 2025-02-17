@@ -1,3 +1,4 @@
+using CoreSystemFramework;
 using UnityEngine;
 
 [ExecuteInEditMode]
