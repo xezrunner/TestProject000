@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
@@ -16,9 +17,30 @@ class SplineEditor : Editor {
     }
 }
 
+public struct SplinePoint {
+    public SplinePoint(float x, float y, float z) {
+        pos = new(x, y, z);
+        rot = bankingRot = default;
+    }
+    public SplinePoint(Vector3 pos, Quaternion rot = default, Quaternion bankingRot = default) {
+        this.pos        = pos;
+        this.rot        = rot;
+        this.bankingRot = bankingRot;
+    }
+    public Vector3    pos;
+    public Quaternion rot;
+    public Quaternion bankingRot;
+}
+
 [ExecuteInEditMode]
 public class Spline : MonoBehaviour {
-    Transform[] splinePointTransforms = new Transform[0];
+    List<SplinePoint> points = new(capacity: 100) {
+        new(0, 0,-4.5f),
+        new(0, 0, 2.5f),
+        new(8.5f, 2f, 7f),
+        new(3f, 0f, 13f),
+        new(3f, -2.5f, 23.5f),
+    };
 
     public Vector3 globalBankOffset = Vector3.zero;
     public float globalBankAngle = 0f; // in degrees
@@ -30,16 +52,11 @@ public class Spline : MonoBehaviour {
 
     public void refreshSplinePoints() {
         log("refreshing spline points...");
-
-        var count = transform.childCount;
-        splinePointTransforms = new Transform[count];
-        for (int i = 0; i < count; ++i) splinePointTransforms[i] = transform.GetChild(i);
-
-        if (count < 4) logWarning("  < 4 points! At least 4 points are required for a catmull-rom spline to work.");
+        // if (count < 4) logWarning("  < 4 points! At least 4 points are required for a catmull-rom spline to work.");
     }
 
     void OnDrawGizmos() {
-        if (splinePointTransforms.Length == 0) return;
+        if (points.Count == 0) return;
 
         Vector3 prevPos = GetPoint(0f).pos;
         int max = 50;
@@ -71,20 +88,24 @@ public class Spline : MonoBehaviour {
         }
     }
 
-    public Quaternion GetBankingAngle(Vector3 position) {
-        var spPoint = GetPoint(position); // closest point on spline
-        
-        var rotation = spPoint.rot;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    Vector3 CalculateCatmullRomPosition(SplinePoint p0, SplinePoint p1, SplinePoint p2, SplinePoint p3, float t) {
+        float t2 = t * t;
+        float t3 = t2 * t;
 
-        return rotation;
+        return 0.5f * (
+            (2f * p1.pos) +
+            (-p0.pos + p2.pos) * t +
+            (2f * p0.pos - 5f * p1.pos + 4f * p2.pos - p3.pos) * t2 +
+            (-p0.pos + 3f * p1.pos - 3f * p2.pos + p3.pos) * t3
+        );
     }
 
-    public (Vector3 pos, Quaternion rot) GetPoint(float t) {
-        var points = splinePointTransforms;
-        int count = points.Length;
+    public SplinePoint GetPoint(float t) {
+        int count = points.Count;
 
-        if (count == 0) return (Vector3.zero, Quaternion.identity);
-        if (count == 1) return (points[0].position, points[0].rotation);
+        if (count == 0) return default;
+        if (count  < 4) return new(points[0].pos, points[0].rot);
 
         t = Mathf.Clamp01(t);
 
@@ -105,24 +126,19 @@ public class Spline : MonoBehaviour {
         // p1: current point
         // p2: next point
         // p3: point after that (or duplicate the last point)
-        Transform p0 = segmentIndex == 0 ? points[0] : points[segmentIndex - 1];
-        Transform p1 = points[segmentIndex];
-        Transform p2 = points[segmentIndex + 1];
-        Transform p3 = (segmentIndex + 2 < count) ? points[segmentIndex + 2] : points[count - 1];
+        SplinePoint p0 = segmentIndex == 0 ? points[0] : points[segmentIndex - 1];
+        SplinePoint p1 = points[segmentIndex];
+        SplinePoint p2 = points[segmentIndex + 1];
+        SplinePoint p3 = (segmentIndex + 2 < count) ? points[segmentIndex + 2] : points[count - 1];
 
-        if (!p0 || !p1 || !p2 || !p3) {
-            refreshSplinePoints();
-            return GetPoint(t); // HACK: this is bad, probably!
-        }
+        Vector3 position = CalculateCatmullRomPosition(p0, p1, p2, p3, segmentT);
+        Quaternion rotation = Quaternion.Slerp(p1.rot, p2.rot, segmentT);
 
-        Vector3 position = CalculateCatmullRomPosition(p0.position, p1.position, p2.position, p3.position, segmentT);
-        Quaternion rotation = Quaternion.Slerp(p1.rotation, p2.rotation, segmentT);
-
-        return (position, rotation);
+        return new(position, rotation);
     }
 
 
-    public (Vector3 pos, Quaternion rot) GetPoint(Vector3 position) {
+    public SplinePoint GetPoint(Vector3 position) {
         float closestT = 0f;
         float closestDist = float.MaxValue;
 
@@ -140,16 +156,11 @@ public class Spline : MonoBehaviour {
         return GetPoint(closestT);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Vector3 CalculateCatmullRomPosition(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
-        float t2 = t * t;
-        float t3 = t2 * t;
+    public Quaternion GetBankingAngle(Vector3 position) {
+        var spPoint = GetPoint(position); // closest point on spline
+        
+        var rotation = spPoint.rot;
 
-        return 0.5f * (
-            (2f * p1) +
-            (-p0 + p2) * t +
-            (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
-            (-p0 + 3f * p1 - 3f * p2 + p3) * t3
-        );
+        return rotation;
     }
 }
