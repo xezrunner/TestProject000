@@ -6,7 +6,7 @@ class TestSpline: MonoBehaviour {
 
     Vector3 cubeSize = new(0.25f, 0.25f, 0.25f);
 
-    public float t = 0f;
+    [Range(0, 1)] public float t = 0f;
 
     void OnDrawGizmos() {
         return;
@@ -14,7 +14,8 @@ class TestSpline: MonoBehaviour {
 
         Gizmos.color = new(1f, 0.25f, 0f);
         
-        Gizmos.DrawWireCube(spline.GetPosition(t), cubeSize);
+        var spPoint = spline.GetPoint(t);
+        Gizmos.DrawWireCube(spPoint.pos, cubeSize);
     }
 
     public Transform testTransform;
@@ -22,8 +23,9 @@ class TestSpline: MonoBehaviour {
     void Update() {
         if (!testTransform) return;
 
-        Vector3 pos = spline.GetPosition(t);
-        Quaternion rot = spline.GetRotation(t);
+        var spPoint = spline.GetPoint(t);
+        Vector3 pos = spPoint.pos;
+        Quaternion rot = spPoint.rot;
         testTransform.SetPositionAndRotation(pos, rot);
     }
 }
