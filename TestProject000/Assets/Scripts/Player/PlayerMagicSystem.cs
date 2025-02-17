@@ -1,12 +1,15 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static DebugStats;
+
+using static CoreSystemFramework.Logging;
+using static CoreSystemFramework.QuickInput;
 
 public enum PlayerManaRefillState {
     Idle = 0, Waiting = 1, Refilling = 2 
 }
 
 public class PlayerMagicSystem : MonoBehaviour {
+    public bool TEST_DisableManaCostsDuringDevelopment = false;
+    
     [Header("Mana properties")]
     public float manaMax = 100f;
     
@@ -19,7 +22,7 @@ public class PlayerMagicSystem : MonoBehaviour {
     public AudioClip SFXManaRefill;
     public AudioClip SFXManaEmpty; // TODO: randomize many
 
-    const float SFX_VOLUME = 0.45f;
+    const float SFX_VOLUME = 0.10f;
 
     public void PlayEmptyManaSFX() {
         PlayerAudioSFX.PlayMetaSFXClip(SFXManaEmpty, SFX_VOLUME);
@@ -35,6 +38,8 @@ public class PlayerMagicSystem : MonoBehaviour {
             return false;
         }
 
+        if (TEST_DisableManaCostsDuringDevelopment) return true;
+
         mana -= amount;
 
         // The mana should refill to the next "piece" of the mana. e.g.: 100-20=80, refill to 100; 80-20=60, refill to 80; etc...
@@ -45,7 +50,7 @@ public class PlayerMagicSystem : MonoBehaviour {
         manaRefillTimer = 0f;
         manaRefillState = PlayerManaRefillState.Waiting;
 
-        STATS_PrintQuickLine($"-{amount.ToString().bold()} -> [mana:{mana}/refill:{manaRefillValue} = {Mathf.Ceil(mana / manaRefillValue)}] * refill:{manaRefillValue} = {manaTarget}");
+        log($"-{amount.ToString().bold()} -> [mana:{mana}/refill:{manaRefillValue} = {Mathf.Ceil(mana / manaRefillValue)}] * refill:{manaRefillValue} = {manaTarget}");
 
         return true;
     }
@@ -70,7 +75,7 @@ public class PlayerMagicSystem : MonoBehaviour {
                     manaRefillTimer += Time.deltaTime;
                 } else {
                     manaRefillState = PlayerManaRefillState.Refilling;
-                    PlayerAudioSFX.PlayMetaSFXClip(SFXManaRefill, 0.45f);
+                    PlayerAudioSFX.PlayMetaSFXClip(SFXManaRefill, SFX_VOLUME);
                 }
                 break;
             }
@@ -83,8 +88,8 @@ public class PlayerMagicSystem : MonoBehaviour {
     }
 
     void UPDATE_Debug() {
-        if (Keyboard.current.hKey.wasPressedThisFrame) ConsumeMana(20);
-        if (Keyboard.current.gKey.wasPressedThisFrame) mana = 100;
+        if (wasPressed(keyboard.hKey)) ConsumeMana(20);
+        if (wasPressed(keyboard.gKey)) mana = 100;
     }
 
     void Update() {
@@ -93,20 +98,16 @@ public class PlayerMagicSystem : MonoBehaviour {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Magic system");
-
         // Mana:
         string manaText = "mana: ";
         for (int i = 0; i < 10; i++) manaText += i < (mana / 10) ? '█' : ' ';
         manaText += $"  {mana, 0:##0.000}/{manaMax}  target: {manaTarget}";
         if (mana <= 0f && (int)(Time.time * 2) % 2 == 0) manaText += $"  OUT OF MANA!".color(Color.red).bold();
-        STATS_SectionPrintLine(manaText.monospace());
+        STATS_PrintLine(manaText.monospace());
 
-        STATS_SectionPrintLine($"refill state: {manaRefillState}  {manaRefillTimer:0.00}/{manaRefillDelaySec:0.00}");
+        STATS_PrintLine($"refill state: {manaRefillState}  {manaRefillTimer:0.00}/{manaRefillDelaySec:0.00}");
 
         // ...
-
-        STATS_SectionEnd();
     }
     
     void LateUpdate() {

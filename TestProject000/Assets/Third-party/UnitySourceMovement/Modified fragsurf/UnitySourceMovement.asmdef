@@ -2,7 +2,8 @@
     "name": "UnitySourceMovement",
     "rootNamespace": "",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:ea7b5ef352dfcad44879c2f1c91f60c5"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

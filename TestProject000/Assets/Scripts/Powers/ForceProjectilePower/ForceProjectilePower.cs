@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystemFramework.Logging;
 
 public enum ForceProjectilePowerState { None = 0, Aiming = 1, Shooting = 2 }
 
@@ -38,7 +38,7 @@ public class ForceProjectilePower : PlayerPower {
         shootDirection = playerCameraTransform.forward + (playerCameraTransform.up * 0.13f); // TODO: TEMP: offset for force projectile collision size
         shootOrigin = playerTransform.position; // + (shootDirection * 2f); // TODO: how much to offset forwards by?
 
-        STATS_PrintQuickLine($"shootOrigin: {shootOrigin}  shootDirection: {shootDirection}");
+        log($"shootOrigin: {shootOrigin}  shootDirection: {shootDirection}");
 
         // TODO: pre-cache a few! (?)
         var projectileObject = Instantiate(PREFAB_ForceProjectile, position: shootOrigin, rotation: Quaternion.identity);
@@ -152,11 +152,7 @@ public class ForceProjectilePower : PlayerPower {
     }
 
     void UPDATE_PrintStats() {
-        STATS_SectionStart("Force Projectile Power");
-        
-        STATS_SectionPrintLine($"state: {state}");
-
-        STATS_SectionEnd();
+        STATS_PrintLine($"state: {state}");
     }
 
     void LateUpdate() => UPDATE_PrintStats();

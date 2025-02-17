@@ -1,8 +1,9 @@
 using System;
 using Fragsurf.Movement;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static DebugStats;
+
+using static CoreSystemFramework.Logging;
+using static CoreSystemFramework.QuickInput;
 
 public class Player : MonoBehaviour
 {
@@ -33,21 +34,20 @@ public class Player : MonoBehaviour
     public PlayerAudioSFX audioSFX;
 
     void UPDATE_PrintStats() {
-        if (Time.timeScale != 1f) STATS_PrintLine($"Timescale: {Time.timeScale}");
-
         bool isFallingOutOfBounds = transform.position.y < -150 && surfCharacter.moveData.velocity.y < -100;
         
-        STATS_SectionStart("Player info");
         STATS_PrintLine($"position: {transform.position}  {(isFallingOutOfBounds && ((int)(Time.time * 2) % 2 == 0) ? $"  FALLING OUT OF BOUNDS".color(Color.red).bold() : null)}");
-        STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}");
-        STATS_SectionEnd();
+        STATS_PrintLine($"velocity: {surfCharacter.moveData.velocity}  forward: {Vector3.Dot(surfCharacter.moveData.velocity, cameraContainerTransform.forward)}");
+        if (true || Time.timeScale != 1f) STATS_PrintLine($"timescale: {Time.timeScale}");
     }
 
     void LateUpdate() {
         UPDATE_PrintStats();
 
-        if (Keyboard.current?.rKey.isPressed ?? false) Time.timeScale = 0.1f;
-        else if (Keyboard.current?.tKey.isPressed ?? false) Time.timeScale = 5f;
-        else if (Time.timeScale != 1f) Time.timeScale = 1f;
+        if (isHeld(keyboard.rKey)) {
+            if (isHeld(keyboard.shiftKey)) Time.timeScale = 0.1f; else Time.timeScale = 0.5f;
+        }
+        else if (isHeld(keyboard.tKey)) Time.timeScale = 5f;
+        else if (wasReleased(keyboard.rKey, keyboard.tKey)) Time.timeScale = 1f;
     }
 }

@@ -315,7 +315,7 @@ public class TransversalPower : MonoBehaviour {
 
         UPDATE_DebugText();
 
-        if (Keyboard.current?.eKey.wasPressedThisFrame ?? false) {
+        if (wasPressed(keyboard.eKey))) {
             if (!effectsController.IsTest) {
                 Time.timeScale = 0.1f;
                 effectsController.SetState(TransversalPowerEffectsState.In);
@@ -327,17 +327,17 @@ public class TransversalPower : MonoBehaviour {
             }
         }
 
-        if (Keyboard.current?.fKey.wasPressedThisFrame ?? false) {
+        if (wasPressed(keyboard.fKey)) {
             Time.timeScale = (Time.timeScale == 1f ? 0.1f : 1f); 
             Debug.Log($"Timescale changed: {Time.timeScale}");
         }
 
-        if (Keyboard.current?.gKey.wasPressedThisFrame ?? false) {
+        if (wasPressed(keyboard.gKey)) {
             playerSurfCharacter.moveConfig.enableGravity = !playerSurfCharacter.moveConfig.enableGravity;
             Debug.Log($"enableGravity: {playerSurfCharacter.moveConfig.enableGravity}");
         }
 
-        if (Keyboard.current?.hKey.wasPressedThisFrame ?? false) {
+        if (wasPressed(keyboard.hKey)) {
             mana -= 15;
             Debug.Log($"Mana reduced by 15 -> {mana}");
         }

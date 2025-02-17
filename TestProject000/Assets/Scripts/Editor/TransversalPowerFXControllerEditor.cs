@@ -51,12 +51,13 @@ public class TransversalPowerFXControllerEditor: Editor {
 
         // FX:
         GUILayout.Label("Anim target values:");
-        GUILayout.BeginHorizontal();
+        // GUILayout.BeginHorizontal();
         {
+            instance.animData_target.radialZoom     = EditorGUILayout.FloatField("Radial zoom",     instance.animData_target.radialZoom);
             instance.animData_target.lensDistortion = EditorGUILayout.FloatField("Lens distortion", instance.animData_target.lensDistortion);
-            instance.animData_target.fovAddition    = EditorGUILayout.FloatField("FOV addition", instance.animData_target.fovAddition);
+            instance.animData_target.fovAddition    = EditorGUILayout.FloatField("FOV addition",    instance.animData_target.fovAddition);
         }
-        GUILayout.EndHorizontal();
+        // GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
         GUILayout.Label($"T:"); instance.t = EditorGUILayout.Slider(instance.t, 0, 1);
@@ -67,7 +68,7 @@ public class TransversalPowerFXControllerEditor: Editor {
         {
             GUILayout.Label("State:");
             newState = (TransversalPowerEffectsState)EditorGUILayout.EnumPopup(newState);
-            if (GUILayout.Button("Set state")) instance.SetState(newState);
+            if (GUILayout.Button("Set state")) instance.setState(newState);
         }
         GUILayout.EndHorizontal();
     }

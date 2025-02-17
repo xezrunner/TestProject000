@@ -1,6 +1,6 @@
 using UnityEngine;
 
-using static DebugStats;
+using static CoreSystemFramework.Logging;
 
 public class ForceProjectile : MonoBehaviour {
     [SerializeField] AudioClip SFX_Hit;
@@ -44,7 +44,7 @@ public class ForceProjectile : MonoBehaviour {
         var collider = collision.collider;
         if (!collider) return;
         
-        STATS_PrintQuickLine($"collision in-flight: {collision.collider.name} at {collision.transform.position}  position: {transform.position}");
+        log($"collision in-flight: {collision.collider.name} at {collision.transform.position}  position: {transform.position}");
 
         position -= direction * 0.5f;
         transform.SetPositionAndRotation(position, rotation);

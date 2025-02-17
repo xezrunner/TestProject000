@@ -1,5 +1,5 @@
 using UnityEngine;
-using static DebugStats;
+using static CoreSystemFramework.Logging;
 
 public abstract class PlayerPower: MonoBehaviour {
     /// <summary> Whether to automatically handle mana consumption on casting. 
