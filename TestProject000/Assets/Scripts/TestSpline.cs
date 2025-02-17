@@ -6,7 +6,7 @@ class TestSpline: MonoBehaviour {
 
     Vector3 cubeSize = new(0.25f, 0.25f, 0.25f);
 
-    public float t = 0f;
+    [Range(0, 1)] public float t = 0f;
 
     void OnDrawGizmos() {
         return;
