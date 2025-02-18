@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CoreSystemFramework;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
-
+using UnityEngine.Rendering;
 using static CoreSystemFramework.Logging;
 
 [CustomEditor(typeof(GPUTest))]
@@ -104,8 +106,17 @@ public class GPUTest : MonoBehaviour {
         shader.SetFloats("_SplineArcLengths", spline.arcLengths);
     }
 
+
+    static List<double> timings = new(capacity: 500);
+
     // TODO: profile!
+    List<(AsyncGPUReadbackRequest request, NativeArray<Vector3> dataArray, int id, Stopwatch watch)> requests = new();
+    static int requestId = -1;
     public void runComputeShader() {
+        ++requestId;
+        Stopwatch watch = new();
+        watch.Start();
+
         // Reset vertex buffer to original mesh vertices (for deformation):
         vertexBuffer.SetData(originalVertices);
         // TEMP: z offset:
@@ -115,20 +126,58 @@ public class GPUTest : MonoBehaviour {
         int threadGroups = Mathf.CeilToInt(vertexCount / 64f);
         shader.Dispatch(kernel, threadGroups, 1, 1);
 
-        vertexBuffer.GetData(resultVertices);
+        // Grab results and set mesh @Performance
+        var dataArray = new NativeArray<Vector3>(vertexCount, Allocator.Persistent);
+        var request = AsyncGPUReadback.RequestIntoNativeArray(ref dataArray, vertexBuffer);
+        requests.Add((request, dataArray, requestId, watch));
 
-        mesh.SetVertices(resultVertices);
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
+        // log($"requested {requestId}");
+
+        // vertexBuffer.GetData(resultVertices);
+        // mesh.SetVertices(resultVertices);
+        // mesh.RecalculateBounds();
+        // mesh.RecalculateNormals();
+        // mesh.RecalculateTangents();
     }
 
-    public bool allowDynamicZOffset = true;
+    [ConsoleCommand] static void list_timings(int n = 30) {
+        double average = 0;
+        foreach (var timing in timings) average += timing;
+        average /= timings.Count;
+        log($"average: {average}ms");
+        log($"listing {n} timings:");
+        for (int i = 0; i < n; ++i) log($"  - [{i}] {timings[i]}ms");
+    }
+
+    public bool allowDynamicZOffset = false;
+    public bool allowAutoZOffsetUpdate = true;
     float prev_zOffset = 0;
     void Update() {
+        if (!allowDynamicZOffset && allowAutoZOffsetUpdate && requests.Count < 2) {
+            zOffset += 0.1f;
+            runComputeShader();
+        }
+
         if (!allowDynamicZOffset) return;
 
         if (zOffset != prev_zOffset) runComputeShader();
         prev_zOffset = zOffset;
+    }
+
+    void LateUpdate() {
+        foreach (var it in requests) {
+            if (it.request.done) {
+                if (it.request.hasError) {
+                    logError("Error!");
+                }
+                mesh.SetVertices(it.dataArray);
+                // log($"processed {it.id}");
+                it.watch.Stop();
+                timings.Add(it.watch.Elapsed.TotalMilliseconds);
+                it.dataArray.Dispose();
+            }
+        }
+        requests.RemoveAll(x => x.request.done);
+
     }
 }

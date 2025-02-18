@@ -828,7 +828,8 @@ MonoBehaviour:
   spline: {fileID: 696531745}
   meshFilter: {fileID: 8814969368872643621}
   shader: {fileID: 7200000, guid: 703ab162e029f462b83d1d47c066581a, type: 3}
-  allowDynamicZOffset: 1
+  allowDynamicZOffset: 0
+  allowAutoZOffsetUpdate: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
