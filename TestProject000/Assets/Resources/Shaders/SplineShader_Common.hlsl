@@ -26,7 +26,8 @@ StructuredBuffer<SplinePoint> _SplineBuffer;
 
 float _SplineTotalLength;
 
-// NOTE: match!
+// NOTE: match with Spline.cs!
+// TODO: for GetPointByDistance()
 const int _SplineLookupResolution = 200;
 float _SplineArcLengths[201]; // +1
 
@@ -44,9 +45,14 @@ float3 CalculateCatmullRomPosition(SplinePoint p0, SplinePoint p1, SplinePoint p
 
 SplinePoint GetPoint(float t) {
     SplinePoint sp;
+    sp.pos = float3(0,0,0);
+    sp.rot = float4(0,0,0,1);
+    sp.bankingRot = float4(0,0,0,1);
 
-    if (_SplinePointCount == 0) return sp;
-    if (_SplinePointCount  < 4) return sp;
+    // TODO: Branching!
+    // TODO: Warn during C# setup!
+    // if (_SplinePointCount == 0) return sp;
+    // if (_SplinePointCount  < 4) return sp;
 
     // TODO: t = Mathf.Clamp01(t);
 
@@ -79,7 +85,7 @@ SplinePoint GetPoint(float t) {
     p2 = _SplineBuffer[segmentIndex + 1];
 
     if (segmentIndex + 2 < _SplinePointCount) p3 = _SplineBuffer[segmentIndex + 2];
-    else _SplineBuffer[_SplinePointCount - 1];
+    else p3 = _SplineBuffer[_SplinePointCount - 1];
 
     float3 position = CalculateCatmullRomPosition(p0, p1, p2, p3, segmentT);
     // TODO: float4 rotation = Quaternion.Slerp(p1.rot, p2.rot, segmentT);
@@ -89,23 +95,23 @@ SplinePoint GetPoint(float t) {
     return sp;
 }
 
-SplinePoint GetPoint(float3 position) {
-    float closestT = 0;
-    float closestDist = FLT_MAX;
+// SplinePoint GetPoint(float3 position) {
+//     float closestT = 0;
+//     float closestDist = 99999999999.0; // TODO: this should be FLT_MAX, but that isn't available in compute shaders (?)
 
-    for (int i = 0; i <= 100; i++) {
-        float t = i / 100;
-        SplinePoint sp = GetPoint(t);
-        float dist = distance(sp.pos, position);
+//     for (int i = 0; i <= 100; i++) {
+//         float t = i / 100;
+//         SplinePoint sp = GetPoint(t);
+//         float dist = distance(sp.pos, position);
 
-        if (dist < closestDist) {
-            closestDist = dist;
-            closestT = t;
-        }
-    }
+//         if (dist < closestDist) {
+//             closestDist = dist;
+//             closestT = t;
+//         }
+//     }
 
-    return GetPoint(closestT);
-}
+//     return GetPoint(closestT);
+// }
 
 SplinePoint GetPointByDistance(float dist) {
     // Clamp the requested distance to the total length of the spline.
@@ -135,18 +141,4 @@ SplinePoint GetPointByDistance(float dist) {
     float targetT = lerp(t0, t1, localFraction);
 
     return GetPoint(targetT);
-}
-
-Attributes SPLINE_PreProcessVertex(Attributes input) {
-    // SplinePoint sp = GetPointByDistance(input.positionOS.z);
-    SplinePoint sp = GetPoint((input.positionOS.z + 16) / _SplineTotalLength);
-
-    input.positionOS.z = sp.pos.z;
-    input.positionOS.xy += sp.pos.xy;
-
-    // float3 pos = sp.pos;
-    // pos.xy = input.positionOS.xy;
-    // input.positionOS.xyz = pos;
-
-    return input;
 }

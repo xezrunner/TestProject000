@@ -1,0 +1,26 @@
+#include "SplineShader_Common.hlsl"
+
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+int _VertexCount;
+RWStructuredBuffer<float3> _Vertices;
+
+float _zOffset = 0.0;
+
+[numthreads(64, 1, 1)] // TODO: tweak
+void CSMain(uint3 id : SV_DispatchThreadID) {
+    // TODO: ???
+    int index = id.x;
+    if (index >= _VertexCount) return;
+
+    float3 vertex = _Vertices[index];
+
+    SplinePoint sp = GetPoint((vertex.z + _zOffset) / _SplineTotalLength);
+    // SplinePoint sp = GetPointByDistance(vertex.z);
+
+    vertex.z = sp.pos.z;
+    vertex.xy += sp.pos.xy;
+
+    _Vertices[index] = vertex;
+}

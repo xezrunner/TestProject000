@@ -174,6 +174,20 @@ Shader "TestProject000/URP/SplineShader_Lit"
 
             #include "SplineShader_Common.hlsl"
 
+            Attributes SPLINE_PreProcessVertex(Attributes input) {
+                // SplinePoint sp = GetPointByDistance(input.positionOS.z);
+                SplinePoint sp = GetPoint((input.positionOS.z + 16) / _SplineTotalLength);
+            
+                input.positionOS.z = sp.pos.z;
+                input.positionOS.xy += sp.pos.xy;
+            
+                // float3 pos = sp.pos;
+                // pos.xy = input.positionOS.xy;
+                // input.positionOS.xyz = pos;
+            
+                return input;
+            }
+
             Varyings SplineShader_LitPassVertex(Attributes input) { // @vert
                 input = SPLINE_PreProcessVertex(input);
                 

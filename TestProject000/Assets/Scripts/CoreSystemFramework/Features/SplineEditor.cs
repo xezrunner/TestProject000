@@ -72,7 +72,7 @@ namespace CoreSystemFramework {
 
             var e = Event.current;
             if (e.type == EventType.MouseDown && e.button == 0) {
-                if (selectedPointID == -1 && hoveredPointID != -1) {
+                if (hoveredPointID != -1) {
                     selectedPointID = hoveredPointID;
                     e.Use(); // consume event (don't propagate into scene view)
                 }

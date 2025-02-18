@@ -47,14 +47,14 @@ namespace CoreSystemFramework {
             this.bankingRot = bankingRot;
         }
 
-        public bool Equals(SplinePoint other) => id == other.id;
-        public override bool Equals(object other)      => other is SplinePoint sp && id == sp.id;
+        // public bool Equals(SplinePoint other) => id == other.id;
+        // public override bool Equals(object other)      => other is SplinePoint sp && id == sp.id;
 
-        public override int GetHashCode() => id.GetHashCode();
+        // public override int GetHashCode() => id.GetHashCode();
 
-        public static bool operator ==(SplinePoint lhs, SplinePoint rhs) => lhs.Equals(rhs);
+        // public static bool operator ==(SplinePoint lhs, SplinePoint rhs) => lhs.Equals(rhs);
 
-        public static bool operator !=(SplinePoint lhs, SplinePoint rhs) => !(lhs == rhs);
+        // public static bool operator !=(SplinePoint lhs, SplinePoint rhs) => !(lhs == rhs);
     }
 
     [ExecuteInEditMode]
@@ -81,6 +81,16 @@ namespace CoreSystemFramework {
 
         void OnEnable() {
             refreshSplinePoints();
+        }
+
+        public GPUSplinePoint[] getGPUSplinePoints() {
+            int count = points.Count;
+            var array = new GPUSplinePoint[count];
+            for (int i = 0; i < count; ++i) {
+                var it = points[i];
+                array[i] = new(it.pos, it.rot, it.bankingRot);
+            }
+            return array;
         }
 
         const int resolution = 200;
