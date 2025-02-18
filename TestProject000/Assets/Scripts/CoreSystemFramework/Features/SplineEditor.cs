@@ -13,6 +13,7 @@ namespace CoreSystemFramework {
 
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
+            GUILayout.Label($"total length: {spline?.totalLength}");
             if (GUILayout.Button("Refresh spline points")) spline?.refreshSplinePoints();
         }
 
@@ -24,22 +25,27 @@ namespace CoreSystemFramework {
                                                    SCENE_SplinePointSizeValue,
                                                    SCENE_SplinePointSizeValue);
 
-        SplinePoint hoveredPoint;
-        SplinePoint selectedPoint;
+        int hoveredPointID  = -1;
+        int selectedPointID = -1;
 
         void SCENE_DrawSplinePoints() {
             int index = 0;
-            foreach (var point in spline.points) {
+            int count = spline.points.Count;
+            for (int i = 0; i < count; ++i) unsafe {
+                var point = spline.points[i];
+
                 Handles.color = SCENE_SplinePointBaseColor;
 
-                if (selectedPoint == point) {
+                if (selectedPointID == point.id) {
                     Handles.color = SCENE_SplinePointSelectColor;
                     DrawSolidCube(point.pos, SCENE_SplinePointSizeValue, SCENE_SplinePointSelectColor, SCENE_SplinePointHoverColor);
-                    Handles.TransformHandle(ref point.pos, ref point.rot);
                     Handles.Label(point.pos + (Vector3.right * 0.5f), $"spline point [{index}]:\npos: {point.pos}\nrot: {point.rot}");
+
+                    Handles.TransformHandle(ref point.pos, ref point.rot);
+                    spline.points[i] = point; // set!
                 }
                 else {
-                    if (hoveredPoint == point) Handles.color = SCENE_SplinePointHoverColor;
+                    if (hoveredPointID == point.id) Handles.color = SCENE_SplinePointHoverColor;
                     Handles.DrawWireCube(point.pos, SCENE_SplinePointSize);
                 }
                 
@@ -59,15 +65,15 @@ namespace CoreSystemFramework {
                 var radius          = Vector2.Distance(pointPos, pointPosMaxAxis);
 
                 if (Vector2.Distance(mousePos, pointPos) < radius) {
-                    hoveredPoint = point; break;
+                    hoveredPointID = point.id; break;
                 }
-                hoveredPoint = null;
+                hoveredPointID = -1;
             }
 
             var e = Event.current;
             if (e.type == EventType.MouseDown && e.button == 0) {
-                if (selectedPoint == null && hoveredPoint != null) {
-                    selectedPoint = hoveredPoint ?? null;
+                if (selectedPointID == -1 && hoveredPointID != -1) {
+                    selectedPointID = hoveredPointID;
                     e.Use(); // consume event (don't propagate into scene view)
                 }
             } 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -6,13 +7,38 @@ using static CoreSystemFramework.Logging;
 
 namespace CoreSystemFramework {
 
+    public struct GPUSplinePoint {
+        public GPUSplinePoint(Vector3 pos, Quaternion rot, Quaternion bankingRot) {
+            this.pos = pos;
+            this.rot = rot;
+            this.bankingRot = bankingRot;
+        }
+        
+        Vector3    pos;
+        Quaternion rot;
+        Quaternion bankingRot;
+    };
+
+    [Serializable]
     public class SplinePoint {
+        static int globalCounter = -1;
+
+        public int id;
+
+        public Vector3    pos;
+        public Quaternion rot;
+        public Quaternion bankingRot;
+
         public SplinePoint(float x, float y, float z) {
+            id = ++globalCounter;
+
             pos = new(x, y, z);
             rot = bankingRot = Quaternion.identity;
         }
         public SplinePoint(Vector3 pos, Quaternion rot = default, Quaternion bankingRot = default) {
-            this.pos        = pos;
+            id = ++globalCounter;
+            
+            this.pos  = pos;
             
             if (rot        == default) rot        = Quaternion.identity;
             if (bankingRot == default) bankingRot = Quaternion.identity;
@@ -20,20 +46,33 @@ namespace CoreSystemFramework {
             this.rot        = rot;
             this.bankingRot = bankingRot;
         }
-        
-        public Vector3    pos;
-        public Quaternion rot;
-        public Quaternion bankingRot;
+
+        public bool Equals(SplinePoint other) => id == other.id;
+        public override bool Equals(object other)      => other is SplinePoint sp && id == sp.id;
+
+        public override int GetHashCode() => id.GetHashCode();
+
+        public static bool operator ==(SplinePoint lhs, SplinePoint rhs) => lhs.Equals(rhs);
+
+        public static bool operator !=(SplinePoint lhs, SplinePoint rhs) => !(lhs == rhs);
     }
 
     [ExecuteInEditMode]
     public class Spline : MonoBehaviour {
+        // [SerializeField] public List<SplinePoint> points = new(capacity: 100) {
+        //     new(0.5f, 0, 0f),
+        //     new(0, 0, 4f),
+        //     new(8.5f, 2f, 7f),
+        //     new(3f, 0f, 13f),
+        //     new(3f, -2.5f, 23.5f),
+        // };
+
         public List<SplinePoint> points = new(capacity: 100) {
-            new(0, 0,-4.5f),
-            new(0, 0, 2.5f),
-            new(8.5f, 2f, 7f),
-            new(3f, 0f, 13f),
-            new(3f, -2.5f, 23.5f),
+            new(0, 0, 0),
+            new(0, 0, 16),
+            new(0, 0, 32),
+            new(0, 0, 64),
+            new(0, 0, 128),
         };
 
         public Vector3 globalBankOffset = Vector3.zero;
@@ -44,10 +83,59 @@ namespace CoreSystemFramework {
             refreshSplinePoints();
         }
 
+        const int resolution = 200;
+        [NonSerialized] public float totalLength = 0f;
+        [NonSerialized] public float[] arcLengths = new float[resolution + 1];
+
         public void refreshSplinePoints() {
-            log("refreshing spline points...");
+            // log("refreshing spline points...");
             // if (count < 4) logWarning("  < 4 points! At least 4 points are required for a catmull-rom spline to work.");
+
+            // Build the arc-length table.
+            totalLength = 0f;
+            SplinePoint lastPoint = GetPoint(0f);
+            arcLengths = new float[resolution + 1];
+            arcLengths[0] = 0f;
+
+            for (int i = 1; i <= resolution; i++) {
+                float tSample = i / (float)resolution;
+                SplinePoint currentPoint = GetPoint(tSample);
+                totalLength += Vector3.Distance(lastPoint.pos, currentPoint.pos);
+                arcLengths[i] = totalLength;
+                lastPoint = currentPoint;
+            }
         }
+
+        public SplinePoint GetPointByDistance(float dist) {
+            // Clamp the requested distance to the total length of the spline.
+            if (dist <= 0f) return GetPoint(0f);
+            if (dist >= totalLength) return GetPoint(1f);
+
+            // Binary search to find the smallest index such that arcLengths[index] >= dist.
+            int left = 0, right = resolution;
+            while (left < right) {
+                int mid = (left + right) / 2;
+                if (arcLengths[mid] < dist)
+                    left = mid + 1;
+                else
+                    right = mid;
+            }
+
+            int indexFound = left;
+            float segmentStartDist = arcLengths[indexFound - 1];
+            float segmentEndDist = arcLengths[indexFound];
+
+            // Determine the local fraction within this segment.
+            float localFraction = (dist - segmentStartDist) / (segmentEndDist - segmentStartDist);
+
+            // Map the interval back to the global t parameter.
+            float t0 = (indexFound - 1) / (float)resolution;
+            float t1 = indexFound / (float)resolution;
+            float targetT = Mathf.Lerp(t0, t1, localFraction);
+
+            return GetPoint(targetT);
+        }
+
 
         void OnDrawGizmos() {
             if (points.Count == 0) return;

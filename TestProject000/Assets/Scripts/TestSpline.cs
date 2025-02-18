@@ -8,6 +8,7 @@ class TestSpline: MonoBehaviour {
     Vector3 cubeSize = new(0.25f, 0.25f, 0.25f);
 
     [Range(0, 1)] public float t = 0f;
+    public float dist = 0f;
 
     void OnDrawGizmos() {
         return;
@@ -24,7 +25,7 @@ class TestSpline: MonoBehaviour {
     void Update() {
         if (!testTransform) return;
 
-        var spPoint = spline.GetPoint(t);
+        var spPoint = spline.GetPointByDistance(dist);
         Vector3 pos = spPoint.pos;
         Quaternion rot = spPoint.rot;
         testTransform.SetPositionAndRotation(pos, rot);
