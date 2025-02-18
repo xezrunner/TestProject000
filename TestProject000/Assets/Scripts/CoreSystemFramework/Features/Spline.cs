@@ -93,9 +93,10 @@ namespace CoreSystemFramework {
             return array;
         }
 
-        const int resolution = 200;
         [NonSerialized] public float totalLength = 0f;
-        [NonSerialized] public float[] arcLengths = new float[resolution + 1];
+
+        [NonSerialized] public int lookupResolution = 200;
+        [NonSerialized] public float[] arcLengths;
 
         public void refreshSplinePoints() {
             // log("refreshing spline points...");
@@ -104,11 +105,11 @@ namespace CoreSystemFramework {
             // Build the arc-length table.
             totalLength = 0f;
             SplinePoint lastPoint = GetPoint(0f);
-            arcLengths = new float[resolution + 1];
+            arcLengths = new float[lookupResolution + 1];
             arcLengths[0] = 0f;
 
-            for (int i = 1; i <= resolution; i++) {
-                float tSample = i / (float)resolution;
+            for (int i = 1; i <= lookupResolution; i++) {
+                float tSample = i / (float)lookupResolution;
                 SplinePoint currentPoint = GetPoint(tSample);
                 totalLength += Vector3.Distance(lastPoint.pos, currentPoint.pos);
                 arcLengths[i] = totalLength;
@@ -118,11 +119,11 @@ namespace CoreSystemFramework {
 
         public SplinePoint GetPointByDistance(float dist) {
             // Clamp the requested distance to the total length of the spline.
-            if (dist <= 0f) return GetPoint(0f);
-            if (dist >= totalLength) return GetPoint(1f);
+            if      (dist <= 0f)          return GetPoint(0f);
+            else if (dist >= totalLength) return GetPoint(1f);
 
             // Binary search to find the smallest index such that arcLengths[index] >= dist.
-            int left = 0, right = resolution;
+            int left = 0, right = lookupResolution;
             while (left < right) {
                 int mid = (left + right) / 2;
                 if (arcLengths[mid] < dist)
@@ -139,8 +140,8 @@ namespace CoreSystemFramework {
             float localFraction = (dist - segmentStartDist) / (segmentEndDist - segmentStartDist);
 
             // Map the interval back to the global t parameter.
-            float t0 = (indexFound - 1) / (float)resolution;
-            float t1 = indexFound / (float)resolution;
+            float t0 = (indexFound - 1) / (float)lookupResolution;
+            float t1 = indexFound / (float)lookupResolution;
             float targetT = Mathf.Lerp(t0, t1, localFraction);
 
             return GetPoint(targetT);

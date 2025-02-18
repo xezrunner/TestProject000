@@ -11,7 +11,6 @@ struct Attributes
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-
 */
 
 // NOTE: match with Spline.cs::GPUSplinePoint
@@ -26,10 +25,9 @@ StructuredBuffer<SplinePoint> _SplineBuffer;
 
 float _SplineTotalLength;
 
-// NOTE: match with Spline.cs!
-// TODO: for GetPointByDistance()
-const int _SplineLookupResolution = 200;
-float _SplineArcLengths[201]; // +1
+// For GetPointByDistance()
+uint _SplineLookupResolution;
+Buffer<float> _SplineArcLengths;
 
 float3 CalculateCatmullRomPosition(SplinePoint p0, SplinePoint p1, SplinePoint p2, SplinePoint p3, float t) {
     float t2 = t * t;
@@ -95,40 +93,43 @@ SplinePoint GetPoint(float t) {
     return sp;
 }
 
-// SplinePoint GetPoint(float3 position) {
-//     float closestT = 0;
-//     float closestDist = 99999999999.0; // TODO: this should be FLT_MAX, but that isn't available in compute shaders (?)
+// TODO: do we actually need this?
+#if 0
+SplinePoint GetPoint(float3 position) {
+    float closestT = 0;
+    float closestDist = 99999999999.0; // TODO: this should be FLT_MAX, but that isn't available in compute shaders (?)
 
-//     for (int i = 0; i <= 100; i++) {
-//         float t = i / 100;
-//         SplinePoint sp = GetPoint(t);
-//         float dist = distance(sp.pos, position);
+    for (int i = 0; i <= 100; i++) {
+        float t = i / 100;
+        SplinePoint sp = GetPoint(t);
+        float dist = distance(sp.pos, position);
 
-//         if (dist < closestDist) {
-//             closestDist = dist;
-//             closestT = t;
-//         }
-//     }
+        if (dist < closestDist) {
+            closestDist = dist;
+            closestT = t;
+        }
+    }
 
-//     return GetPoint(closestT);
-// }
+    return GetPoint(closestT);
+}
+#endif
 
 SplinePoint GetPointByDistance(float dist) {
     // Clamp the requested distance to the total length of the spline.
-    if (dist <= 0) return GetPoint(0);
-    if (dist >= _SplineTotalLength) return GetPoint(1);
+    // TODO: optimization!
+    // if      (dist <= 0.0)                return GetPoint(0);
+    // else if (dist >= _SplineTotalLength) return GetPoint(1);
 
     // Binary search to find the smallest index such that arcLengths[index] >= dist.
-    int left = 0, right = _SplineLookupResolution;
+    uint left = 0;
+    uint right = _SplineLookupResolution;
     while (left < right) {
-        int mid = (left + right) / 2;
-        if (_SplineArcLengths[mid] < dist)
-            left = mid + 1;
-        else
-            right = mid;
+        uint mid = (left + right) / 2;
+        if (_SplineArcLengths[mid] < dist) left = mid + 1;
+        else right = mid;
     }
 
-    int indexFound = left;
+    uint indexFound = left;
     float segmentStartDist = _SplineArcLengths[indexFound - 1];
     float segmentEndDist = _SplineArcLengths[indexFound];
 

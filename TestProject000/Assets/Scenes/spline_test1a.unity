@@ -150,7 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spline: {fileID: 696531745}
   t: 0.222
-  dist: 1.62
+  dist: 4.18
   testTransform: {fileID: 391617140}
 --- !u!4 &230329551
 Transform:
@@ -270,7 +270,7 @@ Transform:
   m_GameObject: {fileID: 391617136}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.2620066, y: 0, z: 1.5971955}
+  m_LocalPosition: {x: 0.72383285, y: 0, z: 4.115153}
   m_LocalScale: {x: 0.22, y: 0.22, z: 0.22}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -829,7 +829,7 @@ MonoBehaviour:
   meshFilter: {fileID: 8814969368872643621}
   shader: {fileID: 7200000, guid: 703ab162e029f462b83d1d47c066581a, type: 3}
   allowDynamicZOffset: 0
-  allowAutoZOffsetUpdate: 0
+  allowAutoZOffsetUpdate: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

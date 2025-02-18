@@ -76,11 +76,13 @@ public class GPUTest : MonoBehaviour {
     void OnDisable() {
         // Cleanup, otherwise these leak:
         splinePointsBuffer.Release();
+        splineArcLengthsBuffer.Release();
         vertexBuffer.Release();
     }
 
     ComputeBuffer vertexBuffer;
     ComputeBuffer splinePointsBuffer;
+    ComputeBuffer splineArcLengthsBuffer;
     void uploadDataToShader() {
         // Spline point data:
         int count = spline.points.Count;
@@ -103,7 +105,13 @@ public class GPUTest : MonoBehaviour {
         shader.SetBuffer(kernel, "_Vertices", vertexBuffer);
 
         // Misc spline data:
-        shader.SetFloats("_SplineArcLengths", spline.arcLengths);
+        shader.SetInt("_SplineLookupResolution", spline.lookupResolution);
+
+        // Arc lengths (for point by distance):
+        stride = Marshal.SizeOf(typeof(float));
+        splineArcLengthsBuffer = new ComputeBuffer(spline.arcLengths.Length, stride);
+        splineArcLengthsBuffer.SetData(spline.arcLengths);
+        shader.SetBuffer(kernel, "_SplineArcLengths", splineArcLengthsBuffer);
     }
 
 
