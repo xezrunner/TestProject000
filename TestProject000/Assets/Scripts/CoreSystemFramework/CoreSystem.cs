@@ -16,12 +16,12 @@ namespace CoreSystemFramework {
         public static Scene coreSystemScene;
 
         static void SCENEMANAGER_SceneLoaded(Scene scene, LoadSceneMode mode) {
-            log($"scene loaded: {scene.name}  mode: {(mode == LoadSceneMode.Single ? "single" : "additive")}");
+            Debug.Log($"scene loaded: {scene.name}  mode: {(mode == LoadSceneMode.Single ? "single" : "additive")}");
         }
 
         public static async void SCENE_Switch(string scenePathOrName) {
             if (scenePathOrName.IsEmpty()) {
-                logWarning("no scene name provided!"); return;
+                Debug.Log("no scene name provided!"); return;
             }
 
             string targetPath = null;
