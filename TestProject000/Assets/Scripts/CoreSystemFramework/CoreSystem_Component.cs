@@ -31,7 +31,7 @@ namespace CoreSystemFramework {
         void Start() {
             StartupShell?.STSHELL_SetActive(CORESYSTEM_STARTUP_OPTS.isFullStartup);
 
-            if (SceneManager.GetActiveScene().name == CORESYSTEM_SCENE_NAME && !FindAnyObjectByType<Camera>()) { // TEMP:
+            if (false && SceneManager.GetActiveScene().name == CORESYSTEM_SCENE_NAME && !FindAnyObjectByType<Camera>()) { // TEMP:
                 var obj = new GameObject("Temporary camera (dev)");
                 var cam = obj.AddComponent<Camera>();
                 cam.clearFlags = CameraClearFlags.Color;
@@ -52,7 +52,7 @@ namespace CoreSystemFramework {
             log($"'{TEMP_fullStartupTargetScene}' has been set as the active scene, after loading it from a full startup.");
         }
 
-        void OnApplicationQuit() {
+        void OnDisable() {
             SceneManager.sceneLoaded -= SCENEMANAGER_SceneLoaded;
         }
 
