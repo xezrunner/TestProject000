@@ -172,7 +172,9 @@ namespace CoreSystemFramework {
             foreach (var kv in statsDBPriorities) {
                 var key  = kv.key;
                 var info = kv.info;
-                if (!info.isEnabled) continue;
+
+                if (!info.isEnabled)                continue;
+                if (info.stringBuilder.Length == 0) continue;
 
                 sb.AppendLine($"{info.displayName}:".bold() + $" (priority: {info.priority})".color("#ffffff30"));
                 sb.AppendLine(info.stringBuilder.ToString());
