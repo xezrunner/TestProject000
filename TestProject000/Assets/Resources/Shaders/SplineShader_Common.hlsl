@@ -43,9 +43,9 @@ float3 CalculateCatmullRomPosition(SplinePoint p0, SplinePoint p1, SplinePoint p
 
 SplinePoint GetPoint(float t) {
     SplinePoint sp;
-    sp.pos = float3(0,0,0);
-    sp.rot = float4(0,0,0,1);
-    sp.bankingRot = float4(0,0,0,1);
+    // sp.pos = float3(0,0,0);
+    // sp.rot = float4(0,0,0,1);
+    // sp.bankingRot = float4(0,0,0,1);
 
     // TODO: Branching!
     // TODO: Warn during C# setup!

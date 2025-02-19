@@ -31,7 +31,7 @@ namespace CoreSystemFramework {
         void SCENE_DrawSplinePoints() {
             int index = 0;
             int count = spline.points.Count;
-            for (int i = 0; i < count; ++i) unsafe {
+            for (int i = 0; i < count; ++i) {
                 var point = spline.points[i];
 
                 Handles.color = SCENE_SplinePointBaseColor;

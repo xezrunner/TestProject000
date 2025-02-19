@@ -1389,6 +1389,7 @@ MonoBehaviour:
   StartupShell: {fileID: 1666321171}
   DebugStats: {fileID: 1607544314}
   DebugConsole: {fileID: 1221335425}
+  TEMP_fullStartupTargetScene: spline_test1a
 --- !u!4 &952017004
 Transform:
   m_ObjectHideFlags: 0

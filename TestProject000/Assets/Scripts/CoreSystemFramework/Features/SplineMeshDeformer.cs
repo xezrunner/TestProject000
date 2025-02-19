@@ -1,46 +1,18 @@
 // #define OLD_IMPL
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using CoreSystemFramework;
 using Unity.Collections;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 using static CoreSystemFramework.Logging;
-
-[CustomEditor(typeof(SplineMeshDeformer))]
-class SplineMeshDeformerEditor: Editor {
-    SplineMeshDeformer instance;
-
-    void OnEnable() => instance = (SplineMeshDeformer)target;
-    
-    public override void OnInspectorGUI() {
-        base.OnInspectorGUI();
-        if (!instance) return;
-
-        if (!Application.isPlaying) return;
-
-        #if !OLD_IMPL
-
-        #else
-        if (!instance.ready) return;
-
-
-        if (GUILayout.Button("Run compute shader")) {
-            instance.runComputeShader();
-        }
-
-        if (!instance.allowAutoZOffsetUpdate && instance.allowDynamicZOffset) {
-            GUILayout.Label("[temp] Z offset:");
-            instance.zOffset = EditorGUILayout.Slider(instance.zOffset, 0, 200);
-        }
-        #endif
-    }
-}
 
 public class SplineMeshDeformer : MonoBehaviour {
     public Spline spline;
@@ -139,42 +111,61 @@ public class SplineMeshDeformer : MonoBehaviour {
         // shader.SetBuffer (kernelID, SHADER_PROP_Vertices,              sharedData.vertexBuffer);
     }
 
+    void ReleaseIfNotNull(IDisposable disposable) {
+        if (disposable != null) disposable.Dispose();
+    }
+
     void OnDisable() {
         // TODO: release whatever needs releasing!
         // sharedData.vertexBuffer.Release();
+        ReleaseIfNotNull(sharedData.splinePointsBuffer);
+        ReleaseIfNotNull(sharedData.splineArcLengthsBuffer);
+        ReleaseIfNotNull(sharedData.vertexBuffer);
     }
 
-    List<(Data data, int tag)> requests = new(capacity: 50);
+    List<(Data data, MeshFilter meshFilter, int tag)> requests = new(capacity: 50);
 
-    public void RequestMeshDeform_Shared(Vector3 position, Mesh mesh, int tag = -1) {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // TODO: unsure if effective
+    public void RequestMeshDeform_Shared(Vector3 position, MeshFilter meshFilter, int tag = -1) {
         var data = sharedData;
-        data.mesh = mesh;
         data.position = position;
         data.InitializeNewVertexBuffer();
 
-        requests.Add((data, tag));
+        requests.Add((data, meshFilter, tag));
     }
 
-    public void DispatchAllRequests() {
+    IEnumerator COROUTINE_DispatchAllRequests() {
         int count = requests.Count;
+        log($"Dispatching {count} requests...");
+
         for (int i = 0; i < count; ++i) {
-            runComputeShaderForRequest(i);
+            if (i % DISPATCH_RequestsPerFrame == 0) yield return null;
+            queueDispatch(i); // @alloc
         }
+
+        StartCoroutine(COROUTINE_ProcessDispatchRequests());
         requests.Clear();
     }
+
+    public void DispatchAllRequests() => StartCoroutine(COROUTINE_DispatchAllRequests());
 
     public event Action<int> onDispatchRequestFinished;
 
     class DispatchedRequestInfo {
         public Data data;
         public AsyncGPUReadbackRequest request;
-        public NativeArray<Vector3> dataArray;
+        public NativeArray<Vector3> dataArray; // TODO: naming
+
+        public MeshFilter meshFilter;
         public int tag = -1;
     }
 
     List<DispatchedRequestInfo> dispatchedRequests = new(capacity: 50);
 
-    void runComputeShaderForRequest(int index) {
+    static readonly ProfilerMarker PROFILING_queueDispatchMarker = new ProfilerMarker("SMD::queueDispatch");
+    void queueDispatch(int index) {
+        PROFILING_queueDispatchMarker.Begin();
+        
         shader.SetFloat (SHADER_PROP_zOffset           , requests[index].data.position.z);
         shader.SetInt   (SHADER_PROP_VertexCount       , requests[index].data.vertexCount);
         shader.SetBuffer(kernelID, SHADER_PROP_Vertices, requests[index].data.vertexBuffer);
@@ -190,19 +181,44 @@ public class SplineMeshDeformer : MonoBehaviour {
             data = requests[index].data,
             request = request,
             dataArray = dataArray,
+            meshFilter = requests[index].meshFilter,
             tag = requests[index].tag
         };
         dispatchedRequests.Add(dispatchedRequestInfo);
+
+        PROFILING_queueDispatchMarker.End();
     }
 
-    void LateUpdate() {
-        int count = dispatchedRequests.Count;
-        if (count == 0) return;
+    public static int DISPATCH_SetMeshesPerFrame = 10;
+    public static int DISPATCH_RequestsPerFrame = 100;
 
+    IEnumerator COROUTINE_ProcessDispatchRequests() {
+        int setMeshes = 0;
+        int processedPerFrame = 0;
+
+        int count = dispatchedRequests.Count;
+        if (count == 0) yield break;
+
+        loop:
         for (int i = 0; i < count; ++i) {
             if (!dispatchedRequests[i].request.done) continue;
 
-            var mesh = dispatchedRequests[i].data.mesh;
+            if (setMeshes >= DISPATCH_SetMeshesPerFrame) {
+                // log("exceeded DISPATCH_SetMeshesPerFrame, waiting a frame...");
+                setMeshes = 0;
+                yield return null;
+            }
+
+#if false
+            if (processedPerFrame++ >= DISPATCH_RequestsPerFrame) {
+                // log("exceeded DISPATCH_RequestsPerFrame, waiting a frame...");
+                yield return null;
+                processedPerFrame = 0;
+            }
+#endif
+
+            // var mesh = dispatchedRequests[i].data.mesh;
+            var mesh = dispatchedRequests[i].meshFilter.mesh; // TODO: slow!
 
             // Set vertices and refresh mesh:
             mesh.SetVertices(dispatchedRequests[i].dataArray);
@@ -215,13 +231,18 @@ public class SplineMeshDeformer : MonoBehaviour {
 
             onDispatchRequestFinished.Invoke(dispatchedRequests[i].tag);
 
+            // TODO: Cleanup!
             dispatchedRequests[i].dataArray.Dispose();
             dispatchedRequests[i].data.vertexBuffer.Dispose();
-        }
-        dispatchedRequests.RemoveAll(x => x.request.done);
 
-        if (dispatchedRequests.Count == 0) {
-            log("done!");
+            ++setMeshes;
+        }
+        dispatchedRequests.RemoveAll(x => x.request.done); // @Performance
+
+        if (dispatchedRequests.Count == 0) log($"Dispatching of {count} requests finished.");
+        else {
+            yield return null;
+            goto loop;
         }
     }
 

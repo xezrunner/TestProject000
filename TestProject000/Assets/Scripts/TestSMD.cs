@@ -1,31 +1,15 @@
+using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+using System.Diagnostics;
+using CoreSystemFramework;
+using Unity.Profiling;
 using UnityEngine;
 
 using static CoreSystemFramework.Logging;
 
-[CustomEditor(typeof(TestSMD))]
-class TestSMDEditor: Editor {
-    TestSMD instance;
-
-    void OnEnable() => instance = (TestSMD)target;
+public class TestSMD: MonoBehaviour {
+    public static TestSMD Instance;
     
-    public override void OnInspectorGUI() {
-        base.OnInspectorGUI();
-
-        if (!instance.SMD) return;
-
-        if (!instance.preset) {
-            GUILayout.Label("No preset assigned!");
-            return;
-        }
-
-        if (GUILayout.Button("Precache / recreate object pool")) instance.preCache();
-        if (GUILayout.Button("Spawn array")) instance.spawnArrayOfObjs();
-    }
-}
-
-class TestSMD: MonoBehaviour {
     new Transform transform;
     
     public SplineMeshDeformer SMD;
@@ -36,7 +20,7 @@ class TestSMD: MonoBehaviour {
     public int x = 6;
     public int z = 4;
 
-    // TODO: these are certainly not real
+    // TODO: these should be dynamic based on the mesh!
     public float width  = 3.68f;
     public float height = 0.619f;
     public float length = 32.9f;
@@ -52,6 +36,7 @@ class TestSMD: MonoBehaviour {
     DeformObjInfo[] infos;
 
     void Awake() {
+        Instance = this;
         transform = base.transform;
         
         preset_meshFilter = preset.GetComponent<MeshFilter>();
@@ -64,12 +49,21 @@ class TestSMD: MonoBehaviour {
         SMD.onDispatchRequestFinished += callback;
     }
 
+    int callbackCount = 0;
     void callback(int tag) {
+        ++callbackCount;
+
         infos[tag].obj.SetActive(true);
         infos[tag].trans.SetPositionAndRotation(
             new(infos[tag].x * width, 0, 0), infos[tag].trans.rotation
         );
         // log($"done with [{tag}]");
+
+        if (callbackCount == x * z) {
+            watch.Stop();
+            log($"took {watch.Elapsed.TotalMilliseconds}ms ({watch.Elapsed.TotalSeconds}s) to spawn {x*z} [deformed mesh] objects");
+            watch.Reset();
+        }
     }
 
     public void preCache() {
@@ -77,6 +71,7 @@ class TestSMD: MonoBehaviour {
             for (int i = infos.Length-1; i >= 0; --i) Destroy(infos[i].obj);
             infos = null;
         }
+        callbackCount = 0;
 
         List<DeformObjInfo> list = new(x * z);
         for (int i = 0; i < z; ++i) {     // Z
@@ -100,16 +95,35 @@ class TestSMD: MonoBehaviour {
         infos = list.ToArray();
     }
 
+    [ConsoleCommand] static void spawn_array() {
+        Instance?.spawnArrayOfObjs();
+    }
+
+    static int MaxPerFrameRequests = 50;
+    IEnumerator COROUTINE_spawnArrayOfObjs() {
+        int count = infos.Length;
+        for (int i = 0; i < count; ++i) {
+            if (i % MaxPerFrameRequests == 0) yield return null;
+            SMD.RequestMeshDeform_Shared(new(0,0,infos[i].z * length), infos[i].meshFilter, i); // @alloc
+        }
+
+        SMD.DispatchAllRequests();
+    }
+
+    Stopwatch watch = new();
     public void spawnArrayOfObjs() {
         if (!preset) {
             logError("no preset!"); return;
         }
 
-        int count = infos.Length;
-        for (int i = 0; i < count; ++i) {
-            SMD.RequestMeshDeform_Shared(new(0,0,infos[i].z * length), infos[i].meshFilter.mesh, i);
-        }
+        watch.Start();
 
-        SMD.DispatchAllRequests();
+        StartCoroutine(COROUTINE_spawnArrayOfObjs());
     }
+
+    void Update() {
+        STATS_PrintLine($"object count: {$"{callbackCount}/{x * z}".color(callbackCount == x * z ? Color.green : Color.white)}");
+    }
+
+    
 }
