@@ -67,54 +67,6 @@ namespace CoreSystemFramework {
             await SceneManager.LoadSceneAsync(targetPath, LoadSceneMode.Additive);
         }
 
-        public static async void SCENE_Switch(string scenePathOrName) {
-            if (scenePathOrName.IsEmpty()) {
-                Debug.Log("no scene name provided!"); return;
-            }
-
-            string targetPath = null;
-
-            int count = SceneManager.sceneCountInBuildSettings;
-            for (int i = 0; i < count; ++i) {
-                var path = SceneUtility.GetScenePathByBuildIndex(i);
-                if (path == scenePathOrName) goto success;
-
-                if (scenePathOrName.Contains('/')) {
-                    var alignedPath = path["Assets/Scenes/".Length .. ^".unity".Length];
-                    if (alignedPath == scenePathOrName) goto success;
-                }
-
-                var name = Path.GetFileNameWithoutExtension(path);
-                if (name == scenePathOrName) goto success;
-
-                continue;
-
-            success:
-                targetPath = path; break;
-            }
-
-            if (targetPath == null) {
-                logError("scene doesn't exist or not in build settings"); 
-                return;
-            }
-
-            log($"loading scene: {Path.GetFileNameWithoutExtension(targetPath)}");
-
-            int loadedCount = SceneManager.loadedSceneCount;
-            List<Scene> scenesToUnload = new(loadedCount);
-            for (int i = loadedCount-1; i >= 0; --i) {
-                var scene = SceneManager.GetSceneAt(i);
-                if (scene.name == CORESYSTEM_SCENE_NAME) continue;
-                scenesToUnload.Add(scene);
-            }
-            foreach (var scene in scenesToUnload) {
-                await SceneManager.UnloadSceneAsync(scene, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
-            }
-
-            // TODO: automate adding scenes to build settings
-            await SceneManager.LoadSceneAsync(targetPath, LoadSceneMode.Additive);
-        }
-
         public static List<EventSystem> eventSystemList;
 
         static void grabReferenceToEventSystemList() {

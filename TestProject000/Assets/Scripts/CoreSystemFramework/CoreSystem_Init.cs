@@ -28,6 +28,7 @@ namespace CoreSystemFramework {
             bool isFullStartup = OVERRIDE_FullStartup || !Application.isEditor;
 
             var currentSceneName = SceneManager.GetActiveScene().name;
+            Debug.Log($"current scene name: {currentSceneName}");
             if (currentSceneName == CORESYSTEM_SCENE_NAME) isFullStartup = true;
 
             Debug.Log($"--- CoreSystem startup ({(isFullStartup ? "full" : "partial")}) ---");
