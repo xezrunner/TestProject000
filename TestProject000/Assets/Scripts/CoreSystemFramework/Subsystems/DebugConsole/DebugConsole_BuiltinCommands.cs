@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static CoreSystemFramework.Logging;
 
 namespace CoreSystemFramework {
@@ -30,6 +31,12 @@ namespace CoreSystemFramework {
         }
 
         [ConsoleCommand] static void help(string commandName) => console?.pushText(console.commands.ContainsKey(commandName) ? console.commands[commandName].info.help : "command not found");
+
+        [ConsoleCommand] static void set_vsync(int mode) => QualitySettings.vSyncCount = mode;
+
+        [ConsoleCommand] static void level(string name) => CoreSystem.SCENE_Switch(name);
+
+        [ConsoleCommand] static void restart_level() => CoreSystem.SCENE_Switch(SceneManager.GetActiveScene().name);
     }
 
 }
