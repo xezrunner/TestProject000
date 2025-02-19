@@ -18,7 +18,7 @@ namespace CoreSystemFramework {
         // TODO: TEMP: not sure how we'll handle full startup -> scenes yet
         [SerializeField] string TEMP_fullStartupTargetScene = "test1a";
 
-        void Awake() {
+        void OnEnable() {
             if (Instance) {
                 Debug.LogError("Multiple CoreSystem instances");
                 Application.Quit();
