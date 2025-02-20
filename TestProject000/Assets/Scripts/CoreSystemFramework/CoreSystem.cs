@@ -63,8 +63,12 @@ namespace CoreSystemFramework {
                 await SceneManager.UnloadSceneAsync(scene, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
             }
 
+            await Resources.UnloadUnusedAssets();
+            GC.Collect();
+
             // TODO: automate adding scenes to build settings
             await SceneManager.LoadSceneAsync(targetPath, LoadSceneMode.Additive);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(targetPath));
         }
 
         public static List<EventSystem> eventSystemList;

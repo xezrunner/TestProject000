@@ -37,6 +37,11 @@ namespace CoreSystemFramework {
         [ConsoleCommand] static void level(string name) => CoreSystem.SCENE_Switch(name);
 
         [ConsoleCommand] static void restart_level() => CoreSystem.SCENE_Switch(SceneManager.GetActiveScene().name);
+
+        [ConsoleCommand] static async void free() {
+            await Resources.UnloadUnusedAssets();
+            GC.Collect();
+        }
     }
 
 }
