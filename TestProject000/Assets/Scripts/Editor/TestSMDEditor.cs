@@ -17,9 +17,9 @@ class TestSMDEditor: Editor {
             return;
         }
 
-        if (!Application.isPlaying) return;
-
         GUILayout.Label($"This will create {instance.x * instance.z} objects.");
+
+        if (!Application.isPlaying) return;
 
         if (GUILayout.Button("Precache / recreate object pool")) instance.preCache();
         if (GUILayout.Button("Spawn array")) instance.spawnArrayOfObjs();

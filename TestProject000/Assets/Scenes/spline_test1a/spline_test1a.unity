@@ -693,7 +693,7 @@ MonoBehaviour:
   SMD: {fileID: 370969442}
   preset: {fileID: 4856273924703389351}
   x: 6
-  z: 1000
+  z: 40
   width: 3.68
   height: 0.619
   length: 32.9

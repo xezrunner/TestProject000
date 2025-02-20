@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using CoreSystemFramework;
-using Unity.Profiling;
 using UnityEngine;
-
+using UnityEngine.Scripting;
 using static CoreSystemFramework.Logging;
 
 public class TestSMD: MonoBehaviour {
@@ -95,12 +94,20 @@ public class TestSMD: MonoBehaviour {
         infos = list.ToArray();
     }
 
-    [ConsoleCommand] static void spawn_array() {
-        Instance?.spawnArrayOfObjs();
+    [ConsoleCommand] static void spawn_array(int x = 6, int z = 40) {
+        if (!Instance) return;
+        Instance.x = x;
+        Instance.z = z;
+        Instance.preCache();
+        Instance.spawnArrayOfObjs();
     }
 
     static int MaxPerFrameRequests = 50;
     IEnumerator COROUTINE_spawnArrayOfObjs() {
+        var result = Resources.UnloadUnusedAssets();
+        while (!result.isDone) yield return null;
+        System.GC.Collect();
+        
         int count = infos.Length;
         for (int i = 0; i < count; ++i) {
             if (i % MaxPerFrameRequests == 0) yield return null;
@@ -117,6 +124,8 @@ public class TestSMD: MonoBehaviour {
         }
 
         watch.Start();
+
+        log($"spawning {x*z} objects...");
 
         StartCoroutine(COROUTINE_spawnArrayOfObjs());
     }
