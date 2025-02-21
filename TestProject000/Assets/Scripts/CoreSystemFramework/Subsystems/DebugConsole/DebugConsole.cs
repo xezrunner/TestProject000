@@ -270,14 +270,15 @@ namespace CoreSystemFramework {
             if (currentPredictionInfo) {
                 // Complete prediction for first token (command/var):
                 consoleInputField.text = currentPredictionInfo.prediction;
-            } else if (currentPredictionInfo.argCompletions.Count > 0) {
+            } else if (currentPredictionInfo.argCompletions.Count > 0 && !
+                       currentPredictionInfo.argCompletions[0].defaultValueAsText.IsEmpty()) {
                 // Complete prediction for arguments:
                 var argCompletion = currentPredictionInfo.argCompletions[0];
                 
                 var toComplete = argCompletion.defaultValueAsText;
                 if (currentPredictionInfo.argCompletions.Count != 1) toComplete += ' '; // Add space to end of input if not last arg, to "move to next arg"
                 
-                if (argCompletion.defaultValueAsText != null) consoleInputField.text += toComplete; // Append completion
+                consoleInputField.text += toComplete; // Append completion
             } else {
                 return;
             }
