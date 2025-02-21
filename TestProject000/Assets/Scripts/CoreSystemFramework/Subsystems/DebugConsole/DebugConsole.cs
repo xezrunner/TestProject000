@@ -280,11 +280,16 @@ namespace CoreSystemFramework {
         };
 
         void OnKeyboardTextInput(char c) {
-            // We do this because in my setup, § is the key that's on the intended console key.
-            foreach (var it in CONSOLE_TOGGLE_KEYS) {
-                if (c != it) continue;
-                setState(!state); break;
-            }
+            // We do this because on some keyboards, § is the key that's on the intended console key, and the Input System can't detect that.
+            // 
+            // foreach (var it in CONSOLE_TOGGLE_KEYS) {
+            //     if (c != it) continue;
+            //     setState(!state); break;
+            // }
+
+            // TEMP:
+            if (c != CONSOLE_TOGGLE_KEYS[0] && c != CONSOLE_TOGGLE_KEYS[1]) return;
+            setState(!state);
         }
 
         void toggleSizing() {
@@ -303,12 +308,10 @@ namespace CoreSystemFramework {
             UPDATE_Scrolling();
 
             if (!isHeld_internal(keyboard?.altKey) && wasReleased_internal(keyboard?.enterKey)) submit(null);
-
-            if (wasPressed_internal(keyboard.tabKey)) {
-                // TODO: might want to skip args when pressing Tab with inline args prediction? @SkipArgs
-                if (showingInlinePrediction || showingInlineArgPrediction) completePrediction();
-                else toggleSizing();
-            }
+            
+            // TODO: might want to use tab for toggleSizing, then skip args when pressing Tab with inline args prediction? @SkipArgs
+            if (isHeld_internal(keyboard.shiftKey) && wasPressed_internal(keyboard.tabKey)) toggleSizing();
+            else if (wasPressed_internal(keyboard.tabKey)) completePrediction();
 
             // TODO: convenience input stuff, like word navigation/select/delete
             if (isHeld_internal(keyboard.ctrlKey) && wasPressed_internal(keyboard.cKey)) consoleInputField.text = null;
