@@ -27,7 +27,7 @@ namespace CoreSystemFramework {
             float panelY = Mathf.Lerp(opennessTargets.from, opennessTargets.to, EasingFunctions.OutQuad(openness_t));
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
-            if (EXPERIMENT_PauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-openness_t : openness_t;
+            if (pauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-openness_t : openness_t;
 
             if (openness_t < 1f) openness_t += Time.unscaledDeltaTime * animationSpeed;
             else {

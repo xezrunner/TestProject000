@@ -46,6 +46,7 @@ namespace CoreSystemFramework {
         [SerializeField] Vector2 textPadding = new(24, 16);
         [SerializeField] int inputFieldNormalCaretWidth     = 9;
         [SerializeField] int inputFieldPredictingCaretWidth = 1;
+        [SerializeField] bool pauseTimeWhileConsoleIsOpen = true; // TODO: should this be default?
 
         List<(GameObject obj, TMP_Text com)> uiLines = new();
 
@@ -103,8 +104,7 @@ namespace CoreSystemFramework {
         }
 
         // TODO: register as console variable!
-        static bool  EXPERIMENT_PauseTimeWhileConsoleIsOpen = true;
-        static float EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = 1f;
+        float pauseTimeWhileConsoleIsOpen_LastTimescale = 1f;
 
         bool state = false;
         public bool getState() => state;
@@ -130,15 +130,15 @@ namespace CoreSystemFramework {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible   = true;
 
-                if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) {
-                    EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = Time.timeScale;
+                if (pauseTimeWhileConsoleIsOpen) {
+                    pauseTimeWhileConsoleIsOpen_LastTimescale = Time.timeScale;
                     Time.timeScale = 0f;
                 }
 
                 opennessTargets.to = 0;
             } else {
                 consoleInputField.DeactivateInputField();
-                if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) Time.timeScale = EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale;
+                if (pauseTimeWhileConsoleIsOpen) Time.timeScale = pauseTimeWhileConsoleIsOpen_LastTimescale;
 
                 Cursor.lockState = previousCursorLockState;
                 Cursor.visible   = previousCursorVisibility;
