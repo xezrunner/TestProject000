@@ -94,7 +94,7 @@ namespace CoreSystemFramework {
         const char ARGS_ARRAY_START_TOKEN = '[';
         const char ARGS_ARRAY_END_TOKEN   = ']';
         static (int endIndex, string[] result) parseArrayFromArgs(string[] args, int startIndex = 0) {
-            if (args[startIndex][0] != ARGS_ARRAY_START_TOKEN) return (-1, null);
+            if (startIndex >= args.Length || args[startIndex][0] != ARGS_ARRAY_START_TOKEN) return (-1, null);
             
             StringBuilder sb = new();
 
