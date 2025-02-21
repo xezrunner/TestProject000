@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using UnityEngine;
 
 using static CoreSystemFramework.Logging;
 
@@ -212,9 +210,13 @@ namespace CoreSystemFramework {
                 pushText("Listing final args:");
                 foreach (var arg in processedArgs.result) pushText($"  - {arg}");
             }
-            
-            var funcResult = command.function(processedArgs.result);
-            return (true, funcResult);
+
+            try {
+                var funcResult = command.function(processedArgs.result);
+                return (true, funcResult);
+            } catch (Exception ex) {
+                return (false, $"{ex.Message}{(ex.InnerException != null ? $" ({ex.InnerException?.Message})" : null)}");
+            }
         }
     }
     
