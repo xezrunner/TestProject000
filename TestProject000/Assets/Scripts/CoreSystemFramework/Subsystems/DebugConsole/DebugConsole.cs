@@ -32,7 +32,7 @@ namespace CoreSystemFramework {
         [SerializeField] RectTransform filterButtonsContainer;
         [SerializeField] GameObject    filterButtonPreset;
 
-        [SerializeField] TMP_Text      inputPredictionText;
+        [SerializeField] TMP_Text      inputPredictionTextCom;
         [SerializeField] RectTransform inputPredictionTextRectTrans;
 
         [SerializeField] TMP_Text      argsPredictionText;
@@ -71,7 +71,7 @@ namespace CoreSystemFramework {
             if (!contentObj)       contentObj       = contentRectTrans.gameObject;
 
             if (!consoleInputFieldText)        consoleInputFieldText        = consoleInputField?.textComponent;
-            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionText?.rectTransform;
+            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionTextCom?.rectTransform;
             if (!argsPredictionTextRectTrans)  argsPredictionTextRectTrans  = argsPredictionText?.rectTransform;
 
             processRequiredComponents(this);
@@ -201,45 +201,87 @@ namespace CoreSystemFramework {
             updateConsoleOutputUI();
         }
 
+        struct ArgCompletion {
+            public string name;
+            public string argTypeName;
+            public string defaultValueAsText;
+        }
+
+        struct PredictionInfo {
+            public string prediction;
+            public string remaining;
+            
+            public List<ArgCompletion> argCompletions;
+
+            public static bool operator !(PredictionInfo info)     => info.prediction == null;
+            public static bool operator false(PredictionInfo info) => info.prediction == null;
+            public static bool operator true(PredictionInfo info)  => info.prediction != null;
+        }
+
+        PredictionInfo currentPredictionInfo = new() { argCompletions = new(capacity: 5) };
+
         // Suggestions/predictions:
-        string currentInputPrediction;
         void updatePrediction(string input) {
             if (input == null) input = consoleInputField.text;
-            if (!inputPredictionText) return;
+            if (!inputPredictionTextCom) return;
+            
+            string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            currentInputPrediction = null;
+            string prediction = null;
+            string remaining = null;
+            if (tokens.Length == 1) {
+                // Find the best match for a command/var:
+                int shortest = int.MaxValue;
+                if (!input.IsEmpty()) {
+                    foreach (var key in commands.Keys) {
+                        if (!key.StartsWith(input)) continue;
+                        if (input.Length >= key.Length) continue; // If we match a shorter alias, we should provide the next prediction
 
-            int shortest = int.MaxValue;
-            if (!input.IsEmpty()) {
-                foreach (var key in commands.Keys) {
-                    if (!key.StartsWith(input))     continue;
-                    if (input.Length >= key.Length) continue; // If we match a shorter alias, we should provide the next prediction
-
-                    if (key.Length < shortest) {
-                        currentInputPrediction = key;
-                        shortest = key.Length;
+                        if (key.Length < shortest) {
+                            prediction = key;
+                            shortest = key.Length;
+                        }
                     }
                 }
-                if (currentInputPrediction == input) currentInputPrediction = null;
-            }
-            updateInlinePredictionUI(currentInputPrediction?.Substring(input.Length));
 
-            // Command argument prediction:
+                currentPredictionInfo.prediction = prediction;
+                
+                remaining = prediction?.Substring(input.Length);
+                currentPredictionInfo.remaining = remaining;
+                
+                updateInlinePredictionUI(remaining);
+            }
+
+            // Command argument completions:
+            if (remaining != null) return;
+
             ConsoleCommand command = null;
-            string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);;
-            if (currentInputPrediction == null && !input.IsEmpty() && tokens.Length > 0) {
-                var commandName = tokens[0];
+            if (tokens.Length != 0) {
+                var commandName = tokens[0] ?? null;
                 if (commands.ContainsKey(commandName)) command = commands[commandName];
             }
+
             updateInlineArgsPredictionUI(command, tokens);
 
             updateCaretWidth();
         }
 
         void completePrediction() {
-            if (currentInputPrediction == null) return;
+            if (currentPredictionInfo) {
+                // Complete prediction for first token (command/var):
+                consoleInputField.text = currentPredictionInfo.prediction;
+            } else if (currentPredictionInfo.argCompletions.Count > 0) {
+                // Complete prediction for arguments:
+                var argCompletion = currentPredictionInfo.argCompletions[0];
+                
+                var toComplete = argCompletion.defaultValueAsText;
+                if (currentPredictionInfo.argCompletions.Count != 1) toComplete += ' '; // Add space to end of input if not last arg, to "move to next arg"
+                
+                if (argCompletion.defaultValueAsText != null) consoleInputField.text += toComplete; // Append completion
+            } else {
+                return;
+            }
 
-            consoleInputField.text = currentInputPrediction;
             consoleInputField.caretPosition = consoleInputField.text.Length;
         }
 
