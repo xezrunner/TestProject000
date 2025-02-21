@@ -20,11 +20,11 @@ namespace CoreSystemFramework {
 
         [RequiredComponent] [SerializeField] GameObject    contentObj;
         [RequiredComponent] [SerializeField] RectTransform contentRectTrans;
-        
+
         [RequiredComponent] [SerializeField] ScrollRect    scrollRect;
         [RequiredComponent] [SerializeField] RectTransform scrollRectTrans;
         [RequiredComponent] [SerializeField] RectTransform scrollContentRectTrans;
-        
+
         [SerializeField]                     GameObject     consoleOutputTextPreset;
         [RequiredComponent] [SerializeField] TMP_InputField consoleInputField;
         [SerializeField]                     TMP_Text       consoleInputFieldText;
@@ -78,7 +78,7 @@ namespace CoreSystemFramework {
             registerCommandsFromAssemblies();
 
             setupUI();
-            
+
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
         }
@@ -118,7 +118,7 @@ namespace CoreSystemFramework {
         void setState(bool newState, bool anim = true) {
             if (newState) {
                 contentRectTrans.gameObject.SetActive(true);
-                
+
                 updateConsoleFiltering();
                 updateConsoleOutputUI();
 
@@ -145,7 +145,7 @@ namespace CoreSystemFramework {
 
                 opennessTargets.to = contentRectTrans.rect.height;
             }
-            
+
             state = newState;
             opennessTargets.from = contentRectTrans.anchoredPosition.y;
             openness_t = anim ? 0f : 1.1f;
@@ -153,7 +153,7 @@ namespace CoreSystemFramework {
 
         void clearConsoleOutput() {
             consoleOutput.Clear();
-            
+
             updateConsoleFiltering();
             updateConsoleOutputUI();
         }
@@ -287,9 +287,14 @@ namespace CoreSystemFramework {
             }
         }
 
+        void toggleSizing() {
+            float targetHeight = sizingTargets.to == defaultHeight ? canvasRectTrans.sizeDelta.y : defaultHeight;
+            resizeConsole(targetHeight);
+        }
+
         void Update() {
             if (isHeld_internal(keyboard?.shiftKey) && wasPressed_internal(keyboard?.f1Key)) setState(!state);
-            
+
             UPDATE_Openness();
 
             if (!state) return;
@@ -299,12 +304,16 @@ namespace CoreSystemFramework {
 
             if (!isHeld_internal(keyboard?.altKey) && wasReleased_internal(keyboard?.enterKey)) submit(null);
 
-            if (wasReleased_internal(keyboard.tabKey)) completePrediction();
+            if (wasPressed_internal(keyboard.tabKey)) {
+                // TODO: might want to skip args when pressing Tab with inline args prediction? @SkipArgs
+                if (showingInlinePrediction || showingInlineArgPrediction) completePrediction();
+                else toggleSizing();
+            }
 
             // TODO: convenience input stuff, like word navigation/select/delete
             if (isHeld_internal(keyboard.ctrlKey) && wasPressed_internal(keyboard.cKey)) consoleInputField.text = null;
         }
-        
+
         void LateUpdate() {
             // TODO: ignore when Alt/Cmd is being pressed, if Tab remains the key for toggling the console
             if (!state) return;
