@@ -18,7 +18,7 @@ namespace CoreSystemFramework {
         // TODO: TEMP: not sure how we'll handle full startup -> scenes yet
         [SerializeField] string TEMP_fullStartupTargetScene = "test1a";
 
-        void Awake() {
+        void OnEnable() {
             if (Instance) {
                 Debug.LogError("Multiple CoreSystem instances");
                 Application.Quit();
@@ -31,7 +31,7 @@ namespace CoreSystemFramework {
         void Start() {
             StartupShell?.STSHELL_SetActive(CORESYSTEM_STARTUP_OPTS.isFullStartup);
 
-            if (SceneManager.GetActiveScene().name == CORESYSTEM_SCENE_NAME && !FindAnyObjectByType<Camera>()) { // TEMP:
+            if (false && SceneManager.GetActiveScene().name == CORESYSTEM_SCENE_NAME && !FindAnyObjectByType<Camera>()) { // TEMP:
                 var obj = new GameObject("Temporary camera (dev)");
                 var cam = obj.AddComponent<Camera>();
                 cam.clearFlags = CameraClearFlags.Color;
@@ -52,7 +52,7 @@ namespace CoreSystemFramework {
             log($"'{TEMP_fullStartupTargetScene}' has been set as the active scene, after loading it from a full startup.");
         }
 
-        void OnApplicationQuit() {
+        void OnDisable() {
             SceneManager.sceneLoaded -= SCENEMANAGER_SceneLoaded;
         }
 

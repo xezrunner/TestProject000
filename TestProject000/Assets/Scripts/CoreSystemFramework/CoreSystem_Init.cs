@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 
 namespace CoreSystemFramework {
@@ -29,12 +27,13 @@ namespace CoreSystemFramework {
             // TODO: also when launching random scenes
             bool isFullStartup = OVERRIDE_FullStartup || !Application.isEditor;
 
+            var currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName == CORESYSTEM_SCENE_NAME) isFullStartup = true;
+
             Debug.Log($"--- CoreSystem startup ({(isFullStartup ? "full" : "partial")}) ---");
 
-            var currentSceneName = SceneManager.GetActiveScene().name;
-            Debug.Log($"current scene name: {currentSceneName}");
-
 #if UNITY_EDITOR
+            // TODO: This should probably be done in an [ExecuteInEditMode] class during editing. We don't need this at runtime.
             if (!EditorBuildSettings.globalScenes[0].path.EndsWith(CORESYSTEM_SCENE_NAME)) {
                 verifyAndOrAddSceneToBuildSettings($"{CORESYSTEM_SCENES_PATH}/{CORESYSTEM_SCENE_NAME}", true);
             }

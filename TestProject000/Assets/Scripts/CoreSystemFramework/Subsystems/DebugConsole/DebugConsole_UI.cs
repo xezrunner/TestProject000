@@ -13,8 +13,9 @@ namespace CoreSystemFramework {
     public partial class DebugConsole {
         void setupUI() {
             consoleInputField.SetTextWithoutNotify(null);
-            inputPredictionText.SetText((string)null);
-            argsPredictionText.SetText((string)null);
+            
+            inputPredictionTextCom?.SetText((string)null);
+            argsPredictionText?.SetText((string)null);
 
             setupFilterButtons();
         }
@@ -26,7 +27,7 @@ namespace CoreSystemFramework {
             float panelY = Mathf.Lerp(opennessTargets.from, opennessTargets.to, EasingFunctions.OutQuad(openness_t));
             contentRectTrans.anchoredPosition = new(contentRectTrans.anchoredPosition.x, panelY);
 
-            if (EXPERIMENT_PauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-openness_t : openness_t;
+            if (pauseTimeWhileConsoleIsOpen && backgroundCanvasGroup) backgroundCanvasGroup.alpha = !state ? 1f-openness_t : openness_t;
 
             if (openness_t < 1f) openness_t += Time.unscaledDeltaTime * animationSpeed;
             else {
@@ -118,7 +119,7 @@ namespace CoreSystemFramework {
             debugTextCom?.SetText($"total lines: {consoleOutput.Count}  filtered lines: {consoleOutputFilteredCount}  ui lines: {uiLineCount}" + 
                                   $" | scroll: {scroll:N2}  height: {contentHeight:N3}  indexIntoOutput: {indexIntoOutput}" +
                                   $" | filter: [{(consoleFilterFlags == CONSOLEFILTERFLAGS_ALL ? "None" : $"{consoleFilterFlags}")}]" +
-                                  $" | current prediction: {currentInputPrediction}");
+                                  $" | current prediction: {currentPredictionInfo.prediction}");
 
             for (int i = 0 ; i < uiLineCount; ++i) {
                 var uiLine = uiLines[i];
@@ -249,9 +250,9 @@ namespace CoreSystemFramework {
         }
         
         void updateInlinePredictionUI(string visualText) {
-            inputPredictionText.SetText(visualText);
+            inputPredictionTextCom.SetText(visualText);
 
-            if (currentInputPrediction != null) {
+            if (visualText != null) {
                 consoleInputField.ForceLabelUpdate();    // Force the label to update on this frame
                 consoleInputFieldText.ForceMeshUpdate(); // Update bounds @Performance
 
@@ -265,6 +266,7 @@ namespace CoreSystemFramework {
         }
 
         // TODO: this could be a little flaky with incorrect input!
+        // match with DebugConsole_Commands.cs::processArgsForInvocation()
         string[] preProcessInlineArgs(ParameterInfo[] functionArgsInfo, string[] args = null) {
             if (functionArgsInfo == null || args == null) return null;
 
@@ -293,22 +295,38 @@ namespace CoreSystemFramework {
             return processedArgs.ToArray();
         }
 
-        void updateInlineArgsPredictionUI(ConsoleCommand command = null, string[] tokens = null) {
-            tokens = preProcessInlineArgs(command?.functionArgsInfo, tokens);
+        void updateInlineArgsPredictionUI(ConsoleCommand command = null, string[] inputTokens = null) {
+            // Parse provided args (including arrays):
+            var inputArgs = preProcessInlineArgs(command?.functionArgsInfo, inputTokens);
 
-            if (command == null || tokens == null || tokens.Length > command.functionArgsInfo.Length) {
+            if (command == null || inputArgs == null || inputArgs.Length > command.functionArgsInfo.Length) {
                 argsPredictionText.SetText((string)null);
                 showingInlineArgPrediction = false;
+                
                 return;
             }
-            
+
             // Command argument prediction:
+            currentPredictionInfo.argCompletions.Clear();
             StringBuilder builder = new(capacity: 30 * command.functionArgsInfo.Length);
-            for (int i = tokens.Length; i < command.functionArgsInfo.Length; ++i) {
+            for (int i = inputArgs.Length; i < command.functionArgsInfo.Length; ++i) {
                 var info = command.functionArgsInfo[i];
                 string typeName = getFriendlyTypeNameAlternative(info.ParameterType.Name);
-                builder.Append($"[{info.Name.bold()}: {typeName}{(info.HasDefaultValue ? $" -- {info.DefaultValue.ToString().ToLower()}" : null)}] ");
+                string defaultValue = info.DefaultValue?.ToString().ToLower() ?? null;
+                
+                var argInfo = new ArgCompletion() {
+                    name = info.Name,
+                    argTypeName = typeName,
+                    defaultValueAsText = defaultValue
+                };
+
+                currentPredictionInfo.argCompletions.Add(argInfo);
+
+                builder.Append(
+                    $"[{info.Name.bold()}: {typeName}{(info.HasDefaultValue ? $" -- {info.DefaultValue.ToString().ToLower()}" : null)}] "
+                );
             }
+            
             if (builder.Length > 0) builder.Length -= 1; // Remove trailing space
             var returnTypeName = getFriendlyTypeNameAlternative(command.functionReturnType.Name);
             if (command.functionReturnType != typeof(void)) builder.Append($" -> returns: {returnTypeName}");
@@ -318,7 +336,7 @@ namespace CoreSystemFramework {
             // Update bounds @Performance
             // In case we don't have completions above, we have to update the same text com here regardless:
             consoleInputFieldText.ForceMeshUpdate();
-            if (!inputPredictionText.text.IsEmpty()) inputPredictionText.ForceMeshUpdate();
+            if (!inputPredictionTextCom.text.IsEmpty()) inputPredictionTextCom.ForceMeshUpdate();
 
             var textInfo = consoleInputFieldText.textInfo;
             var charInfo = textInfo.characterInfo[consoleInputField.text.Length - 1];
@@ -326,7 +344,7 @@ namespace CoreSystemFramework {
             x += 20f;
             argsPredictionTextRectTrans.position = new(x, argsPredictionTextRectTrans.position.y);
 
-            showingInlineArgPrediction = tokens.Length < command.functionArgsInfo.Length;
+            showingInlineArgPrediction = inputArgs.Length < command.functionArgsInfo.Length;
         }
 
     }
