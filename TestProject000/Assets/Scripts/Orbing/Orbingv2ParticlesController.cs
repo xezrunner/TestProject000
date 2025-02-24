@@ -28,33 +28,31 @@ class Orbingv2ParticlesController : MonoBehaviour {
     public Vector3 turbulenceAmplitude = new Vector3(0.1f, 0.1f, 0.1f); // Max offset per axis
     public float turbulenceFrequency = 6f; // Spatial scale of turbulence
     public float turbulenceTimeScale = 1f; // Speed of turbulence change over time
-
-    public Vector3 GetTurbulenceVelocity(Vector3 position) {
-        // Compute time with time scale for animation
+    
+    public Vector3 ApplyTurbulence(Vector3 position, float amplitude)
+    {
+        // Incorporate time to make turbulence dynamic
         float t = Time.time * turbulenceTimeScale;
-
-        // Calculate Perlin noise for each component
-        // Using different position coordinates for each axis to create varied turbulence
+    
+        // Generate noise for each axis using different coordinate pairs
         float xNoise = Mathf.PerlinNoise(position.y * turbulenceFrequency + t, position.z * turbulenceFrequency + t);
         float yNoise = Mathf.PerlinNoise(position.x * turbulenceFrequency + t, position.z * turbulenceFrequency + t);
         float zNoise = Mathf.PerlinNoise(position.x * turbulenceFrequency + t, position.y * turbulenceFrequency + t);
-
-        // Compute the turbulence offset
-        // Center the noise (0 to 1) around 0 by subtracting 0.5, then scale by amplitude
+    
+        // Compute offset by centering noise (0-1 to -0.5 to 0.5) and scaling by amplitude
         Vector3 offset = new Vector3(
-            (xNoise - 0.5f) * turbulenceAmplitude.x,
-            (yNoise - 0.5f) * turbulenceAmplitude.y,
-            (zNoise - 0.5f) * turbulenceAmplitude.z
+            (xNoise - 0.5f) * amplitude,
+            (yNoise - 0.5f) * amplitude,
+            (zNoise - 0.5f) * amplitude
         );
-
-        // Convert offset to velocity by dividing by deltaTime
-        // This ensures the displacement over one frame matches the original offset
-        return offset;
+    
+        // Return the original position plus the turbulent offset
+        return position + offset;
     }
 
     static Vector3 V3Zero = new(0, 0, 0);
 
-    void Update() {
+    void LateUpdate() {
         int count = pSystem.particleCount;
         var particles = new ParticleSystem.Particle[count];
         pSystem.GetParticles(particles);
@@ -74,12 +72,11 @@ class Orbingv2ParticlesController : MonoBehaviour {
             
             if (isInside) {
                 var dist = Vector3.Distance(particlePos, currentCollider.bounds.center);
-                var turbulence = GetTurbulenceVelocity(particles[i].position);
-                // particles[i].velocity = turbulence * Mathf.Lerp(0, 0.1f, dist);
-                particles[i].velocity = V3Zero;
+                Vector3 turbulencePos = ApplyTurbulence(particles[i].position, Mathf.Lerp(0, 0.1f, dist * 0.5f));
+                particles[i].position = turbulencePos * 1;
             } else {
-                Vector3 turbulence = GetTurbulenceVelocity(particles[i].position);
-                particles[i].velocity = turbulence;
+                Vector3 turbulencePos = ApplyTurbulence(particles[i].position, 0.1f);
+                particles[i].position = turbulencePos;
             }
 
 #if false
@@ -136,5 +133,7 @@ class Orbingv2ParticlesControllerEditor : Editor {
         if (!target) return;
 
         EditorGUILayout.Separator();
+
+        GUILayout.Label($"Iterations: {instance.iterations}");
     }
 }
