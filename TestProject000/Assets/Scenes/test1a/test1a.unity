@@ -17424,6 +17424,7 @@ GameObject:
   - component: {fileID: 565156179}
   - component: {fileID: 565156178}
   - component: {fileID: 565156177}
+  - component: {fileID: 565156180}
   m_Layer: 0
   m_Name: Particles
   m_TagString: Untagged
@@ -22243,9 +22244,30 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 865285913}
+  m_Children:
+  - {fileID: 853509303}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &565156180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565156176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef291d678a34f404699102979578c23b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colliders:
+  - {fileID: 853509304}
+  pSystem: {fileID: 565156178}
+  attractionStrength: 16.99
+  turbulenceStrength: 100
+  turbulenceAmplitude: {x: 3, y: 3, z: 5}
+  turbulenceFrequency: 3
+  turbulenceTimeScale: 0
 --- !u!1 &571129774
 GameObject:
   m_ObjectHideFlags: 0
@@ -32848,12 +32870,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 853509302}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.0040082633, y: 0, z: 0}
   m_LocalScale: {x: 0.1916701, y: 1.3401, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 865285913}
+  m_Father: {fileID: 565156179}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &853509304
 BoxCollider:
@@ -32929,60 +32951,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 853509302}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &865285911
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 865285913}
-  - component: {fileID: 865285912}
-  m_Layer: 0
-  m_Name: Orbing v2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &865285912
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 865285911}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef291d678a34f404699102979578c23b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colliders:
-  - {fileID: 853509304}
-  pSystem: {fileID: 565156178}
-  attractionStrength: 16.99
-  turbulenceStrength: 100
-  turbulenceAmplitude: {x: 0.1, y: 0.1, z: 0.1}
-  turbulenceFrequency: 6
-  turbulenceTimeScale: 0
---- !u!4 &865285913
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 865285911}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 565156179}
-  - {fileID: 853509303}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &890064913
 GameObject:
   m_ObjectHideFlags: 0
@@ -87135,4 +87103,4 @@ SceneRoots:
   - {fileID: 1781864843}
   - {fileID: 586502702}
   - {fileID: 626337823}
-  - {fileID: 865285913}
+  - {fileID: 565156179}
