@@ -54,63 +54,49 @@ class Orbingv2ParticlesController : MonoBehaviour {
 
     static Vector3 V3Zero = new(0, 0, 0);
 
+    public static bool IsOutsideBounds(Vector3 position, Vector3 scale)
+    {
+        Vector3 halfScale = scale * 0.5f;
+        return position.x < -halfScale.x || position.x > halfScale.x ||
+               position.y < -halfScale.y || position.y > halfScale.y ||
+               position.z < -halfScale.z || position.z > halfScale.z;
+    }
+
+    public bool boxEnabled = false;
+    public float boxSpeed = 1f;
+    public Vector3 boxTarget = new(0.636f, 1.832f, 0);
+    float boxT = 0f;
     void Update() {
+        if (!boxEnabled) return;
+        var trans = colliders[0].transform;
+        var lerpT = (Mathf.Sin(boxT) + 1f) * 0.5f;
+        trans.localPosition = Vector3.Lerp(V3Zero, boxTarget, lerpT);
+
+        boxT += Time.deltaTime * boxSpeed;
+    }
+
+    void LateUpdate() {
         int count = pSystem.particleCount;
         var particles = new ParticleSystem.Particle[count];
         pSystem.GetParticles(particles);
 
         for (int i = 0; i < count; ++i) {
-            Vector3 particlePos = particles[i].position;
-            bool isInside = false;
-            Collider currentCollider = null;
+            var collider = colliders[0]; // TEMP:
+            bool isInside = collider.bounds.Contains(transform.position + particles[i].position);
 
-            foreach (var collider in colliders) {
-                if (collider.bounds.Contains(particlePos)) {
-                    isInside = true;
-                    currentCollider = collider;
-                    break;
-                }
+            if (!isInside) {
+                // if (IsOutsideBounds(particles[i].position, pSystem.shape.scale)) {
+                //     particles[i].remainingLifetime = 0;
+                //     continue;
+                // }
+
+                if (particles[i].startLifetime - particles[i].remainingLifetime < 0.05f) particles[i].remainingLifetime = 0;
+
+                // Find nearest point into the collision:
+                // TODO: this will be wrong if the particles / root are not positioned at origin!
+                // var closestPointToBounds = collider.ClosestPointOnBounds(particles[i].position);
+                // particles[i].position = closestPointToBounds;
             }
-            
-            if (isInside) {
-                var dist = Vector3.Distance(particlePos, currentCollider.bounds.center);
-                var turbulence = GetTurbulenceVelocity(particles[i].position);
-                particles[i].velocity = turbulence * Mathf.Lerp(0, 0.1f, dist+0.1f);
-                // particles[i].velocity = V3Zero;
-            } else {
-                Vector3 turbulence = GetTurbulenceVelocity(particles[i].position);
-                particles[i].velocity = turbulence;
-            }
-
-#if false
-            if (isInside && currentCollider != null) {
-                // Attract particle towards the center of the bounds:
-                Vector3 center = currentCollider.bounds.center;
-                Vector3 direction = (center - particlePos).normalized;
-
-                // particles[i].velocity = direction * attractionStrength * Time.deltaTime;
-                // particles[i].velocity = V3Zero;
-                
-                //particles[i].position = new(particles[i].position.x + (direction.x * attractionStrength * Time.deltaTime), particles[i].position.y, particles[i].position.z);
-                
-                particles[i].velocity = V3Zero;
-                // particles[i].position = V3Zero;
-            } else {
-                // Apply turbulence based on distance to nearest bound
-                float minDistance = float.MaxValue;
-                foreach (var collider in colliders) {
-                    Vector3 closestPoint = collider.ClosestPoint(particlePos);
-                    float distance = Vector3.Distance(particlePos, closestPoint);
-                    minDistance = Mathf.Min(minDistance, distance);
-                }
-
-                Vector3 randomDirection = UnityEngine.Random.insideUnitSphere.normalized;
-                particles[i].velocity += randomDirection * turbulenceStrength * minDistance;
-                particles[i].velocity *= Time.deltaTime;
-                // particles[i].velocity = V3Zero;
-                // particles[i].position = new(-5,0,0);
-            }
-#endif
         } // for
 
         pSystem.SetParticles(particles);
