@@ -103,7 +103,7 @@ Shader "TestProject000/URP/CameraFX"
             // map [0, 1] to [-1, 1], to make sure we only distort up until the output edges:
             float2 uv = (input.texcoord - _CameraFX_RadialZoom_Center) * 2.0;
 
-            float theta     = atan2(uv.y, uv.x);
+            float theta     = atan2(uv.y, uv.x); // TODO: @Performance
             float startDist = length(uv); // "radial distance"
             // 
             // Pincushion distortion:
@@ -111,7 +111,7 @@ Shader "TestProject000/URP/CameraFX"
             // We intentionally square the starting distance here, as a realistic lens distortion effect propagates quadratically.
             // Multiplying it just once would result in a linear distribution from the center.
             //
-            float dist      = startDist / (1.0 + strength * startDist * startDist);
+            float dist = startDist / (1.0 + strength * startDist * startDist);
             
             float2 resultUV = float2(
                 cos(theta) * dist * zoom, // X axis - squish!

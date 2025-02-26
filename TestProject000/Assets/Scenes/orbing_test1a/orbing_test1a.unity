@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -175,6 +175,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6975710885049332365, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -3518641619080866502, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 414394886606698195, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -182,6 +190,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
       propertyPath: m_Name
       value: eb_lamp_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2001549020734277322, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6136491739844285326, guid: cc273e78feb664c1ab92268e1fe2f139, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5135,7 +5151,7 @@ Camera:
   m_GameObject: {fileID: 446214420}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.11320752, g: 0.10725102, b: 0.103061564, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -5338,7 +5354,7 @@ Transform:
   m_GameObject: {fileID: 893156678}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.013470333, y: 0.07053216, z: 0}
+  m_LocalPosition: {x: 0.61537164, y: 3.2221541, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
