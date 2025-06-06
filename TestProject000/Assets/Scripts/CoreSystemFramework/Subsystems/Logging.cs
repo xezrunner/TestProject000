@@ -35,14 +35,14 @@ namespace CoreSystemFramework {
     public static partial class Logging {
         public static void LOGGING_Init() {
             Application.quitting += LOGGING_OnApplicationQuit;
-            Application.logMessageReceived += UNITY_logMessageReceived;
+            Application.logMessageReceived += LOGGING_unityLogMessageReceived;
 
             logMessages.Clear();
         }
 
         static void LOGGING_OnApplicationQuit() {
             Application.quitting -= LOGGING_OnApplicationQuit;
-            Application.logMessageReceived -= UNITY_logMessageReceived;
+            Application.logMessageReceived -= LOGGING_unityLogMessageReceived;
         }
 
         public static void grabInstances() {
@@ -62,15 +62,15 @@ namespace CoreSystemFramework {
         public static event Action<LogLineInfo> onLogMessageReceived;
         public static List<LogLineInfo> logMessages = new(capacity: 500);
 
-        static void UNITY_logMessageReceived(string text, string stackTrace, LogType level) {
-            if (!CoreSystem.UNITY_receiveLogMessages) return;
-            
-            // TODO: this stuff is also in DebugStats_Quicklines
-            if      (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
-            else if (level == LogType.Error)   text = $"<color=#EF5350>{text}</color>";
+        static void LOGGING_unityLogMessageReceived(string text, string stackTrace, LogType level) {
+                if (!CoreSystem.UNITY_receiveLogMessages) return;
 
-            addAndBroadcastLogMessage(new() { text = text, category = LogCategory.Unity });
-        }
+                // TODO: this stuff is also in DebugStats_Quicklines
+                if (level == LogType.Warning) text = $"<color=#FB8C00>{text}</color>";
+                else if (level == LogType.Error) text = $"<color=#EF5350>{text}</color>";
+
+                addAndBroadcastLogMessage(new() { text = text, category = LogCategory.Unity });
+            }
 
         static StringBuilder stringBuilder = new(capacity: 100);
 
