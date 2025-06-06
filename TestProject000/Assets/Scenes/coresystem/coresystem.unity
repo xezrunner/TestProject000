@@ -1389,6 +1389,7 @@ MonoBehaviour:
   StartupShell: {fileID: 1666321171}
   DebugStats: {fileID: 1607544314}
   DebugConsole: {fileID: 1221335425}
+  TEMP_fullStartupTargetScene: test1a
 --- !u!4 &952017004
 Transform:
   m_ObjectHideFlags: 0
@@ -1740,7 +1741,7 @@ MonoBehaviour:
   consoleInputFieldText: {fileID: 643198330}
   filterButtonsContainer: {fileID: 776699577}
   filterButtonPreset: {fileID: 1770307475}
-  inputPredictionText: {fileID: 922784551}
+  inputPredictionTextCom: {fileID: 922784551}
   inputPredictionTextRectTrans: {fileID: 922784550}
   argsPredictionText: {fileID: 1095069157}
   argsPredictionTextRectTrans: {fileID: 1095069156}

@@ -20,11 +20,11 @@ namespace CoreSystemFramework {
 
         [RequiredComponent] [SerializeField] GameObject    contentObj;
         [RequiredComponent] [SerializeField] RectTransform contentRectTrans;
-        
+
         [RequiredComponent] [SerializeField] ScrollRect    scrollRect;
         [RequiredComponent] [SerializeField] RectTransform scrollRectTrans;
         [RequiredComponent] [SerializeField] RectTransform scrollContentRectTrans;
-        
+
         [SerializeField]                     GameObject     consoleOutputTextPreset;
         [RequiredComponent] [SerializeField] TMP_InputField consoleInputField;
         [SerializeField]                     TMP_Text       consoleInputFieldText;
@@ -32,7 +32,7 @@ namespace CoreSystemFramework {
         [SerializeField] RectTransform filterButtonsContainer;
         [SerializeField] GameObject    filterButtonPreset;
 
-        [SerializeField] TMP_Text      inputPredictionText;
+        [SerializeField] TMP_Text      inputPredictionTextCom;
         [SerializeField] RectTransform inputPredictionTextRectTrans;
 
         [SerializeField] TMP_Text      argsPredictionText;
@@ -46,6 +46,7 @@ namespace CoreSystemFramework {
         [SerializeField] Vector2 textPadding = new(24, 16);
         [SerializeField] int inputFieldNormalCaretWidth     = 9;
         [SerializeField] int inputFieldPredictingCaretWidth = 1;
+        [SerializeField] bool pauseTimeWhileConsoleIsOpen = true; // TODO: should this be default?
 
         List<(GameObject obj, TMP_Text com)> uiLines = new();
 
@@ -71,14 +72,14 @@ namespace CoreSystemFramework {
             if (!contentObj)       contentObj       = contentRectTrans.gameObject;
 
             if (!consoleInputFieldText)        consoleInputFieldText        = consoleInputField?.textComponent;
-            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionText?.rectTransform;
+            if (!inputPredictionTextRectTrans) inputPredictionTextRectTrans = inputPredictionTextCom?.rectTransform;
             if (!argsPredictionTextRectTrans)  argsPredictionTextRectTrans  = argsPredictionText?.rectTransform;
 
             processRequiredComponents(this);
             registerCommandsFromAssemblies();
 
             setupUI();
-            
+
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
         }
@@ -103,8 +104,7 @@ namespace CoreSystemFramework {
         }
 
         // TODO: register as console variable!
-        static bool  EXPERIMENT_PauseTimeWhileConsoleIsOpen = true;
-        static float EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = 1f;
+        float pauseTimeWhileConsoleIsOpen_LastTimescale = 1f;
 
         bool state = false;
         public bool getState() => state;
@@ -118,7 +118,7 @@ namespace CoreSystemFramework {
         void setState(bool newState, bool anim = true) {
             if (newState) {
                 contentRectTrans.gameObject.SetActive(true);
-                
+
                 updateConsoleFiltering();
                 updateConsoleOutputUI();
 
@@ -130,22 +130,22 @@ namespace CoreSystemFramework {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible   = true;
 
-                if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) {
-                    EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale = Time.timeScale;
+                if (pauseTimeWhileConsoleIsOpen) {
+                    pauseTimeWhileConsoleIsOpen_LastTimescale = Time.timeScale;
                     Time.timeScale = 0f;
                 }
 
                 opennessTargets.to = 0;
             } else {
                 consoleInputField.DeactivateInputField();
-                if (EXPERIMENT_PauseTimeWhileConsoleIsOpen) Time.timeScale = EXPERIMENT_PauseTimeWhileConsoleIsOpen_LastTimescale;
+                if (pauseTimeWhileConsoleIsOpen) Time.timeScale = pauseTimeWhileConsoleIsOpen_LastTimescale;
 
                 Cursor.lockState = previousCursorLockState;
                 Cursor.visible   = previousCursorVisibility;
 
                 opennessTargets.to = contentRectTrans.rect.height;
             }
-            
+
             state = newState;
             opennessTargets.from = contentRectTrans.anchoredPosition.y;
             openness_t = anim ? 0f : 1.1f;
@@ -153,7 +153,7 @@ namespace CoreSystemFramework {
 
         void clearConsoleOutput() {
             consoleOutput.Clear();
-            
+
             updateConsoleFiltering();
             updateConsoleOutputUI();
         }
@@ -201,45 +201,88 @@ namespace CoreSystemFramework {
             updateConsoleOutputUI();
         }
 
+        struct ArgCompletion {
+            public string name;
+            public string argTypeName;
+            public string defaultValueAsText;
+        }
+
+        struct PredictionInfo {
+            public string prediction;
+            public string remaining;
+            
+            public List<ArgCompletion> argCompletions;
+
+            public static bool operator !(PredictionInfo info)     => info.prediction == null;
+            public static bool operator false(PredictionInfo info) => info.prediction == null;
+            public static bool operator true(PredictionInfo info)  => info.prediction != null;
+        }
+
+        PredictionInfo currentPredictionInfo = new() { argCompletions = new(capacity: 5) };
+
         // Suggestions/predictions:
-        string currentInputPrediction;
         void updatePrediction(string input) {
             if (input == null) input = consoleInputField.text;
-            if (!inputPredictionText) return;
+            if (!inputPredictionTextCom) return;
+            
+            string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            currentInputPrediction = null;
+            string prediction = null;
+            string remaining = null;
+            if (tokens.Length == 1) {
+                // Find the best match for a command/var:
+                int shortest = int.MaxValue;
+                if (!input.IsEmpty()) {
+                    foreach (var key in commands.Keys) {
+                        if (!key.StartsWith(input)) continue;
+                        if (input.Length >= key.Length) continue; // If we match a shorter alias, we should provide the next prediction
 
-            int shortest = int.MaxValue;
-            if (!input.IsEmpty()) {
-                foreach (var key in commands.Keys) {
-                    if (!key.StartsWith(input))     continue;
-                    if (input.Length >= key.Length) continue; // If we match a shorter alias, we should provide the next prediction
-
-                    if (key.Length < shortest) {
-                        currentInputPrediction = key;
-                        shortest = key.Length;
+                        if (key.Length < shortest) {
+                            prediction = key;
+                            shortest = key.Length;
+                        }
                     }
                 }
-                if (currentInputPrediction == input) currentInputPrediction = null;
-            }
-            updateInlinePredictionUI(currentInputPrediction?.Substring(input.Length));
 
-            // Command argument prediction:
+                currentPredictionInfo.prediction = prediction;
+                
+                remaining = prediction?.Substring(input.Length);
+                currentPredictionInfo.remaining = remaining;
+                
+                updateInlinePredictionUI(remaining);
+            }
+
+            // Command argument completions:
+            if (remaining != null) return;
+
             ConsoleCommand command = null;
-            string[] tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);;
-            if (currentInputPrediction == null && !input.IsEmpty() && tokens.Length > 0) {
-                var commandName = tokens[0];
+            if (tokens.Length != 0) {
+                var commandName = tokens[0] ?? null;
                 if (commands.ContainsKey(commandName)) command = commands[commandName];
             }
+
             updateInlineArgsPredictionUI(command, tokens);
 
             updateCaretWidth();
         }
 
         void completePrediction() {
-            if (currentInputPrediction == null) return;
+            if (currentPredictionInfo) {
+                // Complete prediction for first token (command/var):
+                consoleInputField.text = currentPredictionInfo.prediction;
+            } else if (currentPredictionInfo.argCompletions.Count > 0 && !
+                       currentPredictionInfo.argCompletions[0].defaultValueAsText.IsEmpty()) {
+                // Complete prediction for arguments:
+                var argCompletion = currentPredictionInfo.argCompletions[0];
+                
+                var toComplete = argCompletion.defaultValueAsText;
+                if (currentPredictionInfo.argCompletions.Count != 1) toComplete += ' '; // Add space to end of input if not last arg, to "move to next arg"
+                
+                consoleInputField.text += toComplete; // Append completion
+            } else {
+                return;
+            }
 
-            consoleInputField.text = currentInputPrediction;
             consoleInputField.caretPosition = consoleInputField.text.Length;
         }
 
@@ -280,16 +323,26 @@ namespace CoreSystemFramework {
         };
 
         void OnKeyboardTextInput(char c) {
-            // We do this because in my setup, § is the key that's on the intended console key.
-            foreach (var it in CONSOLE_TOGGLE_KEYS) {
-                if (c != it) continue;
-                setState(!state); break;
-            }
+            // We do this because on some keyboards, § is the key that's on the intended console key, and the Input System can't detect that.
+            // 
+            // foreach (var it in CONSOLE_TOGGLE_KEYS) {
+            //     if (c != it) continue;
+            //     setState(!state); break;
+            // }
+
+            // TEMP:
+            if (c != CONSOLE_TOGGLE_KEYS[0] && c != CONSOLE_TOGGLE_KEYS[1]) return;
+            setState(!state);
+        }
+
+        void toggleSizing() {
+            float targetHeight = sizingTargets.to == defaultHeight ? canvasRectTrans.sizeDelta.y : defaultHeight;
+            resizeConsole(targetHeight);
         }
 
         void Update() {
             if (isHeld_internal(keyboard?.shiftKey) && wasPressed_internal(keyboard?.f1Key)) setState(!state);
-            
+
             UPDATE_Openness();
 
             if (!state) return;
@@ -298,13 +351,15 @@ namespace CoreSystemFramework {
             UPDATE_Scrolling();
 
             if (!isHeld_internal(keyboard?.altKey) && wasReleased_internal(keyboard?.enterKey)) submit(null);
-
-            if (wasReleased_internal(keyboard.tabKey)) completePrediction();
+            
+            // TODO: might want to use tab for toggleSizing, then skip args when pressing Tab with inline args prediction? @SkipArgs
+            if (isHeld_internal(keyboard.shiftKey) && wasPressed_internal(keyboard.tabKey)) toggleSizing();
+            else if (wasPressed_internal(keyboard.tabKey)) completePrediction();
 
             // TODO: convenience input stuff, like word navigation/select/delete
             if (isHeld_internal(keyboard.ctrlKey) && wasPressed_internal(keyboard.cKey)) consoleInputField.text = null;
         }
-        
+
         void LateUpdate() {
             // TODO: ignore when Alt/Cmd is being pressed, if Tab remains the key for toggling the console
             if (!state) return;

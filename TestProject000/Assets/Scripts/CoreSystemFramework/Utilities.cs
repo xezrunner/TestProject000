@@ -53,6 +53,10 @@ namespace CoreSystemFramework {
         }
     }
 
+    // TODO: this is unideal for the moment.
+    // 1. It should be a separate file
+    // 2. ???_internal() stuff should not be the case. Instead, we should have a sortof "layer" system that would automatically reject
+    //    inputs based on whether stuff like the console is open.
     public static class QuickInput {
         // TODO: TODO: TODO: and/or?
 

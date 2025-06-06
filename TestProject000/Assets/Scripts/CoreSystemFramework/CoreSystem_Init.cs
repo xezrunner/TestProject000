@@ -24,12 +24,11 @@ namespace CoreSystemFramework {
 
             grabReferenceToEventSystemList();
 
-            // TODO: also when launching random scenes
-            bool isFullStartup = OVERRIDE_FullStartup || !Application.isEditor;
-
             var currentSceneName = SceneManager.GetActiveScene().name;
-            Debug.Log($"current scene name: {currentSceneName}");
-            if (currentSceneName == CORESYSTEM_SCENE_NAME) isFullStartup = true;
+
+            bool isFullStartup = OVERRIDE_FullStartup  ||
+                                 !Application.isEditor ||
+                                 currentSceneName == CORESYSTEM_SCENE_NAME;
 
             Debug.Log($"--- CoreSystem startup ({(isFullStartup ? "full" : "partial")}) ---");
 
@@ -40,12 +39,10 @@ namespace CoreSystemFramework {
             }
 #endif
 
-            // This should be tackled!
-            // We are running here prior to any scenes being loaded, which is not ideal at full startup when no scene
-            // has even loaded yet:
-            // For the Unity Editor (as well), if doing a full startup, explicitly load CoreSystem:
-            if (currentSceneName is not null or CORESYSTEM_SCENE_NAME) {
-                // TODO: not sure if we want to handle further scene loading on initialization ourselves:
+            // Load CoreSystem if we don't have it yet:
+            // FIXME: check whether CoreSystem is loaded more robustly
+            if (currentSceneName == null || currentSceneName != CORESYSTEM_SCENE_NAME) {
+                // TODO: how do we want to handle scene loading on initialization?
                 var loadMode = isFullStartup ? LoadSceneMode.Single : LoadSceneMode.Additive;
                 var fullPath = $"Scenes/{CORESYSTEM_SCENES_PATH}/{CORESYSTEM_SCENE_NAME}";
 
@@ -54,7 +51,7 @@ namespace CoreSystemFramework {
                 SceneManager.LoadScene(fullPath, loadMode);
                 coreSystemScene = SceneManager.GetSceneByName(CORESYSTEM_SCENE_NAME);
             } else {
-                Debug.Log("not loading CoreSystem scene during init");
+                Debug.Log("not loading CoreSystem scene during init, as it's already loaded");
             }
 
             // Prepare startup options:
