@@ -10,7 +10,7 @@ using static CoreSystemFramework.QuickInput;
 
 namespace CoreSystemFramework {
     public partial class DebugConsole {
-        void setupUI() {
+        void initUI() {
             consoleInputField.SetTextWithoutNotify(null);
             
             inputPredictionTextCom?.SetText((string)null);

@@ -78,7 +78,7 @@ namespace CoreSystemFramework {
             processRequiredComponents(this);
             registerCommandsFromAssemblies();
 
-            setupUI();
+            initUI();
 
             setState(state, anim: false);
             resizeConsole(defaultHeight, anim: false); // NOTE: also creates console lines!
