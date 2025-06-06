@@ -61,7 +61,7 @@ public class TransversalPowerFXController : MonoBehaviour {
         }
 
         temp_startFov = playerCamera.fieldOfView;
-        //SetState(state);
+        setState(state);
     }
 
     float temp_t_timer;
@@ -155,11 +155,6 @@ public class TransversalPowerFXController : MonoBehaviour {
                 break;
             }
         }
-
-        if (!IsTest && t >= 1f) {
-            if      (state == TransversalPowerEffectsState.In)  setState(TransversalPowerEffectsState.Out);
-            else if (state == TransversalPowerEffectsState.Out) setState(TransversalPowerEffectsState.Idle);
-        }
     }
 
     void updateT() {
@@ -173,7 +168,7 @@ public class TransversalPowerFXController : MonoBehaviour {
         }
         //else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * 1.419f; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
         else if (state == TransversalPowerEffectsState.Out) t += Time.deltaTime * outAnimSpeed; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
-        else if (state != TransversalPowerEffectsState.Idle) {
+        else if (state == TransversalPowerEffectsState.In) {
             // Use casting_t provided by the power, as travel time is dynamic:
             t = casting_t;
         }
@@ -187,6 +182,12 @@ public class TransversalPowerFXController : MonoBehaviour {
             // if (temp_t_timer > 0f) Debug.Log($"Took {temp_t_timer}s to reach t:1 for state: {state} -- out:0.7*10={0.7f*10f}");
             temp_t_timer = 0f;
         }
+
+        // Change state when current state finishes:
+        if (!IsTest && t >= 1f) {
+            if      (state == TransversalPowerEffectsState.In)  setState(TransversalPowerEffectsState.Out);
+            else if (state == TransversalPowerEffectsState.Out) setState(TransversalPowerEffectsState.Idle);
+        }
     }
 
     void UPDATE_Anim() {
@@ -196,12 +197,8 @@ public class TransversalPowerFXController : MonoBehaviour {
         CameraFX_Settings.lensDistortion.intensity = animData.lensDistortion;
         playerCamera.fieldOfView                   = temp_startFov + animData.fovAddition;
 
-        //if (IsTest) return;
-
         updateAnimData();
         updateT();
-
-        //Debug.Log($"UPDATE_Anim(): state: {state}  t: {t}  lensDistortion: {animData.lensDistortion}");
     }
 
     void Update() {
