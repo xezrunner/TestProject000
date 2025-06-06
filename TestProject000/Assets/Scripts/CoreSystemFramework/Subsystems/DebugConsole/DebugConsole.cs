@@ -248,9 +248,9 @@ namespace CoreSystemFramework {
                 
                 remaining = prediction?.Substring(input.Length);
                 currentPredictionInfo.remaining = remaining;
-                
-                updateInlinePredictionUI(remaining);
             }
+
+            updateInlinePredictionUI(remaining);
 
             // Command argument completions:
             if (remaining != null) return;
@@ -262,8 +262,6 @@ namespace CoreSystemFramework {
             }
 
             updateInlineArgsPredictionUI(command, tokens);
-
-            updateCaretWidth();
         }
 
         void completePrediction() {
@@ -289,8 +287,6 @@ namespace CoreSystemFramework {
         public void OnConsoleInputFieldTextChanged(string text) {
             updatePrediction(text);
         }
-
-        // TODO: on predictions/suggestions, change caret width temporarily to a thin line
 
         public void submit(string input) {
             // Use current console input if none provided:

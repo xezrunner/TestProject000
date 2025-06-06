@@ -9,7 +9,6 @@ using UnityEngine.UI;
 using static CoreSystemFramework.QuickInput;
 
 namespace CoreSystemFramework {
-
     public partial class DebugConsole {
         void setupUI() {
             consoleInputField.SetTextWithoutNotify(null);
@@ -248,7 +247,7 @@ namespace CoreSystemFramework {
             var showing = showingInlinePrediction || showingInlineArgPrediction;
             consoleInputField.caretWidth = showing ? inputFieldPredictingCaretWidth : inputFieldNormalCaretWidth;
         }
-        
+
         void updateInlinePredictionUI(string visualText) {
             inputPredictionTextCom.SetText(visualText);
 
@@ -263,6 +262,8 @@ namespace CoreSystemFramework {
             } else {
                 showingInlinePrediction = false;
             }
+            
+            updateCaretWidth();
         }
 
         // TODO: this could be a little flaky with incorrect input!
