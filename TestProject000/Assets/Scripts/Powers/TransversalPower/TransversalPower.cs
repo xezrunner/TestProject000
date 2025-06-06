@@ -123,7 +123,6 @@ public class TransversalPower: PlayerPower {
         } else if (state == TransversalPowerState.Aiming) {
             // TODO: additional checks!
 
-            // TODO: checking for mana in casting is redundant when aiming tests mana:
             bool success = ConsumeMana();
             if (!success) {
                 base.RequestCancel();
@@ -147,10 +146,9 @@ public class TransversalPower: PlayerPower {
             // If we want to add a cooldown on cancellation, we would have to either remove that early return, or
             // handle the cancellation cooldown specifically in some other way.
             setState(TransversalPowerState.None);
+            return true;
         }
         else return false;
-
-        return true;
     }
 
     const float SFX_MagicVolume = 0.3f;
@@ -242,7 +240,8 @@ public class TransversalPower: PlayerPower {
             targetPoint -= playerCameraTransform.forward * 0.25f;    // seems safe
 
             DEBUGVIS_OffsetHits.Clear(); // @DebugVisualization
-                                         // 2. Check for collisions around the aiming point, in all directions (cube):
+
+            // 2. Check for collisions around the aiming point, in all directions (cube):
             foreach (var dir in RAYCAST_DIRECTIONS) {
                 didHit = Physics.Raycast(targetPoint, dir, out hitInfo, 0.5f);
                 if (didHit) {
@@ -307,6 +306,8 @@ public class TransversalPower: PlayerPower {
 
             casting_t += Time.deltaTime * ((1f + castingDistanceFrac) * castingBaselineMult);
             if (casting_t > 1f) setState(TransversalPowerState.Cooldown);
+
+            vfxController.casting_t = casting_t;
         }
 
         // TEMP:

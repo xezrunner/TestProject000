@@ -86,10 +86,10 @@ public class TransversalPowerFXController : MonoBehaviour {
         temp_t_timer = 0;
     }
 
-    [Range(0, 1)]
-    public float t;
+    [Range(0, 1)]   public float t;
+    [NonSerialized] public float casting_t;
 
-    [Range(0,360)]
+    [Range(0, 360)]
     public float test;
 
     const float SINE_IDENTITY_VALUE = 1.5707964f; // The value for which Mathf.Sin returns exactly 1, bearing in mind floating point inaccuracies
@@ -172,8 +172,11 @@ public class TransversalPowerFXController : MonoBehaviour {
             return;
         }
         //else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * 1.419f; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
-        else if (state == TransversalPowerEffectsState.Out)  t += Time.deltaTime * outAnimSpeed; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
-        else if (state != TransversalPowerEffectsState.Idle) t += Time.deltaTime * animSpeed;
+        else if (state == TransversalPowerEffectsState.Out) t += Time.deltaTime * outAnimSpeed; // TODO: To reach 1 in 0.7s (ref: DH1-DLC06_Twk_Effects)
+        else if (state != TransversalPowerEffectsState.Idle) {
+            // Use casting_t provided by the power, as travel time is dynamic:
+            t = casting_t;
+        }
 
         temp_t_timer += Time.deltaTime;
 
