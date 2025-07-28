@@ -30,7 +30,7 @@ namespace CoreSystemFramework {
             log(builder.ToString());
         }
 
-        [ConsoleCommand] static void help(string commandName) => console?.pushText(console.commands.ContainsKey(commandName) ? console.commands[commandName].info.help : "command not found");
+        [ConsoleCommand] static void help(string commandName) => console?.pushText(console.commands[commandName]?.info.help ?? "command not found");
 
         [ConsoleCommand] static void set_vsync(int mode) => QualitySettings.vSyncCount = mode;
 
