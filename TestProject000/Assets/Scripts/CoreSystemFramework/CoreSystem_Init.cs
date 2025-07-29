@@ -16,7 +16,10 @@ namespace CoreSystemFramework {
         }
         static StartupOptions CORESYSTEM_STARTUP_OPTS;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)] // TODO: what do we want here, actually?
+        // TODO: what do we want here, actually?
+        // This used to be .SubsystemRegistration, but in builds (at least on Windows), there are no scenes available
+        // during initialization at this point.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void CORESYSTEM_Init() {
             Logging.LOGGING_Init();
             
